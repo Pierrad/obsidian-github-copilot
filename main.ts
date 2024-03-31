@@ -1,4 +1,7 @@
-import { App, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Plugin, PluginSettingTab, Setting, Notice, FileSystemAdapter } from 'obsidian';
+import * as path from 'path';
+// import * as fs from 'fs';
+import { exec } from 'child_process';
 
 interface CopilotPluginSettings {
 	nodePath: string;
@@ -11,10 +14,47 @@ const DEFAULT_SETTINGS: CopilotPluginSettings = {
 export default class CopilotPlugin extends Plugin {
 	settings: CopilotPluginSettings;
 
+	getBasePath(): string {
+		let basePath;
+		if (this.app.vault.adapter instanceof FileSystemAdapter) {
+				basePath = this.app.vault.adapter.getBasePath();
+		} else {
+				throw new Error('Cannot determine base path.');
+		}
+		return `${basePath}`;
+}
+
 	async onload() {
 		await this.loadSettings();
+		const basePath = this.getBasePath();
 
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+
+		this.addCommand({
+      id: "execute-js-file",
+      name: "Execute JS File",
+      callback: () => {
+				if (this.settings.nodePath === 'default') {
+					new Notice('Please set the path to your node binary in the settings.');
+					return;
+				}
+
+				exec(`${this.settings.nodePath} ${path.join(basePath, 'test.js')}`, (error, stdout, stderr) => {
+					if (error) {
+						new Notice(error.message);
+						return;
+					}
+
+					if (stderr) {
+						new Notice(stderr);
+						return;
+					}
+
+					new Notice(stdout);
+				});
+      },
+    });
+
+		this.addSettingTab(new CopilotPluginSettingTab(this.app, this));
 	}
 
 	onunload() {
@@ -30,7 +70,7 @@ export default class CopilotPlugin extends Plugin {
 	}
 }
 
-class SampleSettingTab extends PluginSettingTab {
+class CopilotPluginSettingTab extends PluginSettingTab {
 	plugin: CopilotPlugin;
 
 	constructor(app: App, plugin: CopilotPlugin) {
