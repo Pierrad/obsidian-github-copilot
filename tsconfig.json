@@ -10,7 +10,7 @@
     "moduleResolution": "node",
     "importHelpers": true,
     "isolatedModules": true,
-	"strictNullChecks": true,
+	  "strictNullChecks": true,
     "lib": [
       "DOM",
       "ES5",
@@ -20,5 +20,9 @@
   },
   "include": [
     "**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "copilot/**/*",
   ]
 }
