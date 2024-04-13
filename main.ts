@@ -1,19 +1,22 @@
-import { App, Plugin, PluginSettingTab, Setting } from 'obsidian';
-import * as path from 'path';
-import { JSONRPCEndpoint } from "@pierrad/ts-lsp-client"
-import { debounce } from 'obsidian';
-import EventListener from './src/EventListener';
-import Agent from './src/copilot/Agent';
-import Client from './src/copilot/Client';
-import Vault from './src/Vault';
+import { App, Plugin, PluginSettingTab, Setting } from "obsidian";
+import * as path from "path";
+import { JSONRPCEndpoint } from "@pierrad/ts-lsp-client";
+import { debounce } from "obsidian";
+import EventListener from "./src/EventListener";
+import Agent from "./src/copilot/Agent";
+import Client from "./src/copilot/Client";
+import Vault from "./src/Vault";
+import { inlineSuggestionPlugin } from "./src/extensions/InlineSuggestionPlugin";
+import { inlineSuggestionField } from "./src/extensions/InlineSuggestionState";
+import { inlineSuggestionKeyWatcher } from "./src/extensions/InlineSuggestionKeyWatcher";
 
 interface CopilotPluginSettings {
 	nodePath: string;
 }
 
 const DEFAULT_SETTINGS: CopilotPluginSettings = {
-	nodePath: 'default'
-}
+	nodePath: "default",
+};
 
 export default class CopilotPlugin extends Plugin {
 	settings: CopilotPluginSettings;
@@ -24,41 +27,67 @@ export default class CopilotPlugin extends Plugin {
 		const eventListener = new EventListener();
 		const vault = new Vault();
 		const basePath = vault.getBasePath(this.app);
-		const agentPath = path.join(basePath, '/.obsidian/plugins/github-copilot/copilot/agent.js');
+		const agentPath = path.join(
+			basePath,
+			"/.obsidian/plugins/github-copilot/copilot/agent.js",
+		);
 
 		this.agent = new Agent();
 		this.agent.startAgent(this.settings.nodePath, agentPath);
 		this.agent.logger();
 
 		const client = Client.getInstance();
-		client.configure(new JSONRPCEndpoint(this.agent.getAgent().stdin, this.agent.getAgent().stdout));
+		client.configure(
+			new JSONRPCEndpoint(
+				this.agent.getAgent().stdin,
+				this.agent.getAgent().stdout,
+			),
+		);
 		await client.initialize({
 			processId: this.agent.getAgent().pid as number,
 			capabilities: {
 				// @ts-expect-error - we're not using all the capabilities
 				copilot: {
-					openURL: true
-				}
+					openURL: true,
+				},
 			},
 			clientInfo: {
-				name: 'ObsidianCopilot',
-				version: '0.0.1'
+				name: "ObsidianCopilot",
+				version: "0.0.1",
 			},
-			rootUri: 'file://' + basePath,
-			initializationOptions: {}
+			rootUri: "file://" + basePath,
+			initializationOptions: {},
 		});
 		await client.checkStatus();
 		await client.setEditorInfo(this.app, basePath);
 
-		this.registerEvent(this.app.workspace.on('file-open', async (file) => eventListener.onFileOpen(file, basePath, client)));
+		this.registerEvent(
+			this.app.workspace.on("file-open", async (file) =>
+				eventListener.onFileOpen(file, basePath, client),
+			),
+		);
 		this.registerEvent(
 			this.app.workspace.on(
-				'editor-change',
-				debounce(async (editor, info) => eventListener.onEditorChange(editor, info, basePath, client), 1000, true)
-			)
+				"editor-change",
+				debounce(
+					async (editor, info) =>
+						eventListener.onEditorChange(
+							editor,
+							info,
+							basePath,
+							client,
+						),
+					1000,
+					true,
+				),
+			),
 		);
-		this.registerEvent(this.app.vault.on('modify', async (file) => eventListener.onFileModify(file, basePath, client), this));
 		this.addSettingTab(new CopilotPluginSettingTab(this.app, this));
+		this.registerEditorExtension([
+			inlineSuggestionKeyWatcher,
+			inlineSuggestionField,
+			inlineSuggestionPlugin,
+		]);
 	}
 
 	onunload() {
@@ -66,7 +95,11 @@ export default class CopilotPlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		this.settings = Object.assign(
+			{},
+			DEFAULT_SETTINGS,
+			await this.loadData(),
+		);
 	}
 
 	async saveSettings() {
@@ -83,19 +116,23 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 	}
 
 	display(): void {
-		const {containerEl} = this;
+		const { containerEl } = this;
 
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Node Path')
-			.setDesc('The path to your node binary. This is used to run the copilot server.')
-			.addText(text => text
-				.setPlaceholder('Enter the path to your node binary.')
-				.setValue(this.plugin.settings.nodePath)
-				.onChange(async (value) => {
-					this.plugin.settings.nodePath = value;
-					await this.plugin.saveSettings();
-				}));
+			.setName("Node Path")
+			.setDesc(
+				"The path to your node binary. This is used to run the copilot server.",
+			)
+			.addText((text) =>
+				text
+					.setPlaceholder("Enter the path to your node binary.")
+					.setValue(this.plugin.settings.nodePath)
+					.onChange(async (value) => {
+						this.plugin.settings.nodePath = value;
+						await this.plugin.saveSettings();
+					}),
+			);
 	}
 }
