@@ -1,26 +1,25 @@
-import { App, Plugin, PluginSettingTab, Setting } from "obsidian";
+import { Plugin } from "obsidian";
 import * as path from "path";
 import { JSONRPCEndpoint } from "@pierrad/ts-lsp-client";
 import { debounce } from "obsidian";
-import EventListener from "./src/EventListener";
-import Agent from "./src/copilot/Agent";
-import Client from "./src/copilot/Client";
-import Vault from "./src/Vault";
-import { inlineSuggestionPlugin } from "./src/extensions/InlineSuggestionPlugin";
-import { inlineSuggestionField } from "./src/extensions/InlineSuggestionState";
-import { inlineSuggestionKeyWatcher } from "./src/extensions/InlineSuggestionKeyWatcher";
 
-interface CopilotPluginSettings {
-	nodePath: string;
-}
-
-const DEFAULT_SETTINGS: CopilotPluginSettings = {
-	nodePath: "default",
-};
+import EventListener from "./EventListener";
+import Agent from "./copilot/Agent";
+import Client from "./copilot/Client";
+import Vault from "./helpers/Vault";
+import { inlineSuggestionPlugin } from "./extensions/InlineSuggestionPlugin";
+import { inlineSuggestionField } from "./extensions/InlineSuggestionState";
+import { inlineSuggestionKeyWatcher } from "./extensions/InlineSuggestionKeyWatcher";
+import StatusBar from "./status/StatusBar";
+import CopilotPluginSettingTab, {
+	CopilotPluginSettings,
+	DEFAULT_SETTINGS,
+} from "./settings/CopilotPluginSettingTab";
 
 export default class CopilotPlugin extends Plugin {
 	settings: CopilotPluginSettings;
 	agent: Agent;
+	statusBar: StatusBar | null;
 
 	async onload() {
 		await this.loadSettings();
@@ -88,10 +87,13 @@ export default class CopilotPlugin extends Plugin {
 			inlineSuggestionField,
 			inlineSuggestionPlugin,
 		]);
+
+		this.statusBar = new StatusBar(this);
 	}
 
 	onunload() {
 		this.agent.stopAgent();
+		this.statusBar = null;
 	}
 
 	async loadSettings() {
@@ -104,35 +106,5 @@ export default class CopilotPlugin extends Plugin {
 
 	async saveSettings() {
 		await this.saveData(this.settings);
-	}
-}
-
-class CopilotPluginSettingTab extends PluginSettingTab {
-	plugin: CopilotPlugin;
-
-	constructor(app: App, plugin: CopilotPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		const { containerEl } = this;
-
-		containerEl.empty();
-
-		new Setting(containerEl)
-			.setName("Node Path")
-			.setDesc(
-				"The path to your node binary. This is used to run the copilot server.",
-			)
-			.addText((text) =>
-				text
-					.setPlaceholder("Enter the path to your node binary.")
-					.setValue(this.plugin.settings.nodePath)
-					.onChange(async (value) => {
-						this.plugin.settings.nodePath = value;
-						await this.plugin.saveSettings();
-					}),
-			);
 	}
 }

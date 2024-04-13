@@ -1,8 +1,9 @@
-/*
-
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
-
-If your plugin does not need CSS, delete this file.
-
-*/
+.copilot-status-bar-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  & svg {
+    width: 18px;
+    height: 18px;
+  }
+}
