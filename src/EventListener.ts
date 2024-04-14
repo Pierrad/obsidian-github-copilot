@@ -37,12 +37,7 @@ class EventListener {
 		info: MarkdownView | MarkdownFileInfo,
 	): Promise<void> {
 		const basePath = this.vault.getBasePath(this.plugin.app);
-		console.log("🚀 Editor change event", editor, info);
 		const cursor = editor.getCursor();
-		const line = editor.getLine(cursor.line);
-		console.log(
-			`Cursor at line ${cursor.line + 1}, column ${cursor.ch + 1}: ${line}`,
-		);
 
 		const file = info?.file;
 		if (!file) {
@@ -52,7 +47,7 @@ class EventListener {
 		const version = Cacher.getInstance().getCache(file.path);
 		Cacher.getInstance().updateCache(file.path, version + 1);
 
-		const content = await file.vault.read(file);
+		const content = (info as MarkdownView).data;
 		const didChangeParams = {
 			textDocument: {
 				uri: `file://${basePath}/${file.path}`,
@@ -75,7 +70,7 @@ class EventListener {
 				indentSize: 2,
 				insertSpaces: true,
 				uri: `file://${basePath}/${file.path}`,
-				relativePath: "src/main.ts",
+				relativePath: file.path,
 				position: {
 					line: cursor.line,
 					character: cursor.ch,
@@ -93,8 +88,7 @@ class EventListener {
 		console.log("✅ completion result : ", res);
 
 		if (res && res.completions && res.completions.length > 0) {
-			const completion = res.completions[0].text;
-			// editor.replaceRange(completion, cursor);
+			const completion = res.completions[0].displayText;
 			// @ts-expect-error, not typed
 			const editorView = editor.cm as EditorView;
 			editorView.dispatch({

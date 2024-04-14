@@ -28,20 +28,23 @@ export default class CopilotPlugin extends Plugin {
 		const vault = new Vault();
 		const eventListener = new EventListener(this);
 
-		this.copilotAgent = new CopilotAgent(this, vault, true);
+		this.copilotAgent = new CopilotAgent(this, vault, false);
 		if (this.settings.enabled) await this.copilotAgent.setup();
 
 		this.registerEvent(
-			this.app.workspace.on("file-open", async (file) =>
-				eventListener.onFileOpen(file),
-			),
+			this.app.workspace.on("file-open", async (file) => {
+				if (this.settings.enabled) eventListener.onFileOpen(file);
+			}),
 		);
 		this.registerEvent(
 			this.app.workspace.on(
 				"editor-change",
 				debounce(
-					async (editor, info) =>
-						eventListener.onEditorChange(editor, info),
+					async (editor, info) => {
+						if (this.settings.enabled) {
+							eventListener.onEditorChange(editor, info);
+						}
+					},
 					1000,
 					true,
 				),
