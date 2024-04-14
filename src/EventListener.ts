@@ -29,7 +29,7 @@ class EventListener {
 
 		console.log("didOpenParams", didOpenParams);
 
-		await this.plugin.client.openDocument(didOpenParams);
+		await this.plugin.copilotAgent.getClient().openDocument(didOpenParams);
 	}
 
 	public async onEditorChange(
@@ -67,7 +67,7 @@ class EventListener {
 
 		console.log("didChangeParams", didChangeParams);
 
-		await this.plugin.client.didChange(didChangeParams);
+		await this.plugin.copilotAgent.getClient().didChange(didChangeParams);
 
 		const conpletionParams = {
 			doc: {
@@ -86,7 +86,9 @@ class EventListener {
 
 		console.log("conpletionParams", conpletionParams);
 
-		const res = await this.plugin.client.completion(conpletionParams);
+		const res = await this.plugin.copilotAgent
+			.getClient()
+			.completion(conpletionParams);
 
 		console.log("✅ completion result : ", res);
 

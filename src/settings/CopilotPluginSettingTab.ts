@@ -61,7 +61,7 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 		this.observers.push(observer);
 	}
 
-	notifyObservers() {
+	private notifyObservers() {
 		for (const observer of this.observers) {
 			observer.updateSettings();
 		}
@@ -75,9 +75,13 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 		);
 	}
 
-	public async saveSettings() {
-		this.notifyObservers();
+	public async saveSettings(notify = true) {
 		await this.plugin.saveData(this.plugin.settings);
+		if (notify) this.notifyObservers();
+	}
+
+	public isCopilotEnabled(): boolean {
+		return this.plugin.settings.enabled;
 	}
 }
 

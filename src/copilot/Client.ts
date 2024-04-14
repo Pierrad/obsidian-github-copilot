@@ -10,33 +10,54 @@ import {
 } from "@pierrad/ts-lsp-client";
 import { App } from "obsidian";
 import Cacher from "./Cacher";
+import CopilotPlugin from "../main";
+import Vault from "../helpers/Vault";
 
 class Client {
-	private static instance: Client;
+	private plugin: CopilotPlugin;
+	private vault: Vault;
 	private endpoint: JSONRPCEndpoint;
 	private client: LspClient;
 
-	private constructor() {}
-
-	public static getInstance(): Client {
-		if (!Client.instance) {
-			Client.instance = new Client();
-		}
-		return Client.instance;
-	}
-
-	public configure(endpoint: JSONRPCEndpoint): void {
-		this.endpoint = endpoint;
+	constructor(plugin: CopilotPlugin, vault: Vault) {
+		this.plugin = plugin;
+		this.vault = vault;
+		this.endpoint = new JSONRPCEndpoint(
+			this.plugin.copilotAgent.getAgent().stdin,
+			this.plugin.copilotAgent.getAgent().stdout,
+		);
 		this.client = new LspClient(this.endpoint);
 	}
 
-	public async initialize(
+	public async setup(): Promise<void> {
+		const basePath = this.vault.getBasePath(this.plugin.app);
+		await this.initialize({
+			processId: this.plugin.copilotAgent.getAgent().pid as number,
+			capabilities: {
+				// @ts-expect-error - we're not using all the capabilities
+				copilot: {
+					openURL: true,
+				},
+			},
+			clientInfo: {
+				name: "ObsidianCopilot",
+				version: "0.0.1",
+			},
+			rootUri: "file://" + basePath,
+			initializationOptions: {},
+		});
+
+		await this.checkStatus();
+		await this.setEditorInfo(this.plugin.app, basePath);
+	}
+
+	private async initialize(
 		params: InitializeParams,
 	): Promise<InitializeResult> {
 		return await this.client.initialize(params);
 	}
 
-	public async checkStatus(): Promise<void> {
+	private async checkStatus(): Promise<void> {
 		const res = await this.client.customRequest("checkStatus", {
 			localChecksOnly: false,
 		});
@@ -44,7 +65,7 @@ class Client {
 		console.log("checkStatus result : ", res);
 	}
 
-	public async setEditorInfo(app: App, basePath: string): Promise<void> {
+	private async setEditorInfo(app: App, basePath: string): Promise<void> {
 		const res = await this.client.customRequest("setEditorInfo", {
 			editorInfo: {
 				name: "obsidian",
@@ -91,6 +112,10 @@ class Client {
 		params: GetCompletionsParams,
 	): Promise<CompletionList> {
 		return this.client.customRequest("getCompletions", params);
+	}
+
+	public dispose(): void {
+		this.client.exit();
 	}
 }
 
