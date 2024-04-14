@@ -1,15 +1,21 @@
 import { Editor, MarkdownFileInfo, MarkdownView, TFile } from "obsidian";
 import { EditorView } from "@codemirror/view";
-import Client from "./copilot/Client";
 import Cacher from "./copilot/Cacher";
 import { InlineSuggestionEffect } from "./extensions/InlineSuggestionState";
+import CopilotPlugin from "./main";
+import Vault from "./helpers/Vault";
 
 class EventListener {
-	public async onFileOpen(
-		file: TFile | null,
-		basePath: string,
-		client: Client,
-	): Promise<void> {
+	private plugin: CopilotPlugin;
+	private vault: Vault;
+
+	constructor(plugin: CopilotPlugin) {
+		this.plugin = plugin;
+		this.vault = new Vault();
+	}
+
+	public async onFileOpen(file: TFile | null): Promise<void> {
+		const basePath = this.vault.getBasePath(this.plugin.app);
 		const content = await file?.vault.read(file);
 
 		const didOpenParams = {
@@ -23,15 +29,14 @@ class EventListener {
 
 		console.log("didOpenParams", didOpenParams);
 
-		await client.openDocument(didOpenParams);
+		await this.plugin.client.openDocument(didOpenParams);
 	}
 
 	public async onEditorChange(
 		editor: Editor,
 		info: MarkdownView | MarkdownFileInfo,
-		basePath: string,
-		client: Client,
 	): Promise<void> {
+		const basePath = this.vault.getBasePath(this.plugin.app);
 		console.log("🚀 Editor change event", editor, info);
 		const cursor = editor.getCursor();
 		const line = editor.getLine(cursor.line);
@@ -62,7 +67,7 @@ class EventListener {
 
 		console.log("didChangeParams", didChangeParams);
 
-		await client.didChange(didChangeParams);
+		await this.plugin.client.didChange(didChangeParams);
 
 		const conpletionParams = {
 			doc: {
@@ -81,7 +86,7 @@ class EventListener {
 
 		console.log("conpletionParams", conpletionParams);
 
-		const res = await client.completion(conpletionParams);
+		const res = await this.plugin.client.completion(conpletionParams);
 
 		console.log("✅ completion result : ", res);
 

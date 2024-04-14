@@ -13,18 +13,22 @@ import { inlineSuggestionKeyWatcher } from "./extensions/InlineSuggestionKeyWatc
 import StatusBar from "./status/StatusBar";
 import CopilotPluginSettingTab, {
 	CopilotPluginSettings,
-	DEFAULT_SETTINGS,
 } from "./settings/CopilotPluginSettingTab";
 
 export default class CopilotPlugin extends Plugin {
+	settingsTab: CopilotPluginSettingTab;
 	settings: CopilotPluginSettings;
-	agent: Agent;
 	statusBar: StatusBar | null;
+	agent: Agent;
+	client: Client;
 
 	async onload() {
-		await this.loadSettings();
-		const eventListener = new EventListener();
+		this.settingsTab = new CopilotPluginSettingTab(this.app, this);
+		this.addSettingTab(this.settingsTab);
+		await this.settingsTab.loadSettings();
+
 		const vault = new Vault();
+		const eventListener = new EventListener(this);
 		const basePath = vault.getBasePath(this.app);
 		const agentPath = path.join(
 			basePath,
@@ -35,14 +39,14 @@ export default class CopilotPlugin extends Plugin {
 		this.agent.startAgent(this.settings.nodePath, agentPath);
 		this.agent.logger();
 
-		const client = Client.getInstance();
-		client.configure(
+		this.client = Client.getInstance();
+		this.client.configure(
 			new JSONRPCEndpoint(
 				this.agent.getAgent().stdin,
 				this.agent.getAgent().stdout,
 			),
 		);
-		await client.initialize({
+		await this.client.initialize({
 			processId: this.agent.getAgent().pid as number,
 			capabilities: {
 				// @ts-expect-error - we're not using all the capabilities
@@ -57,12 +61,12 @@ export default class CopilotPlugin extends Plugin {
 			rootUri: "file://" + basePath,
 			initializationOptions: {},
 		});
-		await client.checkStatus();
-		await client.setEditorInfo(this.app, basePath);
+		await this.client.checkStatus();
+		await this.client.setEditorInfo(this.app, basePath);
 
 		this.registerEvent(
 			this.app.workspace.on("file-open", async (file) =>
-				eventListener.onFileOpen(file, basePath, client),
+				eventListener.onFileOpen(file),
 			),
 		);
 		this.registerEvent(
@@ -70,18 +74,13 @@ export default class CopilotPlugin extends Plugin {
 				"editor-change",
 				debounce(
 					async (editor, info) =>
-						eventListener.onEditorChange(
-							editor,
-							info,
-							basePath,
-							client,
-						),
+						eventListener.onEditorChange(editor, info),
 					1000,
 					true,
 				),
 			),
 		);
-		this.addSettingTab(new CopilotPluginSettingTab(this.app, this));
+
 		this.registerEditorExtension([
 			inlineSuggestionKeyWatcher,
 			inlineSuggestionField,
@@ -94,17 +93,5 @@ export default class CopilotPlugin extends Plugin {
 	onunload() {
 		this.agent.stopAgent();
 		this.statusBar = null;
-	}
-
-	async loadSettings() {
-		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
-			await this.loadData(),
-		);
-	}
-
-	async saveSettings() {
-		await this.saveData(this.settings);
 	}
 }

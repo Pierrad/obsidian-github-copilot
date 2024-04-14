@@ -1,14 +1,17 @@
 import { Notice } from "obsidian";
 import { copilotDisabledIcon, copilotIcon } from "../assets/copilot";
 import CopilotPlugin from "../main";
+import { SettingsObserver } from "../settings/CopilotPluginSettingTab";
 
-class StatusBar {
-	private statusBarEl: HTMLElement;
+class StatusBar implements SettingsObserver {
 	private plugin: CopilotPlugin;
+	private statusBarEl: HTMLElement;
+	private container: Element;
 
 	constructor(plugin: CopilotPlugin) {
-		this.statusBarEl = plugin.addStatusBarItem();
 		this.plugin = plugin;
+		this.statusBarEl = plugin.addStatusBarItem();
+		this.plugin.settingsTab.registerObserver(this);
 
 		this.setupElement();
 	}
@@ -18,38 +21,46 @@ class StatusBar {
 			cls: "copilot-status-bar-item",
 		});
 
-		const container = document.querySelectorAll(
+		this.container = document.querySelectorAll(
 			".copilot-status-bar-item",
 		)[0];
 
-		container.innerHTML = this.plugin.settings.enabled
-			? copilotIcon
-			: copilotDisabledIcon;
+		this.updateContainerContent();
 
 		this.statusBarEl.classList.add("mod-clickable");
 		this.statusBarEl.setAttribute(
 			"aria-label",
-			this.plugin.settings.enabled ? "Disable Copilot" : "Enable Copilot",
+			this.isCopilotEnabled() ? "Disable Copilot" : "Enable Copilot",
 		);
 		this.statusBarEl.setAttribute("data-tooltip-position", "top");
 		this.statusBarEl.addEventListener("click", async (ev: MouseEvent) => {
-			this.plugin.settings.enabled = !this.plugin.settings.enabled;
-			container.innerHTML = this.plugin.settings.enabled
-				? copilotIcon
-				: copilotDisabledIcon;
+			this.plugin.settings.enabled = !this.isCopilotEnabled();
+			this.updateContainerContent();
 			this.statusBarEl.setAttribute(
 				"aria-label",
-				this.plugin.settings.enabled
-					? "Disable Copilot"
-					: "Enable Copilot",
+				this.isCopilotEnabled() ? "Disable Copilot" : "Enable Copilot",
 			);
 			new Notice(
-				this.plugin.settings.enabled
+				this.isCopilotEnabled()
 					? "Copilot is now enabled."
 					: "Copilot is now disabled.",
 			);
-			await this.plugin.saveSettings();
+			await this.plugin.settingsTab.saveSettings();
 		});
+	}
+
+	updateContainerContent() {
+		this.container.innerHTML = this.isCopilotEnabled()
+			? copilotIcon
+			: copilotDisabledIcon;
+	}
+
+	isCopilotEnabled(): boolean {
+		return this.plugin.settings.enabled;
+	}
+
+	updateSettings() {
+		this.updateContainerContent();
 	}
 }
 

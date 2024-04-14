@@ -1,6 +1,10 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import CopilotPlugin from "../main";
 
+export interface SettingsObserver {
+	updateSettings(): void;
+}
+
 export interface CopilotPluginSettings {
 	nodePath: string;
 	enabled: boolean;
@@ -13,6 +17,7 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 
 class CopilotPluginSettingTab extends PluginSettingTab {
 	plugin: CopilotPlugin;
+	private observers: SettingsObserver[] = [];
 
 	constructor(app: App, plugin: CopilotPlugin) {
 		super(app, plugin);
@@ -35,7 +40,7 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.nodePath)
 					.onChange(async (value) => {
 						this.plugin.settings.nodePath = value;
-						await this.plugin.saveSettings();
+						await this.saveSettings();
 					}),
 			);
 
@@ -47,9 +52,32 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.enabled)
 					.onChange(async (value) => {
 						this.plugin.settings.enabled = value;
-						await this.plugin.saveSettings();
+						await this.saveSettings();
 					}),
 			);
+	}
+
+	public registerObserver(observer: SettingsObserver) {
+		this.observers.push(observer);
+	}
+
+	notifyObservers() {
+		for (const observer of this.observers) {
+			observer.updateSettings();
+		}
+	}
+
+	public async loadSettings() {
+		this.plugin.settings = Object.assign(
+			{},
+			DEFAULT_SETTINGS,
+			await this.plugin.loadData(),
+		);
+	}
+
+	public async saveSettings() {
+		this.notifyObservers();
+		await this.plugin.saveData(this.plugin.settings);
 	}
 }
 
