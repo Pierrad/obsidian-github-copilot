@@ -2,13 +2,20 @@
 
 This plugin is a bridge between Obsidian and Github Copilot. It allows you to use Github Copilot in the Obsidian editor.
 
+## Requirements
 
-## Resources
+- A Github Copilot subscription (https://copilot.github.com/)
+- Node.js 18 or later
 
-https://github.com/gw31415/obsidian-lsp/tree/main?tab=readme-ov-file
+## Installation
 
-https://github.com/microsoft/vscode-languageserver-node
+1. Install the plugin via the Obsidian community plugins browser.
+2. Go to the plugin settings and enter the path to the Node +18 binary. You can find it by running `which node` in your terminal.
+3. Enable Copilot in the plugin settings.
 
-https://github.com/ImperiumMaximus/ts-lsp-client?tab=readme-ov-file
+## Usage
 
-See the LSP specification [here](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/).
+1. Open a note in Obsidian. 
+2. Write something in the editor.
+3. After a small pause, Copilot will suggest completions for your text.
+4. Press `Tab` to accept a suggestion or `Esc` to dismiss it.
