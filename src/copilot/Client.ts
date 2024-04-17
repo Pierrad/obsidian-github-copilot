@@ -46,7 +46,7 @@ class Client {
 			rootUri: "file://" + basePath,
 			initializationOptions: {},
 		});
-
+		await this.initialized();
 		await this.checkStatus();
 		await this.setEditorInfo(this.plugin.app, basePath);
 	}
@@ -55,6 +55,10 @@ class Client {
 		params: InitializeParams,
 	): Promise<InitializeResult> {
 		return await this.client.initialize(params);
+	}
+
+	private async initialized(): Promise<void> {
+		await this.client.initialized();
 	}
 
 	private async checkStatus(): Promise<void> {

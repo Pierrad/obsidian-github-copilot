@@ -45,7 +45,7 @@ export default class CopilotPlugin extends Plugin {
 							eventListener.onEditorChange(editor, info);
 						}
 					},
-					1000,
+					500,
 					true,
 				),
 			),

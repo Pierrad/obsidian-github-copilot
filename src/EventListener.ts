@@ -27,8 +27,6 @@ class EventListener {
 			},
 		};
 
-		console.log("didOpenParams", didOpenParams);
-
 		await this.plugin.copilotAgent.getClient().openDocument(didOpenParams);
 	}
 
@@ -60,8 +58,6 @@ class EventListener {
 			],
 		};
 
-		console.log("didChangeParams", didChangeParams);
-
 		await this.plugin.copilotAgent.getClient().didChange(didChangeParams);
 
 		const conpletionParams = {
@@ -79,13 +75,9 @@ class EventListener {
 			},
 		};
 
-		console.log("conpletionParams", conpletionParams);
-
 		const res = await this.plugin.copilotAgent
 			.getClient()
 			.completion(conpletionParams);
-
-		console.log("✅ completion result : ", res);
 
 		if (res && res.completions && res.completions.length > 0) {
 			const completion = res.completions[0].displayText;
