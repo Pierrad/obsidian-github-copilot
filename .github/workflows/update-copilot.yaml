@@ -1,0 +1,37 @@
+name: Update copilot
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  push:
+    branches: [master]
+
+jobs:
+  update_copilot_dist:
+    runs-on: ubuntu-latest
+    name: Update copilot/dist
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Checkout github/copilot.vim
+        uses: actions/checkout@v4
+        with:
+          repository: github/copilot.vim
+          fetch-depth: 1
+          path: copilot.vim
+
+      - name: Copy latest copilot.vim/dist
+        run: |
+          cp -r copilot.vim/dist/* copilot/
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          add-paths: "copilot/*"
+          author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+          base: master
+          branch: create-pull-request/update-copilot
+          commit-message: "⬆️ Update copilot"
+          reviewers: "Pierrad"
+          title: "Update copilot"
