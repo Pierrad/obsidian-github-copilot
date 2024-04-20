@@ -10,6 +10,10 @@ class Vault {
 		}
 		return `${basePath}`;
 	}
+
+	public getPluginPath(app: App): string {
+		return `${this.getBasePath(app)}/.obsidian/plugins/github-copilot`;
+	}
 }
 
 export default Vault;

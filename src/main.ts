@@ -11,6 +11,7 @@ import CopilotPluginSettingTab, {
 import { inlineSuggestionPlugin } from "./extensions/InlineSuggestionPlugin";
 import { inlineSuggestionField } from "./extensions/InlineSuggestionState";
 import { inlineSuggestionKeyWatcher } from "./extensions/InlineSuggestionKeyWatcher";
+import File from "./helpers/File";
 
 export default class CopilotPlugin extends Plugin {
 	settingsTab: CopilotPluginSettingTab;
@@ -27,6 +28,12 @@ export default class CopilotPlugin extends Plugin {
 
 		const vault = new Vault();
 		const eventListener = new EventListener(this);
+
+		if (!File.doesFolderExist(vault.getPluginPath(this.app) + "/copilot")) {
+			await File.unzipFolder(
+				vault.getPluginPath(this.app) + "/copilot.zip",
+			);
+		}
 
 		this.copilotAgent = new CopilotAgent(this, vault, false);
 		if (this.settings.enabled) await this.copilotAgent.setup();
