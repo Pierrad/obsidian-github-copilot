@@ -12,6 +12,7 @@ import { App } from "obsidian";
 import Cacher from "./Cacher";
 import CopilotPlugin from "../main";
 import Vault from "../helpers/Vault";
+import Logger from "../helpers/Logger";
 
 class Client {
 	private plugin: CopilotPlugin;
@@ -62,15 +63,13 @@ class Client {
 	}
 
 	private async checkStatus(): Promise<void> {
-		const res = await this.client.customRequest("checkStatus", {
+		await this.client.customRequest("checkStatus", {
 			localChecksOnly: false,
 		});
-
-		console.log("checkStatus result : ", res);
 	}
 
 	private async setEditorInfo(app: App, basePath: string): Promise<void> {
-		const res = await this.client.customRequest("setEditorInfo", {
+		await this.client.customRequest("setEditorInfo", {
 			editorInfo: {
 				name: "obsidian",
 				version: "0.0.1",
@@ -80,8 +79,6 @@ class Client {
 				version: "0.0.1",
 			},
 		});
-
-		console.log("setEditorInfo result : ", res);
 
 		// Open the active file
 		const activeFile = app.workspace.getActiveFile();
@@ -105,17 +102,32 @@ class Client {
 	public async openDocument(
 		params: DidOpenTextDocumentParams,
 	): Promise<void> {
-		await this.client.didOpen(params);
+		try {
+			await this.client.didOpen(params);
+		} catch (error) {
+			Logger.getInstance().error("Error in openDocument: " + error);
+		}
 	}
 
 	public async didChange(params: DidChangeTextDocumentParams): Promise<void> {
-		await this.client.didChange(params);
+		try {
+			await this.client.didChange(params);
+		} catch (error) {
+			Logger.getInstance().error("Error in didChange: " + error);
+		}
 	}
 
 	public async completion(
 		params: GetCompletionsParams,
 	): Promise<CompletionList> {
-		return this.client.customRequest("getCompletions", params);
+		try {
+			return this.client.customRequest("getCompletions", params);
+		} catch (error) {
+			Logger.getInstance().error("Error in completion: " + error);
+			return {
+				completions: [],
+			};
+		}
 	}
 
 	public dispose(): void {

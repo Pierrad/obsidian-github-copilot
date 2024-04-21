@@ -12,6 +12,7 @@ import { inlineSuggestionPlugin } from "./extensions/InlineSuggestionPlugin";
 import { inlineSuggestionField } from "./extensions/InlineSuggestionState";
 import { inlineSuggestionKeyWatcher } from "./extensions/InlineSuggestionKeyWatcher";
 import File from "./helpers/File";
+import Logger from "./helpers/Logger";
 
 export default class CopilotPlugin extends Plugin {
 	settingsTab: CopilotPluginSettingTab;
@@ -26,6 +27,7 @@ export default class CopilotPlugin extends Plugin {
 
 		this.statusBar = new StatusBar(this);
 
+		Logger.getInstance().setDebug(false);
 		const vault = new Vault();
 		const eventListener = new EventListener(this);
 
@@ -35,7 +37,7 @@ export default class CopilotPlugin extends Plugin {
 			);
 		}
 
-		this.copilotAgent = new CopilotAgent(this, vault, false);
+		this.copilotAgent = new CopilotAgent(this, vault);
 		if (this.settings.enabled) await this.copilotAgent.setup();
 
 		this.registerEvent(

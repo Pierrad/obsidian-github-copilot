@@ -5,6 +5,7 @@ import * as path from "path";
 import { SettingsObserver } from "../settings/CopilotPluginSettingTab";
 import Client from "./Client";
 import { Notice } from "obsidian";
+import Logger from "../helpers/Logger";
 
 class CopilotAgent implements SettingsObserver {
 	private plugin: CopilotPlugin;
@@ -13,12 +14,10 @@ class CopilotAgent implements SettingsObserver {
 	private nodePath: string;
 	private vault: Vault;
 	private agentPath: string;
-	private enableLogging: boolean;
 
-	constructor(plugin: CopilotPlugin, vault: Vault, enableLogging: boolean) {
+	constructor(plugin: CopilotPlugin, vault: Vault) {
 		this.plugin = plugin;
 		this.vault = vault;
-		this.enableLogging = enableLogging;
 		this.nodePath = this.plugin.settings.nodePath;
 		this.agentPath = path.join(
 			this.vault.getPluginPath(this.plugin.app),
@@ -29,7 +28,7 @@ class CopilotAgent implements SettingsObserver {
 
 	public async setup(): Promise<void> {
 		this.startAgent();
-		if (this.enableLogging) {
+		if (Logger.getInstance().getDebug()) {
 			this.logger();
 		}
 		await this.configureClient();
@@ -43,7 +42,7 @@ class CopilotAgent implements SettingsObserver {
 				stdio: "pipe",
 			});
 		} catch (error) {
-			console.error("Error starting agent", error);
+			new Notice("Error starting agent: " + error);
 		}
 	}
 
@@ -59,15 +58,15 @@ class CopilotAgent implements SettingsObserver {
 
 	public logger(): void {
 		this.agent.stdout.on("data", (data) => {
-			console.log(`stdout: ${data}`);
+			Logger.getInstance().log(`stdout: ${data}`);
 		});
 
 		this.agent.stderr.on("data", (data) => {
-			console.log(`stderr: ${data}`);
+			Logger.getInstance().error(`stderr: ${data}`);
 		});
 
 		this.agent.on("exit", (code) => {
-			console.log(`child process exited with code ${code}`);
+			Logger.getInstance().log(`child process exited with code ${code}`);
 		});
 	}
 

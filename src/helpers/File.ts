@@ -1,5 +1,6 @@
 import { existsSync, lstatSync } from "fs";
 import extract from "extract-zip";
+import { Notice } from "obsidian";
 
 class File {
 	public static doesFolderExist(path: string): boolean {
@@ -10,7 +11,7 @@ class File {
 		try {
 			await extract(path, { dir: path.replace(/\/[^/]+$/, "") });
 		} catch (err) {
-			console.error(err);
+			new Notice("Error unzipping folder: " + err);
 		}
 	}
 }
