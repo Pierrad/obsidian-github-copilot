@@ -3,7 +3,7 @@
 	"name": "Github Copilot",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Integrate Github Copilot in Obsidian",
+	"description": "Implement suggestions from Github Copilot directly in your editor.",
 	"author": "Vasseur Pierre-Adrien",
 	"authorUrl": "https://github.com/Pierrad",
 	"isDesktopOnly": true
