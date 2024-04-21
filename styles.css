@@ -7,3 +7,7 @@
     height: 18px;
   }
 }
+
+.copilot-inline-suggestion {
+  opacity: 0.4;
+}

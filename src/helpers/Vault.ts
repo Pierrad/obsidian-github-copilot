@@ -11,8 +11,12 @@ class Vault {
 		return `${basePath}`;
 	}
 
+	public getConfigPath(app: App): string {
+		return `${this.getBasePath(app)}/${app.vault.configDir}`;
+	}
+
 	public getPluginPath(app: App): string {
-		return `${this.getBasePath(app)}/.obsidian/plugins/github-copilot`;
+		return `${this.getConfigPath(app)}/plugins/github-copilot`;
 	}
 }
 

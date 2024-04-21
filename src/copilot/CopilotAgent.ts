@@ -21,8 +21,8 @@ class CopilotAgent implements SettingsObserver {
 		this.enableLogging = enableLogging;
 		this.nodePath = this.plugin.settings.nodePath;
 		this.agentPath = path.join(
-			this.vault.getBasePath(this.plugin.app),
-			"/.obsidian/plugins/github-copilot/copilot/agent.js",
+			this.vault.getPluginPath(this.plugin.app),
+			"/copilot/agent.js",
 		);
 		this.plugin.settingsTab.registerObserver(this);
 	}

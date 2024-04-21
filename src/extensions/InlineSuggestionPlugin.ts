@@ -82,7 +82,7 @@ class InlineSuggestionWidget extends WidgetType {
 	toDOM() {
 		const span = document.createElement("span");
 		span.textContent = this.display_suggestion;
-		span.style.opacity = "0.4";
+		span.className = "copilot-inline-suggestion";
 		span.onclick = () => {
 			cancelSuggestion(this.view);
 		};
