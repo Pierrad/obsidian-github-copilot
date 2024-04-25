@@ -2,7 +2,7 @@
 	"id": "github-copilot",
 	"name": "Github Copilot",
 	"version": "1.0.0",
-	"minAppVersion": "0.15.0",
+	"minAppVersion": "1.5.12",
 	"description": "Implement suggestions from Github Copilot directly in your editor.",
 	"author": "Vasseur Pierre-Adrien",
 	"authorUrl": "https://github.com/Pierrad",

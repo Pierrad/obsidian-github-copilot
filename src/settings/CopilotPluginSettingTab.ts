@@ -30,9 +30,9 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName("Node Path")
+			.setName("Node binary path")
 			.setDesc(
-				"The path to your node binary. This is used to run the copilot server.",
+				"The path to your node binary (at least Node v18). This is used to run the copilot server.",
 			)
 			.addText((text) =>
 				text
@@ -45,8 +45,10 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Enable Copilot")
-			.setDesc("Enable or disable the copilot plugin.")
+			.setName("Enable copilot")
+			.setDesc(
+				"Enable or disable the copilot agent. This setting can be managed from the bottom status bar like in IDEs.",
+			)
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.enabled)
