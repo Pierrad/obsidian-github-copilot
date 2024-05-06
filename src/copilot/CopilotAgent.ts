@@ -37,10 +37,14 @@ class CopilotAgent implements SettingsObserver {
 
 	public startAgent(): void {
 		try {
-			this.agent = spawn(this.nodePath, [`"${this.agentPath}"`, "--stdio"], {
-				shell: true,
-				stdio: "pipe",
-			});
+			this.agent = spawn(
+				this.nodePath,
+				[`"${this.agentPath}"`, "--stdio"],
+				{
+					shell: true,
+					stdio: "pipe",
+				},
+			);
 		} catch (error) {
 			new Notice("Error starting agent: " + error);
 		}
