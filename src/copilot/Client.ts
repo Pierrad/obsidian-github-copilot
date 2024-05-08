@@ -27,7 +27,14 @@ class Client {
 			this.plugin.copilotAgent.getAgent().stdin,
 			this.plugin.copilotAgent.getAgent().stdout,
 		);
+		this.setupListeners();
 		this.client = new LspClient(this.endpoint);
+	}
+
+	public setupListeners(): void {
+		this.endpoint.on("error", (error) => {
+			Logger.getInstance().error("Error in JSONRPC endpoint: " + error);
+		});
 	}
 
 	public async setup(): Promise<void> {

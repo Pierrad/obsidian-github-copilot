@@ -1,4 +1,4 @@
-import { App, Notice, PluginSettingTab, Setting, debounce } from "obsidian";
+import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import CopilotPlugin from "../main";
 import * as child_process from "child_process";
 
@@ -30,10 +30,6 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		const debouncedSaveSettings = debounce(async () => {
-			await this.saveSettings();
-		}, 500);
-
 		new Setting(containerEl)
 			.setName("Node binary path")
 			.setDesc(
@@ -45,7 +41,7 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.nodePath)
 					.onChange(async (value) => {
 						this.plugin.settings.nodePath = value;
-						debouncedSaveSettings();
+						await this.saveSettings();
 					}),
 			)
 			.addButton((button) =>

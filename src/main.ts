@@ -38,11 +38,13 @@ export default class CopilotPlugin extends Plugin {
 		}
 
 		this.copilotAgent = new CopilotAgent(this, vault);
-		if (this.settings.enabled) await this.copilotAgent.setup();
+		if (this.settingsTab.isCopilotEnabled())
+			await this.copilotAgent.setup();
 
 		this.registerEvent(
 			this.app.workspace.on("file-open", async (file) => {
-				if (this.settings.enabled) eventListener.onFileOpen(file);
+				if (this.settingsTab.isCopilotEnabled())
+					eventListener.onFileOpen(file);
 			}),
 		);
 		this.registerEvent(
@@ -50,9 +52,8 @@ export default class CopilotPlugin extends Plugin {
 				"editor-change",
 				debounce(
 					async (editor, info) => {
-						if (this.settings.enabled) {
+						if (this.settingsTab.isCopilotEnabled())
 							eventListener.onEditorChange(editor, info);
-						}
 					},
 					500,
 					true,

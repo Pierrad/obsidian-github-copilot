@@ -11,14 +11,12 @@ class CopilotAgent implements SettingsObserver {
 	private plugin: CopilotPlugin;
 	private client: Client;
 	private agent: ChildProcessWithoutNullStreams;
-	private nodePath: string;
 	private vault: Vault;
 	private agentPath: string;
 
 	constructor(plugin: CopilotPlugin, vault: Vault) {
 		this.plugin = plugin;
 		this.vault = vault;
-		this.nodePath = this.plugin.settings.nodePath;
 		this.agentPath = path.join(
 			this.vault.getPluginPath(this.plugin.app),
 			"/copilot/agent.js",
@@ -28,9 +26,7 @@ class CopilotAgent implements SettingsObserver {
 
 	public async setup(): Promise<void> {
 		this.startAgent();
-		if (Logger.getInstance().getDebug()) {
-			this.logger();
-		}
+		this.setupListeners();
 		await this.configureClient();
 		new Notice("Copilot is ready!");
 	}
@@ -38,7 +34,7 @@ class CopilotAgent implements SettingsObserver {
 	public startAgent(): void {
 		try {
 			this.agent = spawn(
-				this.nodePath,
+				this.plugin.settings.nodePath,
 				[`"${this.agentPath}"`, "--stdio"],
 				{
 					shell: true,
@@ -60,7 +56,7 @@ class CopilotAgent implements SettingsObserver {
 		if (this.client) this.client.dispose();
 	}
 
-	public logger(): void {
+	public setupListeners(): void {
 		this.agent.stdout.on("data", (data) => {
 			Logger.getInstance().log(`stdout: ${data}`);
 		});
@@ -71,6 +67,7 @@ class CopilotAgent implements SettingsObserver {
 
 		this.agent.on("exit", (code) => {
 			Logger.getInstance().log(`child process exited with code ${code}`);
+			new Notice("Copilot has stopped.");
 		});
 	}
 
