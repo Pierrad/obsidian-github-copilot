@@ -1,5 +1,6 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
+import { App, Notice, PluginSettingTab, Setting, debounce } from "obsidian";
 import CopilotPlugin from "../main";
+import * as child_process from "child_process";
 
 export interface SettingsObserver {
 	updateSettings(): void;
@@ -29,6 +30,10 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
+		const debouncedSaveSettings = debounce(async () => {
+			await this.saveSettings();
+		}, 500);
+
 		new Setting(containerEl)
 			.setName("Node binary path")
 			.setDesc(
@@ -40,8 +45,13 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.nodePath)
 					.onChange(async (value) => {
 						this.plugin.settings.nodePath = value;
-						await this.saveSettings();
+						debouncedSaveSettings();
 					}),
+			)
+			.addButton((button) =>
+				button
+					.setButtonText("Test the path")
+					.onClick(async () => this.testNodePath()),
 			);
 
 		new Setting(containerEl)
@@ -84,6 +94,52 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 
 	public isCopilotEnabled(): boolean {
 		return this.plugin.settings.enabled;
+	}
+
+	public async testNodePath(): Promise<void> {
+		const nodePath = this.plugin.settings.nodePath;
+
+		try {
+			const result = await new Promise<string>((resolve, reject) => {
+				const nodeProcess = child_process.spawn(nodePath, [
+					"--version",
+				]);
+				let output = "";
+
+				nodeProcess.stdout.on("data", (data) => {
+					output += data.toString();
+				});
+
+				nodeProcess.on("close", (code) => {
+					if (code === 0) {
+						resolve(output.trim());
+					} else {
+						reject(
+							new Error(`Node process exited with code ${code}`),
+						);
+					}
+				});
+
+				nodeProcess.on("error", (err) => {
+					reject(err);
+				});
+			});
+
+			const nodeVersion = result.slice(1);
+			const requiredVersion = 18;
+
+			if (parseFloat(nodeVersion) >= requiredVersion) {
+				new Notice(
+					`Node.js path is valid and the version ${nodeVersion} is compatible.`,
+				);
+			} else {
+				new Notice(
+					`Node.js path is valid, but the version ${nodeVersion} is not compatible. Please use Node.js v${requiredVersion} or later.`,
+				);
+			}
+		} catch (err) {
+			new Notice(`Error while testing the Node.js path: ${err.message}`);
+		}
 	}
 }
 

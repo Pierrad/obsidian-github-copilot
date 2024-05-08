@@ -56,8 +56,8 @@ class CopilotAgent implements SettingsObserver {
 	}
 
 	public stopAgent(): void {
-		this.agent.kill();
-		this.client.dispose();
+		if (this.agent) this.agent.kill();
+		if (this.client) this.client.dispose();
 	}
 
 	public logger(): void {
