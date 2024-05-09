@@ -18,6 +18,10 @@ Use Github Copilot in the Obsidian editor. This plugin is a bridge between the O
    1. A modal will appear asking you to sign in to Copilot. Follow the instructions to sign in.
    2. Or, you will receive a notice saying that Copilot is ready to use. (This will happen if you have already signed in to Copilot in the past in IDEs)
 
+> [!NOTE]  
+> If you install the plugin by cloning it or downloading the release files from Github, you will need to name the plugin folder `github-copilot` for the plugin to work.
+
+
 ## Usage
 
 1. Open a note in Obsidian. 
