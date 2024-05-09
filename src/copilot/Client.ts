@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
 	LspClient,
 	JSONRPCEndpoint,
@@ -8,21 +9,28 @@ import {
 	GetCompletionsParams,
 	CompletionList,
 } from "@pierrad/ts-lsp-client";
-import { App } from "obsidian";
 import Cacher from "./Cacher";
 import CopilotPlugin from "../main";
 import Vault from "../helpers/Vault";
 import Logger from "../helpers/Logger";
+
+export type CopilotResponse = {
+	jsonrpc: string;
+	id: number;
+	result: any;
+};
 
 class Client {
 	private plugin: CopilotPlugin;
 	private vault: Vault;
 	private endpoint: JSONRPCEndpoint;
 	private client: LspClient;
+	private basePath: string;
 
 	constructor(plugin: CopilotPlugin, vault: Vault) {
 		this.plugin = plugin;
 		this.vault = vault;
+		this.basePath = this.vault.getBasePath(this.plugin.app);
 		this.endpoint = new JSONRPCEndpoint(
 			this.plugin.copilotAgent.getAgent().stdin,
 			this.plugin.copilotAgent.getAgent().stdout,
@@ -38,7 +46,6 @@ class Client {
 	}
 
 	public async setup(): Promise<void> {
-		const basePath = this.vault.getBasePath(this.plugin.app);
 		await this.initialize({
 			processId: this.plugin.copilotAgent.getAgent().pid as number,
 			capabilities: {
@@ -51,12 +58,13 @@ class Client {
 				name: "ObsidianCopilot",
 				version: "0.0.1",
 			},
-			rootUri: "file://" + basePath,
+			rootUri: "file://" + this.basePath,
 			initializationOptions: {},
 		});
 		await this.initialized();
+		// await this.signOut();
 		await this.checkStatus();
-		await this.setEditorInfo(this.plugin.app, basePath);
+		await this.setEditorInfo();
 	}
 
 	private async initialize(
@@ -69,13 +77,13 @@ class Client {
 		await this.client.initialized();
 	}
 
-	private async checkStatus(): Promise<void> {
+	public async checkStatus(): Promise<void> {
 		await this.client.customRequest("checkStatus", {
 			localChecksOnly: false,
 		});
 	}
 
-	private async setEditorInfo(app: App, basePath: string): Promise<void> {
+	public async setEditorInfo(): Promise<void> {
 		await this.client.customRequest("setEditorInfo", {
 			editorInfo: {
 				name: "obsidian",
@@ -88,12 +96,12 @@ class Client {
 		});
 
 		// Open the active file
-		const activeFile = app.workspace.getActiveFile();
+		const activeFile = this.plugin.app.workspace.getActiveFile();
 		if (activeFile) {
-			const content = await app.vault.read(activeFile);
+			const content = await this.plugin.app.vault.read(activeFile);
 			const didOpenParams = {
 				textDocument: {
-					uri: `file://${basePath}/${activeFile?.path}`,
+					uri: `file://${this.basePath}/${activeFile?.path}`,
 					languageId: "markdown",
 					version: Cacher.getInstance().getCache(
 						activeFile?.path || "",
@@ -104,6 +112,20 @@ class Client {
 
 			await this.openDocument(didOpenParams);
 		}
+	}
+
+	public async initiateSignIn(): Promise<any> {
+		return await this.client.customRequest("signInInitiate", {});
+	}
+
+	public async confirmSignIn(code: string): Promise<any> {
+		return await this.client.customRequest("signInConfirm", {
+			userCode: code,
+		});
+	}
+
+	private async signOut(): Promise<void> {
+		await this.client.customRequest("signOut", {});
 	}
 
 	public async openDocument(

@@ -3,9 +3,11 @@ import Vault from "../helpers/Vault";
 import CopilotPlugin from "../main";
 import * as path from "path";
 import { SettingsObserver } from "../settings/CopilotPluginSettingTab";
-import Client from "./Client";
+import Client, { CopilotResponse } from "./Client";
 import { Notice } from "obsidian";
 import Logger from "../helpers/Logger";
+import Json from "../helpers/Json";
+import AuthModal from "../modal/AuthModal";
 
 class CopilotAgent implements SettingsObserver {
 	private plugin: CopilotPlugin;
@@ -59,6 +61,20 @@ class CopilotAgent implements SettingsObserver {
 	public setupListeners(): void {
 		this.agent.stdout.on("data", (data) => {
 			Logger.getInstance().log(`stdout: ${data}`);
+			if (data.toString().includes("NotSignedIn")) {
+				const json = Json.extractJsonObject(
+					data.toString(),
+				) as CopilotResponse;
+				if (json?.result?.status === "NotSignedIn") {
+					this.client.initiateSignIn().then((res) => {
+						new AuthModal(
+							this.plugin,
+							res.userCode,
+							res.verificationUri,
+						).open();
+					});
+				}
+			}
 		});
 
 		this.agent.stderr.on("data", (data) => {

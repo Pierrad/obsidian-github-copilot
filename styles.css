@@ -11,3 +11,8 @@
 .copilot-inline-suggestion {
   opacity: 0.4;
 }
+
+.copilot-modal-auth-box {
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}

@@ -37,10 +37,6 @@ export default class CopilotPlugin extends Plugin {
 			);
 		}
 
-		this.copilotAgent = new CopilotAgent(this, vault);
-		if (this.settingsTab.isCopilotEnabled())
-			await this.copilotAgent.setup();
-
 		this.registerEvent(
 			this.app.workspace.on("file-open", async (file) => {
 				if (this.settingsTab.isCopilotEnabled())
@@ -66,6 +62,10 @@ export default class CopilotPlugin extends Plugin {
 			inlineSuggestionField,
 			inlineSuggestionPlugin,
 		]);
+
+		this.copilotAgent = new CopilotAgent(this, vault);
+		if (this.settingsTab.isCopilotEnabled())
+			await this.copilotAgent.setup();
 	}
 
 	onunload() {
