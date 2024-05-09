@@ -62,7 +62,6 @@ class Client {
 			initializationOptions: {},
 		});
 		await this.initialized();
-		// await this.signOut();
 		await this.checkStatus();
 		await this.setEditorInfo();
 	}
@@ -124,7 +123,7 @@ class Client {
 		});
 	}
 
-	private async signOut(): Promise<void> {
+	public async signOut(): Promise<void> {
 		await this.client.customRequest("signOut", {});
 	}
 

@@ -1,6 +1,7 @@
 import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import CopilotPlugin from "../main";
 import * as child_process from "child_process";
+import AuthModal from "../modal/AuthModal";
 
 export interface SettingsObserver {
 	updateSettings(): void;
@@ -61,6 +62,38 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.enabled = value;
 						await this.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.addButton((button) =>
+				button
+					.setButtonText("Restart sign-in process")
+					.onClick(async () => {
+						console.log("Restarting sign-in process");
+						this.plugin.copilotAgent
+							.getClient()
+							.initiateSignIn()
+							.then((res) => {
+								if (res.status === "AlreadySignedIn") {
+									new Notice("You are already signed in.");
+								} else {
+									new AuthModal(
+										this.plugin,
+										res.userCode,
+										res.verificationUri,
+									).open();
+								}
+							});
+					}),
+			)
+			.addButton((button) =>
+				button
+					.setButtonText("Sign out")
+					.setWarning()
+					.onClick(async () => {
+						this.plugin.copilotAgent.getClient().signOut();
+						new Notice("Signed out successfully.");
 					}),
 			);
 	}
