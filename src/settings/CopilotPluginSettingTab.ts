@@ -52,20 +52,6 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Enable copilot")
-			.setDesc(
-				"Enable or disable the copilot agent. This setting can be managed from the bottom status bar like in IDEs.",
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.enabled)
-					.onChange(async (value) => {
-						this.plugin.settings.enabled = value;
-						await this.saveSettings();
-					}),
-			);
-
-		new Setting(containerEl)
 			.addButton((button) =>
 				button
 					.setButtonText("Restart sign-in process")
