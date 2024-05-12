@@ -22,6 +22,7 @@ jobs:
           path: copilot.vim
 
       - name: Read manifest.json
+        id: read
         uses: jaywcjlove/github-action-read-file@main
         with:
           path: manifest.json
