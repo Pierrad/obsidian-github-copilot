@@ -7,7 +7,7 @@ on:
     branches: [master]
 
 jobs:
-  update_copilot_dist:
+  update_copilot:
     runs-on: ubuntu-latest
     name: Update copilot/dist
     steps:
@@ -21,14 +21,21 @@ jobs:
           fetch-depth: 1
           path: copilot.vim
 
+      - name: Read manifest.json
+        id: read
+        uses: jaywcjlove/github-action-read-file@main
+        with:
+          path: manifest.json
+
       - name: Copy latest copilot.vim/dist
         run: |
-          cp -r copilot.vim/dist/* copilot/
+          version=${{fromJson(steps.read.outputs.content).version}}
+          cp -r copilot.vim/dist/* "copilot-${version}/"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
-          add-paths: "copilot/*"
+          add-paths: "copilot-${{fromJson(steps.read.outputs.content).version}}/*"
           author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
           base: master
           branch: create-pull-request/update-copilot
