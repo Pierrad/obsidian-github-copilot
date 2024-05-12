@@ -30,7 +30,7 @@ jobs:
       - name: Copy latest copilot.vim/dist
         run: |
           version=${{fromJson(steps.read.outputs.content).version}}
-          cp -r copilot.vim/dist/* copilot-$version/
+          cp -r copilot.vim/dist/* "copilot-${version}/"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
