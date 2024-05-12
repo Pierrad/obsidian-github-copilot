@@ -21,9 +21,15 @@ jobs:
           fetch-depth: 1
           path: copilot.vim
 
+      - name: Read manifest.json
+        uses: jaywcjlove/github-action-read-file@main
+        with:
+          path: manifest.json
+
       - name: Copy latest copilot.vim/dist
         run: |
-          cp -r copilot.vim/dist/* copilot/
+          version=${{fromJson(steps.read.outputs.content).version}}
+          cp -r copilot.vim/dist/* copilot-$version/
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
