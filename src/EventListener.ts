@@ -8,16 +8,14 @@ import Logger from "./helpers/Logger";
 
 class EventListener {
 	private plugin: CopilotPlugin;
-	private vault: Vault;
 
 	constructor(plugin: CopilotPlugin) {
 		this.plugin = plugin;
-		this.vault = new Vault();
 	}
 
 	public async onFileOpen(file: TFile | null): Promise<void> {
 		try {
-			const basePath = this.vault.getBasePath(this.plugin.app);
+			const basePath = Vault.getBasePath(this.plugin.app);
 			const content = await file?.vault.read(file);
 
 			const didOpenParams = {
@@ -42,7 +40,7 @@ class EventListener {
 		info: MarkdownView | MarkdownFileInfo,
 	): Promise<void> {
 		try {
-			const basePath = this.vault.getBasePath(this.plugin.app);
+			const basePath = Vault.getBasePath(this.plugin.app);
 			const cursor = editor.getCursor();
 
 			const file = info?.file;

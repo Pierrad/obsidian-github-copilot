@@ -8,6 +8,10 @@ Use Github Copilot in the Obsidian editor. This plugin is a bridge between the O
 
 - A Github Copilot subscription (https://copilot.github.com/)
 - Node.js 18 or later
+- Network connection to send and receive data from the Github Copilot service
+
+> [!NOTE]  
+> At startup, the plugin will download the copilot LSP from my latest release. This file is around 4mb in size and comes from the [official vim plugin](https://github.com/github/copilot.vim). It is required to use this plugin. When the plugin is updated, it will download and replace with the latest version.
 
 ## Installation
 
@@ -29,8 +33,7 @@ Use Github Copilot in the Obsidian editor. This plugin is a bridge between the O
 3. After a small pause, Copilot will suggest completions for your text.
 4. Press `Tab` to accept a suggestion or `Esc` to dismiss it.
 
-## Features
 
-- [x] Use Copilot in the Obsidian editor
-- [x] Enable/Disable Copilot in the bottom status ba
-- [x] Sign-In process to Copilot
+## Known issues
+
+- If you installed Obsidian with Flatpak, you might need to use NVM to handle Node.js versions as the default binary path is not accessible in the Flatpak sandbox. See [this issue](https://github.com/Pierrad/obsidian-github-copilot/issues/6) for more information.

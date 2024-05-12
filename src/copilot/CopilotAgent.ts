@@ -1,27 +1,24 @@
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
-import Vault from "../helpers/Vault";
-import CopilotPlugin from "../main";
 import * as path from "path";
-import { SettingsObserver } from "../settings/CopilotPluginSettingTab";
-import Client, { CopilotResponse } from "./Client";
 import { Notice } from "obsidian";
+import CopilotPlugin from "../main";
+import { SettingsObserver } from "../settings/CopilotPluginSettingTab";
+import AuthModal from "../modal/AuthModal";
+import Vault from "../helpers/Vault";
 import Logger from "../helpers/Logger";
 import Json from "../helpers/Json";
-import AuthModal from "../modal/AuthModal";
+import Client, { CopilotResponse } from "./Client";
 
 class CopilotAgent implements SettingsObserver {
 	private plugin: CopilotPlugin;
 	private client: Client;
 	private agent: ChildProcessWithoutNullStreams;
-	private vault: Vault;
 	private agentPath: string;
 
-	constructor(plugin: CopilotPlugin, vault: Vault) {
+	constructor(plugin: CopilotPlugin) {
 		this.plugin = plugin;
-		this.vault = vault;
 		this.agentPath = path.join(
-			this.vault.getPluginPath(this.plugin.app),
-			"/copilot/agent.js",
+			Vault.getAgentPath(this.plugin.app, this.plugin.version),
 		);
 		this.plugin.settingsTab.registerObserver(this);
 	}
@@ -49,7 +46,7 @@ class CopilotAgent implements SettingsObserver {
 	}
 
 	public async configureClient() {
-		this.client = new Client(this.plugin, this.vault);
+		this.client = new Client(this.plugin);
 		await this.client.setup();
 	}
 

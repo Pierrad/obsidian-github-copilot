@@ -1,7 +1,7 @@
 import { App, FileSystemAdapter } from "obsidian";
 
 class Vault {
-	public getBasePath(app: App): string {
+	public static getBasePath(app: App): string {
 		let basePath;
 		if (app.vault.adapter instanceof FileSystemAdapter) {
 			basePath = app.vault.adapter.getBasePath();
@@ -11,12 +11,24 @@ class Vault {
 		return `${basePath}`;
 	}
 
-	public getConfigPath(app: App): string {
+	public static getConfigPath(app: App): string {
 		return `${this.getBasePath(app)}/${app.vault.configDir}`;
 	}
 
-	public getPluginPath(app: App): string {
+	public static getPluginPath(app: App): string {
 		return `${this.getConfigPath(app)}/plugins/github-copilot`;
+	}
+
+	public static getCopilotPath(app: App, version: string): string {
+		return `${this.getPluginPath(app)}/copilot-${version}`;
+	}
+
+	public static getCopilotZipPath(app: App, version: string): string {
+		return `${this.getCopilotPath(app, version)}.zip`;
+	}
+
+	public static getAgentPath(app: App, version: string): string {
+		return `${this.getCopilotPath(app, version)}/agent.js`;
 	}
 }
 

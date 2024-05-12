@@ -22,15 +22,13 @@ export type CopilotResponse = {
 
 class Client {
 	private plugin: CopilotPlugin;
-	private vault: Vault;
 	private endpoint: JSONRPCEndpoint;
 	private client: LspClient;
 	private basePath: string;
 
-	constructor(plugin: CopilotPlugin, vault: Vault) {
+	constructor(plugin: CopilotPlugin) {
 		this.plugin = plugin;
-		this.vault = vault;
-		this.basePath = this.vault.getBasePath(this.plugin.app);
+		this.basePath = Vault.getBasePath(this.plugin.app);
 		this.endpoint = new JSONRPCEndpoint(
 			this.plugin.copilotAgent.getAgent().stdin,
 			this.plugin.copilotAgent.getAgent().stdout,
