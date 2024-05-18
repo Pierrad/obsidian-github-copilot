@@ -34,7 +34,7 @@ export default class CopilotPlugin extends Plugin {
 
 		this.statusBar = new StatusBar(this);
 
-		Logger.getInstance().setDebug(true);
+		Logger.getInstance().setDebug(false);
 		const eventListener = new EventListener(this);
 
 		// Recreate the copilot folder and artifacts if they don't exist
