@@ -19,16 +19,24 @@ class Vault {
 		return `${this.getConfigPath(app)}/plugins/github-copilot`;
 	}
 
-	public static getCopilotPath(app: App, version: string): string {
-		return `${this.getPluginPath(app)}/copilot-${version}`;
+	public static getCopilotPath(app: App): string {
+		return `${this.getPluginPath(app)}/copilot`;
 	}
 
-	public static getCopilotZipPath(app: App, version: string): string {
-		return `${this.getCopilotPath(app, version)}.zip`;
+	public static getCopilotResourcesPath(app: App): string {
+		return `${this.getCopilotPath(app)}/resources/cl100k/`;
 	}
 
-	public static getAgentPath(app: App, version: string): string {
-		return `${this.getCopilotPath(app, version)}/agent.js`;
+	public static getAgentPath(app: App): string {
+		return `${this.getCopilotPath(app)}/agent.js`;
+	}
+
+	public static getTokenizerPath(app: App): string {
+		return `${this.getCopilotResourcesPath(app)}/tokenizer_cushman002.json`;
+	}
+
+	public static getVocabPath(app: App): string {
+		return `${this.getCopilotResourcesPath(app)}/vocab_cushman002.bpe`;
 	}
 }
 

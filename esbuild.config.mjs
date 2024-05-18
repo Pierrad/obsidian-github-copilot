@@ -38,6 +38,10 @@ const context = await esbuild.context({
 	sourcemap: prod ? false : "inline",
 	treeShaking: true,
 	outfile: "main.js",
+	loader: {
+		".bpe": "text",
+	},
+	jsxSideEffects: true, // Can keep 'unused' imports
 });
 
 if (prod) {

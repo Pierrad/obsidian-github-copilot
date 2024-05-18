@@ -17,9 +17,7 @@ class CopilotAgent implements SettingsObserver {
 
 	constructor(plugin: CopilotPlugin) {
 		this.plugin = plugin;
-		this.agentPath = path.join(
-			Vault.getAgentPath(this.plugin.app, this.plugin.version),
-		);
+		this.agentPath = path.join(Vault.getAgentPath(this.plugin.app));
 		this.plugin.settingsTab.registerObserver(this);
 	}
 
