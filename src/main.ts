@@ -37,7 +37,7 @@ export default class CopilotPlugin extends Plugin {
 		Logger.getInstance().setDebug(false);
 		const eventListener = new EventListener(this);
 
-		// Recreate the copilot folder and artifacts if they don't exist
+		// Recreate the copilot folder and artifacts from the bundle if they don't exist
 		if (!File.doesFolderExist(Vault.getCopilotPath(this.app))) {
 			await File.createFolder(Vault.getCopilotResourcesPath(this.app));
 			await File.createFile(Vault.getAgentPath(this.app), agent);

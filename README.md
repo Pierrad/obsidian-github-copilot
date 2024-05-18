@@ -10,9 +10,6 @@ Use Github Copilot in the Obsidian editor. This plugin is a bridge between the O
 - Node.js 18 or later
 - Network connection to send and receive data from the Github Copilot service
 
-> [!NOTE]  
-> At startup, the plugin will download the copilot LSP from my latest release. This file is around 4mb in size and comes from the [official vim plugin](https://github.com/github/copilot.vim). It is required to use this plugin. When the plugin is updated, it will download and replace with the latest version.
-
 ## Installation
 
 1. Install the plugin via the Obsidian community plugins browser.
