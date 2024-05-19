@@ -1,6 +1,7 @@
 import { Notice } from "obsidian";
-import { existsSync, lstatSync, mkdirSync } from "fs";
+import { existsSync, lstatSync, mkdirSync, readdirSync, rmSync } from "fs";
 import { writeFile } from "fs/promises";
+import { join } from "path";
 
 class File {
 	public static doesFolderExist(path: string): boolean {
@@ -23,6 +24,23 @@ class File {
 					new Notice("Error writing file: " + err);
 					reject(err);
 				});
+		});
+	}
+
+	public static async removeOldCopilotFolders(
+		currentVersion: string,
+		path: string,
+	) {
+		const copilotFolders = readdirSync(path).filter((folder) =>
+			folder.startsWith("copilot"),
+		);
+
+		copilotFolders.forEach((folder) => {
+			const folderVersion = folder.split("-")[1];
+			if (folderVersion !== currentVersion) {
+				const folderPath = join(path, folder);
+				rmSync(folderPath, { recursive: true, force: true });
+			}
 		});
 	}
 }

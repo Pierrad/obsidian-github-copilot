@@ -26,6 +26,7 @@ export default class CopilotPlugin extends Plugin {
 	settings: CopilotPluginSettings;
 	statusBar: StatusBar | null;
 	copilotAgent: CopilotAgent;
+	version = "1.0.0";
 
 	async onload() {
 		this.settingsTab = new CopilotPluginSettingTab(this.app, this);
@@ -37,15 +38,29 @@ export default class CopilotPlugin extends Plugin {
 		Logger.getInstance().setDebug(false);
 		const eventListener = new EventListener(this);
 
-		// Recreate the copilot folder and artifacts from the bundle if they don't exist
-		if (!File.doesFolderExist(Vault.getCopilotPath(this.app))) {
-			await File.createFolder(Vault.getCopilotResourcesPath(this.app));
-			await File.createFile(Vault.getAgentPath(this.app), agent);
+		// Recreate or update the copilot folder and artifacts from the bundle
+		if (
+			!File.doesFolderExist(Vault.getCopilotPath(this.app, this.version))
+		) {
+			await File.createFolder(
+				Vault.getCopilotResourcesPath(this.app, this.version),
+			);
 			await File.createFile(
-				Vault.getTokenizerPath(this.app),
+				Vault.getAgentPath(this.app, this.version),
+				agent,
+			);
+			await File.createFile(
+				Vault.getTokenizerPath(this.app, this.version),
 				JSON.stringify(tokenizer),
 			);
-			await File.createFile(Vault.getVocabPath(this.app), vocab);
+			await File.createFile(
+				Vault.getVocabPath(this.app, this.version),
+				vocab,
+			);
+			await File.removeOldCopilotFolders(
+				this.version,
+				Vault.getPluginPath(this.app),
+			);
 		}
 
 		this.registerEvent(
