@@ -37,7 +37,6 @@ export const inlineSuggestionField = StateField.define<string | null>({
 });
 
 export const cancelSuggestion = (view: EditorView) => {
-	// const doc = view.state.doc;
 	sleep(1).then(() => {
 		view.dispatch({
 			effects: InlineSuggestionEffect.of({
@@ -52,6 +51,7 @@ export const acceptSuggestion = (view: EditorView) => {
 	const suggestion = view.state.field(inlineSuggestionField);
 	if (suggestion) {
 		insertSuggestion(view, suggestion);
+		cancelSuggestion(view);
 	}
 };
 

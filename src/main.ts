@@ -8,9 +8,7 @@ import CopilotPluginSettingTab, {
 	CopilotPluginSettings,
 	DEFAULT_SETTINGS,
 } from "./settings/CopilotPluginSettingTab";
-import { inlineSuggestionPlugin } from "./extensions/InlineSuggestionPlugin";
-import { inlineSuggestionField } from "./extensions/InlineSuggestionState";
-import { inlineSuggestionKeyWatcher } from "./extensions/InlineSuggestionKeyWatcher";
+import ExtensionManager from "./extensions/ExtensionManager";
 import Vault from "./helpers/Vault";
 import File from "./helpers/File";
 import Logger from "./helpers/Logger";
@@ -27,6 +25,7 @@ export default class CopilotPlugin extends Plugin {
 	settings: CopilotPluginSettings;
 	statusBar: StatusBar | null;
 	copilotAgent: CopilotAgent;
+	extensionManager: ExtensionManager;
 	version = "1.0.1";
 
 	async onload() {
@@ -90,11 +89,8 @@ export default class CopilotPlugin extends Plugin {
 			),
 		);
 
-		this.registerEditorExtension([
-			inlineSuggestionKeyWatcher,
-			inlineSuggestionField,
-			inlineSuggestionPlugin,
-		]);
+		this.extensionManager = new ExtensionManager(this);
+		this.registerEditorExtension(this.extensionManager.getExtensions());
 
 		this.copilotAgent = new CopilotAgent(this);
 		if (

@@ -3,23 +3,38 @@ import CopilotPlugin from "../main";
 import * as child_process from "child_process";
 import AuthModal from "../modal/AuthModal";
 
+import { StrictMode } from "react";
+import { Root, createRoot } from "react-dom/client";
+import KeybindingInput from "../components/KeybindingInput";
+
 export interface SettingsObserver {
 	updateSettings(): void;
 }
 
+export type Hotkeys = {
+	accept: string;
+	cancel: string;
+};
+
 export interface CopilotPluginSettings {
 	nodePath: string;
 	enabled: boolean;
+	hotkeys: Hotkeys;
 }
 
 export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 	nodePath: "default",
 	enabled: true,
+	hotkeys: {
+		accept: "Tab",
+		cancel: "Escape",
+	},
 };
 
 class CopilotPluginSettingTab extends PluginSettingTab {
 	plugin: CopilotPlugin;
 	private observers: SettingsObserver[] = [];
+	root: Root | null = null;
 
 	constructor(app: App, plugin: CopilotPlugin) {
 		super(app, plugin);
@@ -50,6 +65,63 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					.setButtonText("Test the path")
 					.onClick(async () => this.testNodePath()),
 			);
+
+		this.root = createRoot(
+			containerEl.createEl("div", {
+				cls: "copilot-settings-hotkeys-container",
+			}),
+		);
+
+		const bindings = [
+			{
+				title: "Accept suggestion",
+				description: "Keybinding to accept copilot suggestions.",
+				value: this.plugin.settings.hotkeys.accept,
+				onChange: (value: string) => {
+					this.plugin.settings.hotkeys.accept = value;
+				},
+				defaultValue: DEFAULT_SETTINGS.hotkeys.accept,
+			},
+			{
+				title: "Cancel suggestion",
+				description: "Keybinding to cancel copilot suggestions.",
+				value: this.plugin.settings.hotkeys.cancel,
+				onChange: (value: string) => {
+					this.plugin.settings.hotkeys.cancel = value;
+				},
+				defaultValue: DEFAULT_SETTINGS.hotkeys.cancel,
+			},
+		];
+
+		this.root.render(
+			<StrictMode>
+				<h3>Keybindings</h3>
+				<p className="copilot-settings-note">
+					Be aware that not all keybindings will work as some are
+					already defined and used by other plugins.
+				</p>
+				{bindings.map((binding, index) => (
+					<KeybindingInput
+						key={index}
+						title={binding.title}
+						description={binding.description}
+						value={binding.value}
+						onChange={binding.onChange}
+						defaultValue={binding.defaultValue}
+					/>
+				))}
+				<button
+					className="mod-cta copilot-settings-save-button"
+					onClick={() => {
+						this.saveSettings().then(() => {
+							this.plugin.app.workspace.updateOptions();
+						});
+					}}
+				>
+					Save keybindings
+				</button>
+			</StrictMode>,
+		);
 
 		new Setting(containerEl)
 			.addButton((button) =>
@@ -84,6 +156,13 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 			);
 	}
 
+	public hide(): void {
+		if (this.root) {
+			this.root.unmount();
+			this.root = null;
+		}
+	}
+
 	public registerObserver(observer: SettingsObserver) {
 		this.observers.push(observer);
 	}
@@ -102,9 +181,10 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 		);
 	}
 
-	public async saveSettings(notify = true) {
+	public async saveSettings(notify = true): Promise<void> {
 		await this.plugin.saveData(this.plugin.settings);
 		if (notify) this.notifyObservers();
+		return Promise.resolve();
 	}
 
 	public isCopilotEnabled(): boolean {
