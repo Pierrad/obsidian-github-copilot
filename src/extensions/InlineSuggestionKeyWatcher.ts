@@ -1,22 +1,32 @@
 import { keymap } from "@codemirror/view";
 
 import { Prec } from "@codemirror/state";
-import { acceptSuggestion, cancelSuggestion } from "./InlineSuggestionState";
+import {
+	acceptSuggestion,
+	cancelSuggestion,
+	inlineSuggestionField,
+} from "./InlineSuggestionState";
 
 export const inlineSuggestionKeyWatcher = Prec.highest(
 	keymap.of([
 		{
 			key: "Tab",
 			run: (view) => {
-				acceptSuggestion(view);
-				return true;
+				if (view.state.field(inlineSuggestionField)) {
+					acceptSuggestion(view);
+					return true;
+				}
+				return false;
 			},
 		},
 		{
 			key: "Escape",
 			run: (view) => {
-				cancelSuggestion(view);
-				return true;
+				if (view.state.field(inlineSuggestionField)) {
+					cancelSuggestion(view);
+					return true;
+				}
+				return false;
 			},
 		},
 	]),

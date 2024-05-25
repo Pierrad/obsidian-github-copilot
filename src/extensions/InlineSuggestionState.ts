@@ -27,6 +27,11 @@ export const inlineSuggestionField = StateField.define<string | null>({
 		if (inlineSuggestion) {
 			return inlineSuggestion.value.suggestion;
 		}
+
+		if (value && !state.docChanged) {
+			return value;
+		}
+
 		return null;
 	},
 });
