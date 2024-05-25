@@ -1,22 +1,23 @@
 import React, { useState, useEffect, useCallback } from "react";
 
-interface HotkeyInputProps {
+const KeybindingModifier = {
+	Shift: "Shift-",
+	Alt: "Alt-",
+	Control: "Ctrl-",
+	Meta: "Meta-",
+	Cmd: "Cmd-",
+};
+
+interface KeybindingInputProps {
 	title: string;
 	description: string;
 	value: string;
 	onChange: (value: string) => void;
+	defaultValue?: string;
 }
 
-const HotKeyModifier = {
-	Shift: "Shift",
-	Alt: "Alt",
-	Control: "Control",
-	Meta: "Meta",
-	Cmd: "Cmd",
-};
-
-const HotkeyInput: React.FC<HotkeyInputProps> = (props) => {
-	const { title, description, value, onChange } = props;
+const KeybindingInput: React.FC<KeybindingInputProps> = (props) => {
+	const { title, description, value, onChange, defaultValue } = props;
 	const [hotkey, setHotkey] = useState(value);
 	const [keyListenerActive, setKeyListenerActive] = useState(false);
 
@@ -25,7 +26,17 @@ const HotkeyInput: React.FC<HotkeyInputProps> = (props) => {
 			if (keyListenerActive) {
 				event.preventDefault();
 				const key = event.key;
-				const newHotkey = hotkey + key + "-";
+				if (Object.keys(KeybindingModifier).includes(key)) {
+					const newHotkey =
+						hotkey +
+						KeybindingModifier[
+							key as keyof typeof KeybindingModifier
+						];
+					setHotkey(newHotkey);
+					onChange(newHotkey);
+					return;
+				}
+				const newHotkey = hotkey + key;
 				setHotkey(newHotkey);
 				onChange(newHotkey);
 			}
@@ -44,12 +55,16 @@ const HotkeyInput: React.FC<HotkeyInputProps> = (props) => {
 
 	const handleInputBlur = () => {
 		setKeyListenerActive(false);
-		// here you can add the logic to register the hotkey in your app
 	};
 
 	const handleRemoveHotkey = useCallback(() => {
 		setHotkey("");
 	}, []);
+
+	const handleResetHotkey = useCallback(() => {
+		setHotkey(defaultValue || "");
+		onChange(defaultValue || "");
+	}, [defaultValue, onChange]);
 
 	return (
 		<div className="setting-item">
@@ -65,10 +80,11 @@ const HotkeyInput: React.FC<HotkeyInputProps> = (props) => {
 					onBlur={handleInputBlur}
 					readOnly
 				/>
-				<button onClick={handleRemoveHotkey}>X</button>
+				<button onClick={handleRemoveHotkey}>Clear</button>
+				<button onClick={handleResetHotkey}>Reset</button>
 			</div>
 		</div>
 	);
 };
 
-export default HotkeyInput;
+export default KeybindingInput;

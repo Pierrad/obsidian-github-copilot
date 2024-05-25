@@ -5,7 +5,7 @@ import AuthModal from "../modal/AuthModal";
 
 import { StrictMode } from "react";
 import { Root, createRoot } from "react-dom/client";
-import HotkeyInput from "../components/HotkeyInput";
+import KeybindingInput from "../components/KeybindingInput";
 
 export interface SettingsObserver {
 	updateSettings(): void;
@@ -72,38 +72,54 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 			}),
 		);
 
-		const hotkeys = [
+		const bindings = [
 			{
 				title: "Accept suggestion",
-				description: "Hotkey to accept copilot suggestions.",
+				description: "Keybinding to accept copilot suggestions.",
 				value: this.plugin.settings.hotkeys.accept,
 				onChange: (value: string) => {
 					this.plugin.settings.hotkeys.accept = value;
-					this.saveSettings();
 				},
+				defaultValue: DEFAULT_SETTINGS.hotkeys.accept,
 			},
 			{
 				title: "Cancel suggestion",
-				description: "Hotkey to cancel copilot suggestions.",
+				description: "Keybinding to cancel copilot suggestions.",
 				value: this.plugin.settings.hotkeys.cancel,
 				onChange: (value: string) => {
 					this.plugin.settings.hotkeys.cancel = value;
-					this.saveSettings();
 				},
+				defaultValue: DEFAULT_SETTINGS.hotkeys.cancel,
 			},
 		];
 
 		this.root.render(
 			<StrictMode>
-				{hotkeys.map((hotkey, index) => (
-					<HotkeyInput
+				<h3>Keybindings</h3>
+				<p className="copilot-settings-note">
+					Be aware that not all keybindings will work as some are
+					already defined and used by other plugins.
+				</p>
+				{bindings.map((binding, index) => (
+					<KeybindingInput
 						key={index}
-						title={hotkey.title}
-						description={hotkey.description}
-						value={hotkey.value}
-						onChange={hotkey.onChange}
+						title={binding.title}
+						description={binding.description}
+						value={binding.value}
+						onChange={binding.onChange}
+						defaultValue={binding.defaultValue}
 					/>
 				))}
+				<button
+					className="mod-cta copilot-settings-save-button"
+					onClick={() => {
+						this.saveSettings().then(() => {
+							this.plugin.app.workspace.updateOptions();
+						});
+					}}
+				>
+					Save keybindings
+				</button>
 			</StrictMode>,
 		);
 
@@ -165,9 +181,10 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 		);
 	}
 
-	public async saveSettings(notify = true) {
+	public async saveSettings(notify = true): Promise<void> {
 		await this.plugin.saveData(this.plugin.settings);
 		if (notify) this.notifyObservers();
+		return Promise.resolve();
 	}
 
 	public isCopilotEnabled(): boolean {
