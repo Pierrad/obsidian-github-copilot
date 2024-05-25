@@ -1,4 +1,4 @@
-import { Plugin } from "obsidian";
+import { Notice, Plugin } from "obsidian";
 import { debounce } from "obsidian";
 
 import EventListener from "./EventListener";
@@ -6,6 +6,7 @@ import CopilotAgent from "./copilot/CopilotAgent";
 import StatusBar from "./status/StatusBar";
 import CopilotPluginSettingTab, {
 	CopilotPluginSettings,
+	DEFAULT_SETTINGS,
 } from "./settings/CopilotPluginSettingTab";
 import { inlineSuggestionPlugin } from "./extensions/InlineSuggestionPlugin";
 import { inlineSuggestionField } from "./extensions/InlineSuggestionState";
@@ -63,6 +64,12 @@ export default class CopilotPlugin extends Plugin {
 			);
 		}
 
+		if (this.settings.nodePath === DEFAULT_SETTINGS.nodePath) {
+			new Notice(
+				"Please set the path to your node executable in the settings.",
+			);
+		}
+
 		this.registerEvent(
 			this.app.workspace.on("file-open", async (file) => {
 				if (this.settingsTab.isCopilotEnabled())
@@ -90,7 +97,10 @@ export default class CopilotPlugin extends Plugin {
 		]);
 
 		this.copilotAgent = new CopilotAgent(this);
-		if (this.settingsTab.isCopilotEnabled())
+		if (
+			this.settingsTab.isCopilotEnabled() &&
+			this.settings.nodePath !== DEFAULT_SETTINGS.nodePath
+		)
 			await this.copilotAgent.setup();
 	}
 
