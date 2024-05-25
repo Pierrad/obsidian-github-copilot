@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-github-copilot",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Implement suggestions from Github Copilot directly in your editor.",
 	"main": "main.js",
 	"scripts": {

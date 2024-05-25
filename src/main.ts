@@ -26,7 +26,7 @@ export default class CopilotPlugin extends Plugin {
 	statusBar: StatusBar | null;
 	copilotAgent: CopilotAgent;
 	extensionManager: ExtensionManager;
-	version = "1.0.1";
+	version = "1.0.2";
 
 	async onload() {
 		this.settingsTab = new CopilotPluginSettingTab(this.app, this);
