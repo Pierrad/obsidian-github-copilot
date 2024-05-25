@@ -90,8 +90,10 @@ export default class CopilotPlugin extends Plugin {
 			),
 		);
 
+		console.log("this.settings.hotkeys", this.settings.hotkeys);
+
 		this.registerEditorExtension([
-			inlineSuggestionKeyWatcher,
+			inlineSuggestionKeyWatcher(this.settings.hotkeys),
 			inlineSuggestionField,
 			inlineSuggestionPlugin,
 		]);

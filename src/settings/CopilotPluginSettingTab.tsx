@@ -3,23 +3,38 @@ import CopilotPlugin from "../main";
 import * as child_process from "child_process";
 import AuthModal from "../modal/AuthModal";
 
+import { StrictMode } from "react";
+import { Root, createRoot } from "react-dom/client";
+import HotkeyInput from "../components/HotkeyInput";
+
 export interface SettingsObserver {
 	updateSettings(): void;
 }
 
+export type Hotkeys = {
+	accept: string;
+	cancel: string;
+};
+
 export interface CopilotPluginSettings {
 	nodePath: string;
 	enabled: boolean;
+	hotkeys: Hotkeys;
 }
 
 export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 	nodePath: "default",
 	enabled: true,
+	hotkeys: {
+		accept: "Tab",
+		cancel: "Escape",
+	},
 };
 
 class CopilotPluginSettingTab extends PluginSettingTab {
 	plugin: CopilotPlugin;
 	private observers: SettingsObserver[] = [];
+	root: Root | null = null;
 
 	constructor(app: App, plugin: CopilotPlugin) {
 		super(app, plugin);
@@ -50,6 +65,47 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					.setButtonText("Test the path")
 					.onClick(async () => this.testNodePath()),
 			);
+
+		this.root = createRoot(
+			containerEl.createEl("div", {
+				cls: "copilot-settings-hotkeys-container",
+			}),
+		);
+
+		const hotkeys = [
+			{
+				title: "Accept suggestion",
+				description: "Hotkey to accept copilot suggestions.",
+				value: this.plugin.settings.hotkeys.accept,
+				onChange: (value: string) => {
+					this.plugin.settings.hotkeys.accept = value;
+					this.saveSettings();
+				},
+			},
+			{
+				title: "Cancel suggestion",
+				description: "Hotkey to cancel copilot suggestions.",
+				value: this.plugin.settings.hotkeys.cancel,
+				onChange: (value: string) => {
+					this.plugin.settings.hotkeys.cancel = value;
+					this.saveSettings();
+				},
+			},
+		];
+
+		this.root.render(
+			<StrictMode>
+				{hotkeys.map((hotkey, index) => (
+					<HotkeyInput
+						key={index}
+						title={hotkey.title}
+						description={hotkey.description}
+						value={hotkey.value}
+						onChange={hotkey.onChange}
+					/>
+				))}
+			</StrictMode>,
+		);
 
 		new Setting(containerEl)
 			.addButton((button) =>
@@ -82,6 +138,13 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 						new Notice("Signed out successfully.");
 					}),
 			);
+	}
+
+	public hide(): void {
+		if (this.root) {
+			this.root.unmount();
+			this.root = null;
+		}
 	}
 
 	public registerObserver(observer: SettingsObserver) {

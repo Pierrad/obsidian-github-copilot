@@ -17,11 +17,12 @@
       "ES5",
       "ES6",
       "ES7"
-    ]
+    ],
+    "jsx": "react-jsx"
   },
   "include": [
     "**/*.ts"
-  ],
+, "src/settings/CopilotPluginSettingTab.tsx"  ],
   "exclude": [
     "node_modules",
     "copilot/**/*",
