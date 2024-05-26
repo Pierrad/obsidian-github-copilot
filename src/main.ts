@@ -35,7 +35,7 @@ export default class CopilotPlugin extends Plugin {
 
 		this.statusBar = new StatusBar(this);
 
-		Logger.getInstance().setDebug(false);
+		Logger.getInstance().setDebug(this.settings.debug);
 
 		// Recreate or update the copilot folder and artifacts from the bundle
 		if (

@@ -28,7 +28,7 @@ class StatusBar implements SettingsObserver {
 			this.plugin.settings.enabled =
 				!this.plugin.settingsTab.isCopilotEnabled();
 			this.updateElement();
-			await this.plugin.settingsTab.saveSettings();
+			await this.plugin.settingsTab.saveSettings(true, false);
 		});
 	}
 
@@ -57,8 +57,9 @@ class StatusBar implements SettingsObserver {
 		return svg as unknown as SVGSVGElement;
 	}
 
-	onSettingsUpdate() {
+	onSettingsUpdate(): Promise<void> {
 		this.updateElement();
+		return Promise.resolve();
 	}
 }
 

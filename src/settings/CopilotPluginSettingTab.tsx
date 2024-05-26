@@ -6,9 +6,10 @@ import CopilotPlugin from "../main";
 import AuthModal from "../modal/AuthModal";
 import KeybindingInput from "../components/KeybindingInput";
 import Node from "../helpers/Node";
+import Logger from "../helpers/Logger";
 
 export interface SettingsObserver {
-	onSettingsUpdate(): void;
+	onSettingsUpdate(): Promise<void>;
 }
 
 export type Hotkeys = {
@@ -21,6 +22,7 @@ export interface CopilotPluginSettings {
 	enabled: boolean;
 	hotkeys: Hotkeys;
 	suggestionDelay: number;
+	debug: boolean;
 }
 
 export const DEFAULT_SETTINGS: CopilotPluginSettings = {
@@ -31,6 +33,7 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 		cancel: "Escape",
 	},
 	suggestionDelay: 500,
+	debug: false,
 };
 
 class CopilotPluginSettingTab extends PluginSettingTab {
@@ -50,6 +53,7 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Node binary path")
+			
 			.setDesc(
 				"The path to your node binary (at least Node v18). This is used to run the copilot server.",
 			)
@@ -65,6 +69,7 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 			.addButton((button) =>
 				button
 					.setButtonText("Test the path")
+					.setTooltip("This will test the path and verify the version of node.")
 					.onClick(async () =>
 						Node.testNodePath(this.plugin.settings.nodePath),
 					),
@@ -151,34 +156,40 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 		);
 
 		new Setting(containerEl)
+			.setName("Enable debug mode")
+			.setDesc(
+				"Enable logging for debugging purposes. Logs are written to the console.",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.debug)
+					.onChange(async (value) => {
+						this.plugin.settings.debug = value;
+						Logger.getInstance().setDebug(value);
+						await this.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
 			.addButton((button) =>
 				button
 					.setButtonText("Restart sign-in process")
+					.setTooltip("Note that this will start the copilot service in the background.")
 					.onClick(async () => {
-						console.log("Restarting sign-in process");
-						this.plugin.copilotAgent
-							.getClient()
-							.initiateSignIn()
-							.then((res) => {
-								if (res.status === "AlreadySignedIn") {
-									new Notice("You are already signed in.");
-								} else {
-									new AuthModal(
-										this.plugin,
-										res.userCode,
-										res.verificationUri,
-									).open();
-								}
-							});
+						this.needCopilotAgentEnabled(async () => {
+							this.initSignIn();
+						});
 					}),
 			)
 			.addButton((button) =>
 				button
 					.setButtonText("Sign out")
+					.setTooltip("Note that this will start the copilot service in the background.")
 					.setWarning()
 					.onClick(async () => {
-						this.plugin.copilotAgent.getClient().signOut();
-						new Notice("Signed out successfully.");
+						this.needCopilotAgentEnabled(async () => {
+							this.signOut();
+						});
 					}),
 			);
 	}
@@ -198,10 +209,12 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 		);
 	}
 
-	public async saveSettings(notify = true): Promise<void> {
+	public async saveSettings(notify = true, notice = true): Promise<void | void[]> {
 		await this.plugin.saveData(this.plugin.settings);
-		if (notify) this.notifyObservers();
-		new Notice("Settings saved successfully.");
+		if (notice) new Notice("Settings saved successfully.");
+		if (notify) {
+			return this.notifyObservers();
+		}
 		return Promise.resolve();
 	}
 
@@ -209,14 +222,51 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 		return this.plugin.settings.enabled;
 	}
 
+	private async needCopilotAgentEnabled(callback: () => void) {
+		if (!this.plugin.settings.enabled) {
+			this.plugin.settings.enabled = true;
+			await this.saveSettings(true, false).then(() => {
+				callback();
+			});
+		} else {
+			callback();
+		}
+	}
+
+	private async initSignIn() {
+		await this.plugin.copilotAgent
+			.getClient()
+			.initiateSignIn()
+			.then((res) => {
+				if (res.status === "AlreadySignedIn") {
+					new Notice("You are already signed in.");
+				} else {
+					new AuthModal(
+						this.plugin,
+						res.userCode,
+						res.verificationUri
+					).open();
+				}
+			});
+	}
+
+	private async signOut() {
+		await this.plugin.copilotAgent
+			.getClient()
+			.signOut()
+			.then(() => {
+				new Notice("Signed out successfully.");
+			});
+	}
+
 	public registerObserver(observer: SettingsObserver) {
 		this.observers.push(observer);
 	}
 
-	private notifyObservers() {
-		for (const observer of this.observers) {
-			observer.onSettingsUpdate();
-		}
+	private notifyObservers(): Promise<void[]> {
+		return Promise.all(
+			this.observers.map((observer) => observer.onSettingsUpdate()),
+		);
 	}
 }
 

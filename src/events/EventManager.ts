@@ -57,9 +57,10 @@ class EventManager implements SettingsObserver {
 		await this.eventListener.onFileOpen(file);
 	};
 
-	onSettingsUpdate(): void {
+	onSettingsUpdate(): Promise<void> {
 		this.unRegisterEvents();
 		this.registerEvents();
+    return Promise.resolve();
 	}
 }
 export default EventManager;

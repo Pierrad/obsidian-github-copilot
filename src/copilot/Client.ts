@@ -122,7 +122,7 @@ class Client {
 	}
 
 	public async signOut(): Promise<void> {
-		await this.client.customRequest("signOut", {});
+		return await this.client.customRequest("signOut", {});
 	}
 
 	public async openDocument(

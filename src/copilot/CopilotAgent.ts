@@ -28,6 +28,7 @@ class CopilotAgent implements SettingsObserver {
 		this.setupListeners();
 		await this.configureClient();
 		new Notice("Copilot is ready!");
+		return Promise.resolve();
 	}
 
 	public startAgent(): void {
@@ -50,9 +51,10 @@ class CopilotAgent implements SettingsObserver {
 		await this.client.setup();
 	}
 
-	public stopAgent(): void {
+	public stopAgent(): Promise<void> {
 		if (this.agent) this.agent.kill();
 		if (this.client) this.client.dispose();
+		return Promise.resolve();
 	}
 
 	public setupListeners(): void {
@@ -92,9 +94,9 @@ class CopilotAgent implements SettingsObserver {
 		return this.client;
 	}
 
-	onSettingsUpdate(): void {
-		if (this.plugin.settingsTab.isCopilotEnabled()) this.setup();
-		else this.stopAgent();
+	onSettingsUpdate(): Promise<void> {
+		if (this.plugin.settingsTab.isCopilotEnabled()) return this.setup()
+		return this.stopAgent();
 	}
 }
 
