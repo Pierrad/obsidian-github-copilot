@@ -1,10 +1,10 @@
 import { Editor, MarkdownFileInfo, MarkdownView, TFile } from "obsidian";
 import { EditorView } from "@codemirror/view";
-import Cacher from "./copilot/Cacher";
-import { InlineSuggestionEffect } from "./extensions/InlineSuggestionState";
-import CopilotPlugin from "./main";
-import Vault from "./helpers/Vault";
-import Logger from "./helpers/Logger";
+import Cacher from "../copilot/Cacher";
+import { InlineSuggestionEffect } from "../extensions/InlineSuggestionState";
+import CopilotPlugin from "../main";
+import Vault from "../helpers/Vault";
+import Logger from "../helpers/Logger";
 
 class EventListener {
 	private plugin: CopilotPlugin;

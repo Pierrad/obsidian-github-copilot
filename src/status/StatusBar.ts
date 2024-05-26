@@ -57,7 +57,7 @@ class StatusBar implements SettingsObserver {
 		return svg as unknown as SVGSVGElement;
 	}
 
-	updateSettings() {
+	onSettingsUpdate() {
 		this.updateElement();
 	}
 }

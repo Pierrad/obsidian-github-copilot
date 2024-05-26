@@ -29,7 +29,7 @@ class ExtensionManager implements SettingsObserver {
 		return this.extensions;
 	}
 
-	updateSettings(): void {
+	onSettingsUpdate(): void {
 		this.extensions.shift();
 		this.extensions.unshift(
 			inlineSuggestionKeyWatcher(this.plugin.settings.hotkeys),

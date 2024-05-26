@@ -1,14 +1,14 @@
-import { App, Notice, PluginSettingTab, Setting } from "obsidian";
-import CopilotPlugin from "../main";
-import * as child_process from "child_process";
-import AuthModal from "../modal/AuthModal";
-
+import { App, Notice, PluginSettingTab, Setting, debounce } from "obsidian";
 import { StrictMode } from "react";
 import { Root, createRoot } from "react-dom/client";
+
+import CopilotPlugin from "../main";
+import AuthModal from "../modal/AuthModal";
 import KeybindingInput from "../components/KeybindingInput";
+import Node from "../helpers/Node";
 
 export interface SettingsObserver {
-	updateSettings(): void;
+	onSettingsUpdate(): void;
 }
 
 export type Hotkeys = {
@@ -20,6 +20,7 @@ export interface CopilotPluginSettings {
 	nodePath: string;
 	enabled: boolean;
 	hotkeys: Hotkeys;
+	suggestionDelay: number;
 }
 
 export const DEFAULT_SETTINGS: CopilotPluginSettings = {
@@ -29,6 +30,7 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 		accept: "Tab",
 		cancel: "Escape",
 	},
+	suggestionDelay: 500,
 };
 
 class CopilotPluginSettingTab extends PluginSettingTab {
@@ -63,8 +65,33 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 			.addButton((button) =>
 				button
 					.setButtonText("Test the path")
-					.onClick(async () => this.testNodePath()),
+					.onClick(async () =>
+						Node.testNodePath(this.plugin.settings.nodePath),
+					),
 			);
+
+		new Setting(containerEl)
+			.setName("Suggestions delay")
+			.setDesc(
+				"The delay in milliseconds before generating suggestions. Default is 500ms.",
+			)
+			.addText((text) => {
+				text.inputEl.type = "number";
+				return text
+					.setPlaceholder("Enter the delay in milliseconds.")
+					.setValue(this.plugin.settings.suggestionDelay.toString())
+					.onChange(
+						debounce(
+							async (value) => {
+								this.plugin.settings.suggestionDelay =
+									parseInt(value);
+								await this.saveSettings();
+							},
+							1000,
+							true,
+						),
+					);
+			});
 
 		this.root = createRoot(
 			containerEl.createEl("div", {
@@ -163,16 +190,6 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 		}
 	}
 
-	public registerObserver(observer: SettingsObserver) {
-		this.observers.push(observer);
-	}
-
-	private notifyObservers() {
-		for (const observer of this.observers) {
-			observer.updateSettings();
-		}
-	}
-
 	public async loadSettings() {
 		this.plugin.settings = Object.assign(
 			{},
@@ -184,6 +201,7 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 	public async saveSettings(notify = true): Promise<void> {
 		await this.plugin.saveData(this.plugin.settings);
 		if (notify) this.notifyObservers();
+		new Notice("Settings saved successfully.");
 		return Promise.resolve();
 	}
 
@@ -191,49 +209,13 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 		return this.plugin.settings.enabled;
 	}
 
-	public async testNodePath(): Promise<void> {
-		const nodePath = this.plugin.settings.nodePath;
+	public registerObserver(observer: SettingsObserver) {
+		this.observers.push(observer);
+	}
 
-		try {
-			const result = await new Promise<string>((resolve, reject) => {
-				const nodeProcess = child_process.spawn(nodePath, [
-					"--version",
-				]);
-				let output = "";
-
-				nodeProcess.stdout.on("data", (data) => {
-					output += data.toString();
-				});
-
-				nodeProcess.on("close", (code) => {
-					if (code === 0) {
-						resolve(output.trim());
-					} else {
-						reject(
-							new Error(`Node process exited with code ${code}`),
-						);
-					}
-				});
-
-				nodeProcess.on("error", (err) => {
-					reject(err);
-				});
-			});
-
-			const nodeVersion = result.slice(1);
-			const requiredVersion = 18;
-
-			if (parseFloat(nodeVersion) >= requiredVersion) {
-				new Notice(
-					`Node.js path is valid and the version ${nodeVersion} is compatible.`,
-				);
-			} else {
-				new Notice(
-					`Node.js path is valid, but the version ${nodeVersion} is not compatible. Please use Node.js v${requiredVersion} or later.`,
-				);
-			}
-		} catch (err) {
-			new Notice(`Error while testing the Node.js path: ${err.message}`);
+	private notifyObservers() {
+		for (const observer of this.observers) {
+			observer.onSettingsUpdate();
 		}
 	}
 }

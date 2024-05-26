@@ -1,7 +1,6 @@
 import { Notice, Plugin } from "obsidian";
-import { debounce } from "obsidian";
 
-import EventListener from "./EventListener";
+import EventManager from "./events/EventManager";
 import CopilotAgent from "./copilot/CopilotAgent";
 import StatusBar from "./status/StatusBar";
 import CopilotPluginSettingTab, {
@@ -25,7 +24,8 @@ export default class CopilotPlugin extends Plugin {
 	settings: CopilotPluginSettings;
 	statusBar: StatusBar | null;
 	copilotAgent: CopilotAgent;
-	extensionManager: ExtensionManager;
+	private cmExtensionManager: ExtensionManager;
+	private eventManager: EventManager;
 	version = "1.0.2";
 
 	async onload() {
@@ -36,7 +36,6 @@ export default class CopilotPlugin extends Plugin {
 		this.statusBar = new StatusBar(this);
 
 		Logger.getInstance().setDebug(false);
-		const eventListener = new EventListener(this);
 
 		// Recreate or update the copilot folder and artifacts from the bundle
 		if (
@@ -69,28 +68,11 @@ export default class CopilotPlugin extends Plugin {
 			);
 		}
 
-		this.registerEvent(
-			this.app.workspace.on("file-open", async (file) => {
-				if (this.settingsTab.isCopilotEnabled())
-					eventListener.onFileOpen(file);
-			}),
-		);
-		this.registerEvent(
-			this.app.workspace.on(
-				"editor-change",
-				debounce(
-					async (editor, info) => {
-						if (this.settingsTab.isCopilotEnabled())
-							eventListener.onEditorChange(editor, info);
-					},
-					500,
-					true,
-				),
-			),
-		);
+		this.eventManager = new EventManager(this);
+		this.eventManager.registerEvents();
 
-		this.extensionManager = new ExtensionManager(this);
-		this.registerEditorExtension(this.extensionManager.getExtensions());
+		this.cmExtensionManager = new ExtensionManager(this);
+		this.registerEditorExtension(this.cmExtensionManager.getExtensions());
 
 		this.copilotAgent = new CopilotAgent(this);
 		if (
