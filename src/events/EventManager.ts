@@ -60,7 +60,7 @@ class EventManager implements SettingsObserver {
 	onSettingsUpdate(): Promise<void> {
 		this.unRegisterEvents();
 		this.registerEvents();
-    return Promise.resolve();
+		return Promise.resolve();
 	}
 }
 export default EventManager;

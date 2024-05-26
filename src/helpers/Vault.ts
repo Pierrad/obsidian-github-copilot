@@ -28,7 +28,7 @@ class Vault {
 	}
 
 	public static getAgentPath(app: App, version: string): string {
-		return `${this.getCopilotPath(app, version)}/agent.js`;
+		return `${this.getCopilotPath(app, version)}/agent.cjs`;
 	}
 
 	public static getTokenizerPath(app: App, version: string): string {

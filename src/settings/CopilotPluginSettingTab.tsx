@@ -53,7 +53,6 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Node binary path")
-			
 			.setDesc(
 				"The path to your node binary (at least Node v18). This is used to run the copilot server.",
 			)
@@ -69,7 +68,9 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 			.addButton((button) =>
 				button
 					.setButtonText("Test the path")
-					.setTooltip("This will test the path and verify the version of node.")
+					.setTooltip(
+						"This will test the path and verify the version of node.",
+					)
 					.onClick(async () =>
 						Node.testNodePath(this.plugin.settings.nodePath),
 					),
@@ -174,7 +175,9 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 			.addButton((button) =>
 				button
 					.setButtonText("Restart sign-in process")
-					.setTooltip("Note that this will start the copilot service in the background.")
+					.setTooltip(
+						"Note that this will start the copilot service in the background.",
+					)
 					.onClick(async () => {
 						this.needCopilotAgentEnabled(async () => {
 							this.initSignIn();
@@ -184,7 +187,9 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 			.addButton((button) =>
 				button
 					.setButtonText("Sign out")
-					.setTooltip("Note that this will start the copilot service in the background.")
+					.setTooltip(
+						"Note that this will start the copilot service in the background.",
+					)
 					.setWarning()
 					.onClick(async () => {
 						this.needCopilotAgentEnabled(async () => {
@@ -209,7 +214,10 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 		);
 	}
 
-	public async saveSettings(notify = true, notice = true): Promise<void | void[]> {
+	public async saveSettings(
+		notify = true,
+		notice = true,
+	): Promise<void | void[]> {
 		await this.plugin.saveData(this.plugin.settings);
 		if (notice) new Notice("Settings saved successfully.");
 		if (notify) {
@@ -244,7 +252,7 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					new AuthModal(
 						this.plugin,
 						res.userCode,
-						res.verificationUri
+						res.verificationUri,
 					).open();
 				}
 			});
