@@ -1,6 +1,8 @@
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import * as path from "path";
 import { Notice } from "obsidian";
+import { EditorView } from "@codemirror/view";
+
 import CopilotPlugin from "../main";
 import { SettingsObserver } from "../settings/CopilotPluginSettingTab";
 import AuthModal from "../modal/AuthModal";
@@ -9,6 +11,8 @@ import Logger from "../helpers/Logger";
 import Json from "../helpers/Json";
 import Client, { CopilotResponse } from "./Client";
 import File from "../helpers/File";
+import { GetCompletionsParams } from "@pierrad/ts-lsp-client";
+import { InlineSuggestionEffect } from "../extensions/InlineSuggestionState";
 
 class CopilotAgent implements SettingsObserver {
 	private plugin: CopilotPlugin;
@@ -22,6 +26,14 @@ class CopilotAgent implements SettingsObserver {
 			Vault.getAgentPath(this.plugin.app, this.plugin.version),
 		);
 		this.plugin.settingsTab.registerObserver(this);
+	}
+
+	public getAgent(): ChildProcessWithoutNullStreams {
+		return this.agent;
+	}
+
+	public getClient(): Client {
+		return this.client;
 	}
 
 	public async setup(): Promise<void> {
@@ -74,6 +86,8 @@ class CopilotAgent implements SettingsObserver {
 						).open();
 					});
 				}
+			} else if (data.toString().includes("DocumentVersionMismatch")) {
+				Logger.getInstance().log("DocumentVersionMismatch");
 			}
 		});
 
@@ -87,12 +101,22 @@ class CopilotAgent implements SettingsObserver {
 		});
 	}
 
-	public getAgent(): ChildProcessWithoutNullStreams {
-		return this.agent;
-	}
+	public async triggerCompletions(
+		view: EditorView,
+		params: GetCompletionsParams,
+	): Promise<void> {
+		const res = await this.client.completion(params);
 
-	public getClient(): Client {
-		return this.client;
+		if (res && res.completions && res.completions.length > 0) {
+			const completion = res.completions[0].displayText;
+			view.dispatch({
+				effects: [
+					InlineSuggestionEffect.of({
+						suggestion: completion,
+					}),
+				],
+			});
+		}
 	}
 
 	onSettingsUpdate(): Promise<void> {

@@ -1,11 +1,22 @@
+type FileCache = Map<string, number>;
+type CurrentFilePath = {
+	basePath: string;
+	filePath: string;
+};
+
 class Cacher {
 	// Map<file path, file version>
-	private fileCache: Map<string, number>;
+	private fileCache: FileCache;
+	private currentFilePath: CurrentFilePath;
 
 	private static instance: Cacher;
 
 	private constructor() {
 		this.fileCache = new Map();
+		this.currentFilePath = {
+			basePath: "",
+			filePath: "",
+		};
 	}
 
 	public static getInstance(): Cacher {
@@ -25,6 +36,17 @@ class Cacher {
 
 	public clearCache(): void {
 		this.fileCache.clear();
+	}
+
+	public setCurrentFilePath(basePath: string, filePath: string): void {
+		this.currentFilePath = {
+			basePath,
+			filePath,
+		};
+	}
+
+	public getCurrentFilePath(): CurrentFilePath {
+		return this.currentFilePath;
 	}
 }
 

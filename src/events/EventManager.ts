@@ -28,6 +28,8 @@ class EventManager implements SettingsObserver {
 			this.plugin.app.workspace.on("file-open", this.fileOpenHandler),
 		);
 
+		if (this.plugin.settings.onlyOnHotkey) return; // do not register editor change event if onlyOnHotkey is enabled
+
 		this.debouncedEditorChangeHandler = debounce(
 			async (editor: Editor, info: MarkdownView | MarkdownFileInfo) => {
 				if (this.plugin.settingsTab.isCopilotEnabled())

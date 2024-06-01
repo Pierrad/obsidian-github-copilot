@@ -6,6 +6,7 @@ import {
 	StateEffect,
 	Transaction,
 	TransactionSpec,
+	Text,
 } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 
@@ -134,4 +135,9 @@ function hasTextChanged(
 		state.sliceDoc(changeRange.from - length, changeRange.from) !=
 		state.sliceDoc(from, to)
 	);
+}
+
+export function offsetToPos(doc: Text, offset: number) {
+	const line = doc.lineAt(offset);
+	return { line: line.number - 1, ch: offset - line.from };
 }

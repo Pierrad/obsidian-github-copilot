@@ -15,6 +15,7 @@ export interface SettingsObserver {
 export type Hotkeys = {
 	accept: string;
 	cancel: string;
+	request: string;
 };
 
 export interface CopilotPluginSettings {
@@ -23,6 +24,7 @@ export interface CopilotPluginSettings {
 	hotkeys: Hotkeys;
 	suggestionDelay: number;
 	debug: boolean;
+	onlyOnHotkey: boolean;
 }
 
 export const DEFAULT_SETTINGS: CopilotPluginSettings = {
@@ -31,9 +33,11 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 	hotkeys: {
 		accept: "Tab",
 		cancel: "Escape",
+		request: "Cmd-Shift-/",
 	},
 	suggestionDelay: 500,
 	debug: false,
+	onlyOnHotkey: false,
 };
 
 class CopilotPluginSettingTab extends PluginSettingTab {
@@ -124,6 +128,15 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 				},
 				defaultValue: DEFAULT_SETTINGS.hotkeys.cancel,
 			},
+			{
+				title: "Request suggestion",
+				description: "Keybinding to request copilot suggestions.",
+				value: this.plugin.settings.hotkeys.request,
+				onChange: (value: string) => {
+					this.plugin.settings.hotkeys.request = value;
+				},
+				defaultValue: DEFAULT_SETTINGS.hotkeys.request,
+			},
 		];
 
 		this.root.render(
@@ -155,6 +168,20 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 				</button>
 			</StrictMode>,
 		);
+
+		new Setting(containerEl)
+			.setName("Only on keybinding")
+			.setDesc(
+				"Only show suggestions when the 'request' keybinding is pressed. Default is false.",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.onlyOnHotkey)
+					.onChange(async (value) => {
+						this.plugin.settings.onlyOnHotkey = value;
+						await this.saveSettings();
+					}),
+			);
 
 		new Setting(containerEl)
 			.setName("Enable debug mode")

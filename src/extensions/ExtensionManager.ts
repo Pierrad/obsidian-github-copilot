@@ -19,7 +19,10 @@ class ExtensionManager implements SettingsObserver {
 
 	public initExtensions(): void {
 		this.extensions = [
-			inlineSuggestionKeyWatcher(this.plugin.settings.hotkeys),
+			inlineSuggestionKeyWatcher(
+				this.plugin.settings.hotkeys,
+				this.plugin.copilotAgent,
+			),
 			inlineSuggestionField,
 			inlineSuggestionPlugin,
 		];
@@ -32,7 +35,10 @@ class ExtensionManager implements SettingsObserver {
 	onSettingsUpdate(): Promise<void> {
 		this.extensions.shift();
 		this.extensions.unshift(
-			inlineSuggestionKeyWatcher(this.plugin.settings.hotkeys),
+			inlineSuggestionKeyWatcher(
+				this.plugin.settings.hotkeys,
+				this.plugin.copilotAgent,
+			),
 		);
 		return Promise.resolve();
 	}

@@ -18,6 +18,7 @@ import agent from "official-copilot/agent.txt";
 import cl100k from "official-copilot/resources/cl100k_base.tiktoken";
 // @ts-expect-error - import to be bundled
 import o200k from "official-copilot/resources/o200k_base.tiktoken";
+import Cacher from "./copilot/Cacher";
 
 export default class CopilotPlugin extends Plugin {
 	settingsTab: CopilotPluginSettingTab;
@@ -68,18 +69,26 @@ export default class CopilotPlugin extends Plugin {
 			);
 		}
 
-		this.eventManager = new EventManager(this);
-		this.eventManager.registerEvents();
-
-		this.cmExtensionManager = new ExtensionManager(this);
-		this.registerEditorExtension(this.cmExtensionManager.getExtensions());
-
 		this.copilotAgent = new CopilotAgent(this);
 		if (
 			this.settingsTab.isCopilotEnabled() &&
 			this.settings.nodePath !== DEFAULT_SETTINGS.nodePath
 		)
 			await this.copilotAgent.setup();
+
+		this.eventManager = new EventManager(this);
+		this.eventManager.registerEvents();
+
+		this.cmExtensionManager = new ExtensionManager(this);
+		this.registerEditorExtension(this.cmExtensionManager.getExtensions());
+
+		const file = this.app.workspace.getActiveFile();
+		if (file) {
+			Cacher.getInstance().setCurrentFilePath(
+				Vault.getBasePath(this.app),
+				file.path,
+			);
+		}
 	}
 
 	onunload() {
