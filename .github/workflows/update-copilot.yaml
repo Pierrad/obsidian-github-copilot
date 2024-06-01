@@ -23,7 +23,7 @@ jobs:
 
       - name: Copy latest copilot.vim/dist
         run: |
-          mv copilot.vim/dist/agent.js copilot.vim/dist/agent.txt
+          mv copilot.vim/dist/language-server.js copilot.vim/dist/agent.txt
           cp -r copilot.vim/dist/agent.txt official-copilot/agent.txt
           cp -r copilot.vim/dist/resources/cl100k/* official-copilot/resources/cl100k/
 
