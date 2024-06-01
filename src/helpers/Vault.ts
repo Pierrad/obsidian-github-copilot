@@ -24,19 +24,19 @@ class Vault {
 	}
 
 	public static getCopilotResourcesPath(app: App, version: string): string {
-		return `${this.getCopilotPath(app, version)}/resources/cl100k/`;
+		return `${this.getCopilotPath(app, version)}/resources/`;
 	}
 
 	public static getAgentPath(app: App, version: string): string {
 		return `${this.getCopilotPath(app, version)}/agent.cjs`;
 	}
 
-	public static getTokenizerPath(app: App, version: string): string {
-		return `${this.getCopilotResourcesPath(app, version)}/tokenizer_cushman002.json`;
+	public static get100kPath(app: App, version: string): string {
+		return `${this.getCopilotResourcesPath(app, version)}/cl100k_base.tiktoken`;
 	}
 
-	public static getVocabPath(app: App, version: string): string {
-		return `${this.getCopilotResourcesPath(app, version)}/vocab_cushman002.bpe`;
+	public static get200kPath(app: App, version: string): string {
+		return `${this.getCopilotResourcesPath(app, version)}/o200k_base.tiktoken`;
 	}
 }
 

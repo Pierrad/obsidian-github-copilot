@@ -39,7 +39,7 @@ const context = await esbuild.context({
 	treeShaking: true,
 	outfile: "main.js",
 	loader: {
-		".bpe": "text",
+		".tiktoken": "text",
 	},
 	jsxSideEffects: true, // Can keep 'unused' imports
 });

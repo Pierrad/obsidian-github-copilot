@@ -15,9 +15,9 @@ import Logger from "./helpers/Logger";
 // @ts-expect-error - import to be bundled
 import agent from "official-copilot/agent.txt";
 // @ts-expect-error - import to be bundled
-import tokenizer from "official-copilot/resources/cl100k/tokenizer_cushman002.json";
+import cl100k from "official-copilot/resources/cl100k_base.tiktoken";
 // @ts-expect-error - import to be bundled
-import vocab from "official-copilot/resources/cl100k/vocab_cushman002.bpe";
+import o200k from "official-copilot/resources/o200k_base.tiktoken";
 
 export default class CopilotPlugin extends Plugin {
 	settingsTab: CopilotPluginSettingTab;
@@ -49,12 +49,12 @@ export default class CopilotPlugin extends Plugin {
 				agent,
 			);
 			await File.createFile(
-				Vault.getTokenizerPath(this.app, this.version),
-				JSON.stringify(tokenizer),
+				Vault.get100kPath(this.app, this.version),
+				cl100k,
 			);
 			await File.createFile(
-				Vault.getVocabPath(this.app, this.version),
-				vocab,
+				Vault.get200kPath(this.app, this.version),
+				o200k,
 			);
 			await File.removeOldCopilotFolders(
 				this.version,
