@@ -25,6 +25,7 @@ export interface CopilotPluginSettings {
 	suggestionDelay: number;
 	debug: boolean;
 	onlyOnHotkey: boolean;
+	onlyInCodeBlock: boolean;
 }
 
 export const DEFAULT_SETTINGS: CopilotPluginSettings = {
@@ -38,6 +39,7 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 	suggestionDelay: 500,
 	debug: false,
 	onlyOnHotkey: false,
+	onlyInCodeBlock: false,
 };
 
 class CopilotPluginSettingTab extends PluginSettingTab {
@@ -179,6 +181,20 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.onlyOnHotkey)
 					.onChange(async (value) => {
 						this.plugin.settings.onlyOnHotkey = value;
+						await this.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName("Only in code block")
+			.setDesc(
+				"Only show suggestions when the cursor is inside a code block. Default is false.",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.onlyInCodeBlock)
+					.onChange(async (value) => {
+						this.plugin.settings.onlyInCodeBlock = value;
 						await this.saveSettings();
 					}),
 			);

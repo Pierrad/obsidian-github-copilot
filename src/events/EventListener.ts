@@ -58,6 +58,24 @@ class EventListener {
 				.getClient()
 				.didChange(didChangeParams);
 
+			// If onlyInCodeBlock is enabled, only trigger completions inside code blocks (between ``` and ```)
+			if (this.plugin.settings.onlyInCodeBlock) {
+				const cursor = editor.getCursor();
+				let isInsideCodeBlock = false;
+				for (let i = 0; i <= cursor.line; i++) {
+					const line = editor.getLine(i);
+					if (
+						line.trim().includes("```") &&
+						line.trim().length >= 3
+					) {
+						isInsideCodeBlock = !isInsideCodeBlock;
+					}
+				}
+				if (!isInsideCodeBlock) {
+					return;
+				}
+			}
+
 			const completionParams = LSP.createCompletionParams({
 				uri: `${basePath}/${file.path}`,
 				relativePath: file.path,
