@@ -8,6 +8,7 @@ import Vault from "../helpers/Vault";
 import Logger from "../helpers/Logger";
 import Json from "../helpers/Json";
 import Client, { CopilotResponse } from "./Client";
+import File from "../helpers/File";
 
 class CopilotAgent implements SettingsObserver {
 	private plugin: CopilotPlugin;
@@ -34,8 +35,8 @@ class CopilotAgent implements SettingsObserver {
 	public startAgent(): void {
 		try {
 			this.agent = spawn(
-				this.plugin.settings.nodePath,
-				[`"${this.agentPath}"`, "--stdio"],
+				File.wrapFilePath(this.plugin.settings.nodePath),
+				[File.wrapFilePath(this.agentPath), "--stdio"],
 				{
 					shell: true,
 					stdio: "pipe",

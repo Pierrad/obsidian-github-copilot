@@ -43,6 +43,10 @@ class File {
 			}
 		});
 	}
+
+	public static wrapFilePath(path: string): string {
+		return `"${path}"`;
+	}
 }
 
 export default File;
