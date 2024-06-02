@@ -14,8 +14,7 @@ Use Github Copilot in the Obsidian editor. This plugin is a bridge between the O
 
 1. Install the plugin via the Obsidian community plugins browser.
 2. Go to the plugin settings and enter the path to the Node +18 binary. You can find it by running `which node` in your terminal.
-3. Enable Copilot in the plugin settings.
-4. Either
+3. Either
    1. A modal will appear asking you to sign in to Copilot. Follow the instructions to sign in.
    2. Or, you will receive a notice saying that Copilot is ready to use. (This will happen if you have already signed in to Copilot in the past in IDEs)
 
@@ -30,6 +29,13 @@ Use Github Copilot in the Obsidian editor. This plugin is a bridge between the O
 3. After a small pause, Copilot will suggest completions for your text.
 4. Press `Tab` to accept a suggestion or `Esc` to dismiss it.
 
+## Features
+
+- [x] Use Github Copilot in the Obsidian editor
+- [x] Configure the suggestion generation delay
+- [x] Configure your bindings to accept, dismiss, trigger or partially accept suggestions
+- [x] Configure if you want to see automatic suggestions or only trigger them manually
+- [x] Configure if you want to see suggestion only in code blocks or in the whole note 
 
 ## Known issues
 
