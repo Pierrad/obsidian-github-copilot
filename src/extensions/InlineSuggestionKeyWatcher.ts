@@ -6,6 +6,7 @@ import {
 	cancelSuggestion,
 	inlineSuggestionField,
 	offsetToPos,
+	partialAcceptSuggestion,
 } from "./InlineSuggestionState";
 import { Hotkeys } from "../settings/CopilotPluginSettingTab";
 import Cacher from "../copilot/Cacher";
@@ -76,6 +77,16 @@ export const inlineSuggestionKeyWatcher = (
 						});
 
 					return true;
+				},
+			},
+			{
+				key: hotkeys.partial,
+				run: (view) => {
+					if (view.state.field(inlineSuggestionField)) {
+						partialAcceptSuggestion(view);
+						return true;
+					}
+					return false;
 				},
 			},
 		]),

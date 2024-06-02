@@ -16,6 +16,7 @@ export type Hotkeys = {
 	accept: string;
 	cancel: string;
 	request: string;
+	partial: string;
 };
 
 export interface CopilotPluginSettings {
@@ -35,6 +36,7 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 		accept: "Tab",
 		cancel: "Escape",
 		request: "Cmd-Shift-/",
+		partial: "Cmd-Shift-.",
 	},
 	suggestionDelay: 500,
 	debug: false,
@@ -138,6 +140,15 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					this.plugin.settings.hotkeys.request = value;
 				},
 				defaultValue: DEFAULT_SETTINGS.hotkeys.request,
+			},
+			{
+				title: "Partial acceptation",
+				description: "Keybinding to accept word per word suggestions.",
+				value: this.plugin.settings.hotkeys.partial,
+				onChange: (value: string) => {
+					this.plugin.settings.hotkeys.partial = value;
+				},
+				defaultValue: DEFAULT_SETTINGS.hotkeys.partial,
 			},
 		];
 

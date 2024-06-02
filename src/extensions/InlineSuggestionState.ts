@@ -56,6 +56,30 @@ export const acceptSuggestion = (view: EditorView) => {
 	}
 };
 
+export const partialAcceptSuggestion = (view: EditorView) => {
+	const suggestion = view.state.field(inlineSuggestionField);
+	if (suggestion) {
+		const parts = suggestion.trim().split(/\s+/);
+		const word = parts[0];
+		const newSuggestion = suggestion.replace(word, "").trim();
+
+		view.dispatch({
+			...createInsertSuggestionTransaction(
+				view.state,
+				word + " ",
+				view.state.selection.main.from,
+				view.state.selection.main.to,
+			),
+		});
+
+		view.dispatch({
+			effects: InlineSuggestionEffect.of({
+				suggestion: newSuggestion,
+			}),
+		});
+	}
+};
+
 export const insertSuggestion = (view: EditorView, suggestion: string) => {
 	view.dispatch({
 		...createInsertSuggestionTransaction(
