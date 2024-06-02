@@ -1,5 +1,8 @@
 # Obsidian Github Copilot Plugin
 
+![Obsidian plugin](https://img.shields.io/endpoint?url=https://scambier.xyz/obsidian-endpoints/github-copilot.json)
+![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/pierrad/obsidian-github-copilot)
+
 Use Github Copilot in the Obsidian editor. This plugin is a bridge between the Obsidian editor and the Github Copilot service.
 
 ![https://github.com/Pierrad/obsidian-github-copilot/tree/master/.github/assets/example.gif](https://github.com/Pierrad/obsidian-github-copilot/blob/master/.github/assets/example.gif)
