@@ -5,6 +5,7 @@ import { Root, createRoot } from "react-dom/client";
 import CopilotPlugin from "../main";
 import AuthModal from "../modal/AuthModal";
 import KeybindingInput from "../components/KeybindingInput";
+import AutocompleteInput from "../components/AutocompleteInput";
 import Node from "../helpers/Node";
 import Logger from "../helpers/Logger";
 
@@ -28,6 +29,7 @@ export interface CopilotPluginSettings {
 	debug: boolean;
 	onlyOnHotkey: boolean;
 	onlyInCodeBlock: boolean;
+	exclude: string[];
 }
 
 export const DEFAULT_SETTINGS: CopilotPluginSettings = {
@@ -44,6 +46,7 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 	debug: false,
 	onlyOnHotkey: false,
 	onlyInCodeBlock: false,
+	exclude: [],
 };
 
 class CopilotPluginSettingTab extends PluginSettingTab {
@@ -190,6 +193,30 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					}}
 				>
 					Save keybindings
+				</button>
+				<h3>Exclude folders and files</h3>
+				<p className="copilot-settings-note">
+					No suggestions will be generated for the files and folders
+					listed below.
+				</p>
+				<AutocompleteInput
+					title="Exclude"
+					description="Folders and files to exclude from suggestions."
+					values={this.plugin.settings.exclude}
+					onChange={(values) => {
+						this.plugin.settings.exclude = values;
+					}}
+					plugin={this.plugin}
+				/>
+				<button
+					className="mod-cta copilot-settings-save-button"
+					onClick={() => {
+						this.saveSettings().then(() => {
+							this.plugin.app.workspace.updateOptions();
+						});
+					}}
+				>
+					Save exclude folders and files
 				</button>
 			</StrictMode>,
 		);
