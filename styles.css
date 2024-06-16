@@ -10,6 +10,28 @@
 
 .copilot-inline-suggestion {
   opacity: 0.4;
+  position: relative;
+}
+
+.copilot-inline-suggestion-box {
+  position: absolute;
+  left: 0;
+  z-index: 1000;
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px var(--background-modifier-border);
+  padding: 0.3rem 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  min-width: 50px;
+  max-width: 70px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .copilot-modal-auth-box {

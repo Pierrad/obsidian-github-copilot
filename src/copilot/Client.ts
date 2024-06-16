@@ -147,7 +147,7 @@ class Client {
 		params: GetCompletionsParams,
 	): Promise<CompletionList> {
 		try {
-			return this.client.customRequest("getCompletions", params);
+			return this.client.customRequest("getCompletionsCycling", params);
 		} catch (error) {
 			Logger.getInstance().error("Error in completion: " + error);
 			return {

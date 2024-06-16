@@ -7,13 +7,14 @@ import {
 	WidgetType,
 } from "@codemirror/view";
 import {
+	InlineSuggestion,
 	cancelSuggestion,
 	inlineSuggestionField,
 } from "./InlineSuggestionState";
 
 class InlineSuggestionPlugin {
 	decorations: DecorationSet;
-	suggestion: string | null;
+	suggestion: InlineSuggestion | null;
 
 	constructor(view: EditorView) {
 		this.decorations = Decoration.none;
@@ -21,7 +22,7 @@ class InlineSuggestionPlugin {
 	}
 
 	async update(update: ViewUpdate) {
-		const suggestion: string | null = update.state.field(
+		const suggestion: InlineSuggestion | null = update.state.field(
 			inlineSuggestionField,
 		);
 
@@ -45,15 +46,23 @@ export const inlineSuggestionPlugin = ViewPlugin.fromClass(
 
 function inlineSuggestionDecoration(
 	view: EditorView,
-	display_suggestion: string | null,
+	display_suggestion: InlineSuggestion | null,
 ) {
 	const post = view.state.selection.main.head;
 
-	if (!display_suggestion) {
+	if (!display_suggestion?.suggestions?.length) {
 		return Decoration.none;
 	}
+
+	const suggestion = display_suggestion.suggestions[display_suggestion.index];
+
 	try {
-		const widget = new InlineSuggestionWidget(display_suggestion, view);
+		const widget = new InlineSuggestionWidget(
+			suggestion,
+			display_suggestion.index,
+			display_suggestion.suggestions.length,
+			view,
+		);
 		const decoration = Decoration.widget({
 			widget,
 			side: 1,
@@ -68,6 +77,8 @@ function inlineSuggestionDecoration(
 class InlineSuggestionWidget extends WidgetType {
 	constructor(
 		readonly display_suggestion: string,
+		readonly currentIndex: number,
+		readonly nbSuggestions: number,
 		readonly view: EditorView,
 	) {
 		super();
@@ -89,6 +100,14 @@ class InlineSuggestionWidget extends WidgetType {
 		span.onselect = () => {
 			cancelSuggestion(this.view);
 		};
+
+		if (this.nbSuggestions > 1) {
+			const box = document.createElement("div");
+			box.textContent = `${this.currentIndex + 1} / ${this.nbSuggestions}`;
+			box.className = "copilot-inline-suggestion-box";
+
+			span.appendChild(box);
+		}
 
 		return span;
 	}

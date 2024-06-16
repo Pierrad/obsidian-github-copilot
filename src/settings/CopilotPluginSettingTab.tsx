@@ -17,6 +17,7 @@ export type Hotkeys = {
 	cancel: string;
 	request: string;
 	partial: string;
+	next: string;
 };
 
 export interface CopilotPluginSettings {
@@ -37,6 +38,7 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 		cancel: "Escape",
 		request: "Cmd-Shift-/",
 		partial: "Cmd-Shift-.",
+		next: "Cmd-Shift-ArrowDown",
 	},
 	suggestionDelay: 500,
 	debug: false,
@@ -149,6 +151,16 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					this.plugin.settings.hotkeys.partial = value;
 				},
 				defaultValue: DEFAULT_SETTINGS.hotkeys.partial,
+			},
+			{
+				title: "Next suggestion",
+				description:
+					"Keybinding to view the next suggestion if available.",
+				value: this.plugin.settings.hotkeys.next,
+				onChange: (value: string) => {
+					this.plugin.settings.hotkeys.next = value;
+				},
+				defaultValue: DEFAULT_SETTINGS.hotkeys.next,
 			},
 		];
 

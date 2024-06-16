@@ -5,6 +5,7 @@ import {
 	acceptSuggestion,
 	cancelSuggestion,
 	inlineSuggestionField,
+	nextSuggestion,
 	offsetToPos,
 	partialAcceptSuggestion,
 } from "./InlineSuggestionState";
@@ -84,6 +85,16 @@ export const inlineSuggestionKeyWatcher = (
 				run: (view) => {
 					if (view.state.field(inlineSuggestionField)) {
 						partialAcceptSuggestion(view);
+						return true;
+					}
+					return false;
+				},
+			},
+			{
+				key: hotkeys.next,
+				run: (view) => {
+					if (view.state.field(inlineSuggestionField)) {
+						nextSuggestion(view);
 						return true;
 					}
 					return false;

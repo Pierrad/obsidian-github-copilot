@@ -11,57 +11,71 @@ import {
 import { EditorView } from "@codemirror/view";
 
 export type InlineSuggestion = {
-	suggestion: string | null;
+	suggestions: string[] | null;
+	index: number;
 };
 
 export const InlineSuggestionEffect = StateEffect.define<InlineSuggestion>();
 
-export const inlineSuggestionField = StateField.define<string | null>({
-	create(state: EditorState) {
-		return null;
+export const inlineSuggestionField = StateField.define<InlineSuggestion | null>(
+	{
+		create(state: EditorState) {
+			return null;
+		},
+		update(value: InlineSuggestion | null, state: Transaction) {
+			const inlineSuggestion = state.effects.find((effect) =>
+				effect.is(InlineSuggestionEffect),
+			);
+
+			if (inlineSuggestion) {
+				return inlineSuggestion.value;
+			}
+
+			if (value && !state.docChanged) {
+				return value;
+			}
+
+			return null;
+		},
 	},
-	update(value: string | null, state: Transaction) {
-		const inlineSuggestion = state.effects.find((effect) =>
-			effect.is(InlineSuggestionEffect),
-		);
-
-		if (inlineSuggestion) {
-			return inlineSuggestion.value.suggestion;
-		}
-
-		if (value && !state.docChanged) {
-			return value;
-		}
-
-		return null;
-	},
-});
+);
 
 export const cancelSuggestion = (view: EditorView) => {
 	sleep(1).then(() => {
 		view.dispatch({
 			effects: InlineSuggestionEffect.of({
-				suggestion: null,
-				// doc: doc,
+				suggestions: null,
+				index: 0,
 			}),
 		});
 	});
 };
 
 export const acceptSuggestion = (view: EditorView) => {
-	const suggestion = view.state.field(inlineSuggestionField);
-	if (suggestion) {
-		insertSuggestion(view, suggestion);
+	const suggestionField = view.state.field(inlineSuggestionField);
+	if (suggestionField) {
+		insertSuggestion(
+			view,
+			suggestionField.suggestions?.[suggestionField.index] || "",
+		);
 		cancelSuggestion(view);
 	}
 };
 
 export const partialAcceptSuggestion = (view: EditorView) => {
-	const suggestion = view.state.field(inlineSuggestionField);
-	if (suggestion) {
-		const parts = suggestion.trim().split(/\s+/);
+	const suggestionField = view.state.field(inlineSuggestionField);
+	if (suggestionField) {
+		const parts =
+			suggestionField.suggestions?.[suggestionField.index]
+				?.trim()
+				.split(/\s+/) || [];
 		const word = parts[0];
-		const newSuggestion = suggestion.replace(word, "").trim();
+		const newSuggestionField = {
+			...suggestionField,
+			suggestions: suggestionField.suggestions?.map((suggestion) =>
+				suggestion.replace(word, "").trim(),
+			) as string[],
+		};
 
 		view.dispatch({
 			...createInsertSuggestionTransaction(
@@ -73,8 +87,21 @@ export const partialAcceptSuggestion = (view: EditorView) => {
 		});
 
 		view.dispatch({
+			effects: InlineSuggestionEffect.of(newSuggestionField),
+		});
+	}
+};
+
+export const nextSuggestion = (view: EditorView) => {
+	const suggestionField = view.state.field(inlineSuggestionField);
+	if (suggestionField) {
+		const nextIndex =
+			(suggestionField.index + 1) %
+			(suggestionField.suggestions?.length || 0);
+		view.dispatch({
 			effects: InlineSuggestionEffect.of({
-				suggestion: newSuggestion,
+				...suggestionField,
+				index: nextIndex,
 			}),
 		});
 	}

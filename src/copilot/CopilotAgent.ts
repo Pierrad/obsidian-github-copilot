@@ -108,11 +108,12 @@ class CopilotAgent implements SettingsObserver {
 		const res = await this.client.completion(params);
 
 		if (res && res.completions && res.completions.length > 0) {
-			const completion = res.completions[0].displayText;
+			const completions = res.completions.map((c) => c.displayText);
 			view.dispatch({
 				effects: [
 					InlineSuggestionEffect.of({
-						suggestion: completion,
+						suggestions: completions,
+						index: 0,
 					}),
 				],
 			});
