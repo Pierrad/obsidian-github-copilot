@@ -195,29 +195,18 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					Save keybindings
 				</button>
 				<h3>Exclude folders and files</h3>
-				<p className="copilot-settings-note">
-					No suggestions will be generated for the files and folders
-					listed below.
-				</p>
 				<AutocompleteInput
 					title="Exclude"
 					description="Folders and files to exclude from suggestions."
 					values={this.plugin.settings.exclude}
-					onChange={(values) => {
-						this.plugin.settings.exclude = values;
-					}}
 					plugin={this.plugin}
-				/>
-				<button
-					className="mod-cta copilot-settings-save-button"
-					onClick={() => {
+					onSave={(values: string[]) => {
+						this.plugin.settings.exclude = values;
 						this.saveSettings().then(() => {
 							this.plugin.app.workspace.updateOptions();
 						});
 					}}
-				>
-					Save exclude folders and files
-				</button>
+				/>
 			</StrictMode>,
 		);
 

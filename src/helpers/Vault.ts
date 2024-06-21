@@ -38,6 +38,10 @@ class Vault {
 	public static get200kPath(app: App, version: string): string {
 		return `${this.getCopilotResourcesPath(app, version)}/o200k_base.tiktoken`;
 	}
+
+	public static isFileExcluded(filePath: string, exclude: string[]): boolean {
+		return exclude.some((path) => filePath.includes(path));
+	}
 }
 
 export default Vault;
