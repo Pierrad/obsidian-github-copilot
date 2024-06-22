@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import CopilotPlugin from "../main";
+import { TAbstractFile } from "obsidian";
 
 interface AutocompleteInputProps {
 	title: string;
@@ -13,6 +14,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = (props) => {
 	const { title, description, values, plugin, onSave } = props;
 	const [showSuggestions, setShowSuggestions] = useState(false);
 	const [currentValues, setCurrentValues] = useState<string[]>(values);
+	const [allFiles, setAllFiles] = useState<TAbstractFile[]>([]);
 	const [options, setOptions] = useState<{ value: string; label: string }[]>(
 		[],
 	);
@@ -21,6 +23,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = (props) => {
 
 	useEffect(() => {
 		const all = plugin.app.vault.getAllLoadedFiles();
+		setAllFiles(all);
 		setOptions(
 			all.map((file) => {
 				return {
@@ -53,9 +56,17 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = (props) => {
 						onChange(value);
 					}}
 				>
-					- {value}
+					<span>{value}</span>
+					<span className="copilot-settings-exclude-item-remove">
+						&times;
+					</span>
 				</div>
 			))}
+			{currentValues.length === 0 && (
+				<i className="copilot-settings-note">
+					No files or folders are excluded for the moment.
+				</i>
+			)}
 			<div className="setting-item">
 				<div className="setting-item-info">
 					<div className="setting-item-name">{title}</div>
@@ -67,6 +78,23 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = (props) => {
 					<input
 						type="text"
 						className="setting-item-input"
+						onChange={(e) => {
+							const value = e.target.value;
+							setOptions(
+								allFiles
+									.filter((file) =>
+										file.path
+											.toLowerCase()
+											.includes(value.toLowerCase()),
+									)
+									.map((file) => {
+										return {
+											value: file.path,
+											label: file.path,
+										};
+									}),
+							);
+						}}
 						onFocus={() => setShowSuggestions(true)}
 						onBlur={(e) => {
 							if (
@@ -87,7 +115,14 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = (props) => {
 							<div className="suggestion">
 								{options.map((option, i) => (
 									<div
-										className="suggestion-item copilot-settings-suggestion-item"
+										className={
+											"suggestion-item copilot-settings-suggestion-item" +
+											(currentValues.includes(
+												option.value,
+											)
+												? " copilot-settings-suggestion-item-active"
+												: "")
+										}
 										key={i}
 										onMouseDown={(e) => {
 											e.preventDefault();
