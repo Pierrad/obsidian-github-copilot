@@ -8,6 +8,9 @@ import KeybindingInput from "../components/KeybindingInput";
 import AutocompleteInput from "../components/AutocompleteInput";
 import Node from "../helpers/Node";
 import Logger from "../helpers/Logger";
+import File from "../helpers/File";
+import Json from "../helpers/Json";
+import Vault from "../helpers/Vault";
 
 export interface SettingsObserver {
 	onSettingsUpdate(): Promise<void>;
@@ -30,6 +33,8 @@ export interface CopilotPluginSettings {
 	onlyOnHotkey: boolean;
 	onlyInCodeBlock: boolean;
 	exclude: string[];
+	deviceSpecificSettings: string[];
+	useDeviceSpecificSettings: boolean;
 }
 
 export const DEFAULT_SETTINGS: CopilotPluginSettings = {
@@ -47,6 +52,8 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 	onlyOnHotkey: false,
 	onlyInCodeBlock: false,
 	exclude: [],
+	deviceSpecificSettings: ["nodePath"],
+	useDeviceSpecificSettings: false,
 };
 
 class CopilotPluginSettingTab extends PluginSettingTab {
@@ -239,6 +246,20 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
+			.setName("Use device-specific settings")
+			.setDesc(
+				"If enabled, certain settings (only the node path for now) will be saved to a separate file. This is useful when using the same vault on multiple devices. Default is false.",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.useDeviceSpecificSettings)
+					.onChange(async (value) => {
+						this.plugin.settings.useDeviceSpecificSettings = value;
+						await this.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
 			.setName("Enable debug mode")
 			.setDesc(
 				"Enable logging for debugging purposes. Logs are written to the console.",
@@ -289,22 +310,46 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 	}
 
 	public async loadSettings() {
-		this.plugin.settings = Object.assign(
+		const defaultSettings = Object.assign(
 			{},
 			DEFAULT_SETTINGS,
 			await this.plugin.loadData(),
 		);
+		if (defaultSettings.useDeviceSpecificSettings) {
+			this.plugin.settings = Object.assign(
+				{},
+				defaultSettings,
+				Json.textToJsonObject(
+					File.readFileSync(
+						Vault.getPluginPath(this.plugin.app) +
+							"/device_data.json",
+					),
+				) || {},
+			);
+		} else {
+			this.plugin.settings = defaultSettings;
+		}
 	}
 
 	public async saveSettings(
 		notify = true,
 		notice = true,
 	): Promise<void | void[]> {
-		await this.plugin.saveData(this.plugin.settings);
-		if (notice) new Notice("Settings saved successfully.");
-		if (notify) {
-			return this.notifyObservers();
+		if (this.plugin.settings.useDeviceSpecificSettings) {
+			File.writeFileSync(
+				Vault.getPluginPath(this.plugin.app) + "/device_data.json",
+				Json.jsonObjectToText(
+					Json.onlyKeepProperties(
+						this.plugin.settings,
+						this.plugin.settings.deviceSpecificSettings,
+					),
+				),
+			);
 		}
+		await this.plugin.saveData(this.plugin.settings);
+		await this.loadSettings();
+		if (notice) new Notice("Settings saved successfully.");
+		if (notify) return this.notifyObservers();
 		return Promise.resolve();
 	}
 
