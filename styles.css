@@ -62,3 +62,32 @@
   width: fit-content;
   align-self: flex-end;
 }
+
+.copilot-settings-item-control {
+  position: relative;
+}
+
+.copilot-settings-suggestion-container {
+  top: 120%;
+}
+
+.copilot-settings-suggestion-item:hover {
+  background: var(--background-modifier-border);
+}
+
+.copilot-settings-suggestion-item-active {
+  background: var(--background-modifier-border);
+}
+
+.copilot-settings-exclude-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+}
+
+.copilot-settings-exclude-item-remove {
+  font-size: 1.2rem;
+}
+

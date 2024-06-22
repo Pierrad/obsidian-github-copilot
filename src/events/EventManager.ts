@@ -10,6 +10,7 @@ import {
 import CopilotPlugin from "../main";
 import EventListener from "./EventListener";
 import { SettingsObserver } from "../settings/CopilotPluginSettingTab";
+import Vault from "../helpers/Vault";
 
 class EventManager implements SettingsObserver {
 	private plugin: CopilotPlugin;
@@ -32,7 +33,13 @@ class EventManager implements SettingsObserver {
 
 		this.debouncedEditorChangeHandler = debounce(
 			async (editor: Editor, info: MarkdownView | MarkdownFileInfo) => {
-				if (this.plugin.settingsTab.isCopilotEnabled())
+				if (
+					this.plugin.settingsTab.isCopilotEnabled() &&
+					!Vault.isFileExcluded(
+						info.file?.path as string,
+						this.plugin.settings.exclude,
+					)
+				)
 					this.eventListener.onEditorChange(editor, info);
 			},
 			this.plugin.settings.suggestionDelay,
