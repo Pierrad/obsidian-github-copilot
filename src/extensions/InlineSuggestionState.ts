@@ -31,6 +31,14 @@ export const inlineSuggestionField = StateField.define<InlineSuggestion | null>(
 				return inlineSuggestion.value;
 			}
 
+			if (
+				value &&
+				state.selection &&
+				cursorHasMoved(state.startState.selection, state.selection)
+			) {
+				return null;
+			}
+
 			if (value && !state.docChanged) {
 				return value;
 			}
@@ -191,4 +199,14 @@ function hasTextChanged(
 export function offsetToPos(doc: Text, offset: number) {
 	const line = doc.lineAt(offset);
 	return { line: line.number - 1, ch: offset - line.from };
+}
+
+export function cursorHasMoved(
+	oldState: EditorSelection,
+	newState: EditorSelection,
+) {
+	return (
+		oldState.main.from !== newState.main.from ||
+		oldState.main.to !== newState.main.to
+	);
 }
