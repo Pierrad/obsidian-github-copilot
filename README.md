@@ -39,6 +39,7 @@ Use Github Copilot in the Obsidian editor. This plugin is a bridge between the O
 - [x] Configure your bindings to accept, dismiss, trigger or partially accept suggestions
 - [x] Configure if you want to see automatic suggestions or only trigger them manually
 - [x] Configure if you want to see suggestion only in code blocks or in the whole note 
+- [x] Exclude folders and files from the suggestion generation 
 
 ## Known issues
 
