@@ -33,6 +33,9 @@ class CopilotAgent implements SettingsObserver {
 	}
 
 	public getClient(): Client {
+		if (!this.client) {
+			new Notice("Copilot is not ready yet! Please check your settings.");
+		}
 		return this.client;
 	}
 
@@ -105,7 +108,9 @@ class CopilotAgent implements SettingsObserver {
 		view: EditorView,
 		params: GetCompletionsParams,
 	): Promise<void> {
+		this.plugin.statusBar?.updateElement(true);
 		const res = await this.client.completion(params);
+		this.plugin.statusBar?.updateElement();
 
 		if (res && res.completions && res.completions.length > 0) {
 			const completions = res.completions.map((c) => c.displayText);

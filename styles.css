@@ -1,93 +1,107 @@
 .copilot-status-bar-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  & svg {
-    width: 18px;
-    height: 18px;
-  }
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	& svg {
+		width: 18px;
+		height: 18px;
+	}
+}
+.copilot-status-bar-loading-item {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	animation: spin 1s linear infinite;
+	@keyframes spin {
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
+	}
 }
 
 .copilot-inline-suggestion {
-  opacity: 0.4;
-  position: relative;
+	opacity: 0.4;
+	position: relative;
 }
 
 .copilot-inline-suggestion-box {
-  position: absolute;
-  left: 0;
-  z-index: 1000;
-  background: var(--background-primary);
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 4px;
-  box-shadow: 0 0 0 1px var(--background-modifier-border);
-  padding: 0.3rem 0.5rem;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: var(--text-primary);
-  min-width: 50px;
-  max-width: 70px;
+	position: absolute;
+	left: 0;
+	z-index: 1000;
+	background: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	box-shadow: 0 0 0 1px var(--background-modifier-border);
+	padding: 0.3rem 0.5rem;
+	font-size: 0.9rem;
+	line-height: 1.5;
+	color: var(--text-primary);
+	min-width: 50px;
+	max-width: 70px;
 
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
 .copilot-modal-auth-box {
-  margin-bottom: 1rem;
-  line-height: 1.5;
+	margin-bottom: 1rem;
+	line-height: 1.5;
 }
 
 .copilot-settings-note {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  padding-top: 0;
-  margin-top: 0;
+	font-size: 0.9rem;
+	color: var(--text-muted);
+	padding-top: 0;
+	margin-top: 0;
 }
 
 .copilot-settings-hotkeys-container {
-  padding: 0.75em 0;
-  border-top: 1px solid var(--background-modifier-border);
-  display: flex;
-  flex-direction: column;
-
+	padding: 0.75em 0;
+	border-top: 1px solid var(--background-modifier-border);
+	display: flex;
+	flex-direction: column;
 }
 
 .copilot-settings-hotkeys-container .setting-item {
-  border-top: none !important;
+	border-top: none !important;
 }
 
 .copilot-settings-save-button {
-  width: fit-content;
-  align-self: flex-end;
+	width: fit-content;
+	align-self: flex-end;
 }
 
 .copilot-settings-item-control {
-  position: relative;
+	position: relative;
 }
 
 .copilot-settings-suggestion-container {
-  top: 120%;
+	top: 120%;
 }
 
 .copilot-settings-suggestion-item:hover {
-  background: var(--background-modifier-border);
+	background: var(--background-modifier-border);
 }
 
 .copilot-settings-suggestion-item-active {
-  background: var(--background-modifier-border);
+	background: var(--background-modifier-border);
 }
 
 .copilot-settings-exclude-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-  cursor: pointer;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 0.5rem;
+	cursor: pointer;
 }
 
 .copilot-settings-exclude-item-remove {
-  font-size: 1.2rem;
+	font-size: 1.2rem;
 }
-
