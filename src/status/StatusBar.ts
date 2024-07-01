@@ -1,4 +1,8 @@
-import { copilotDisabledIcon, copilotIcon } from "../assets/copilot";
+import {
+	copilotDisabledIcon,
+	copilotIcon,
+	copilotLoadingIcon,
+} from "../assets/copilot";
 import CopilotPlugin from "../main";
 import { SettingsObserver } from "../settings/CopilotPluginSettingTab";
 
@@ -32,16 +36,23 @@ class StatusBar implements SettingsObserver {
 		});
 	}
 
-	updateElement() {
+	updateElement(loading?: boolean) {
 		while (this.container.firstChild) {
 			this.container.removeChild(this.container.firstChild);
 		}
-		this.copilotSvg = this.createSvgFromString(
-			this.plugin.settingsTab.isCopilotEnabled()
-				? copilotIcon
-				: copilotDisabledIcon,
-		);
+
+		if (loading) {
+			this.copilotSvg = this.createSvgFromString(copilotLoadingIcon);
+			this.copilotSvg.classList.add("copilot-status-bar-loading-item");
+		} else {
+			this.copilotSvg = this.createSvgFromString(
+				this.plugin.settingsTab.isCopilotEnabled()
+					? copilotIcon
+					: copilotDisabledIcon,
+			);
+		}
 		this.container.appendChild(this.copilotSvg);
+
 		this.statusBarEl.setAttribute(
 			"aria-label",
 			this.plugin.settingsTab.isCopilotEnabled()
