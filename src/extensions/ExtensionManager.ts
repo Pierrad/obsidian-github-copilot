@@ -22,6 +22,7 @@ class ExtensionManager implements SettingsObserver {
 			inlineSuggestionKeyWatcher(
 				this.plugin.settings.hotkeys,
 				this.plugin.copilotAgent,
+				this.plugin,
 			),
 			inlineSuggestionField,
 			inlineSuggestionPlugin,
@@ -38,6 +39,7 @@ class ExtensionManager implements SettingsObserver {
 			inlineSuggestionKeyWatcher(
 				this.plugin.settings.hotkeys,
 				this.plugin.copilotAgent,
+				this.plugin,
 			),
 		);
 		return Promise.resolve();

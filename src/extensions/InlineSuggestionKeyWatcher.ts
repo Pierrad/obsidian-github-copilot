@@ -13,10 +13,12 @@ import { Hotkeys } from "../settings/CopilotPluginSettingTab";
 import Cacher from "../copilot/Cacher";
 import CopilotAgent from "../copilot/CopilotAgent";
 import LSP from "../helpers/LSP";
+import CopilotPlugin from "../main";
 
 export const inlineSuggestionKeyWatcher = (
 	hotkeys: Hotkeys,
 	agent: CopilotAgent,
+	plugin: CopilotPlugin,
 ) =>
 	Prec.highest(
 		keymap.of([
@@ -98,6 +100,15 @@ export const inlineSuggestionKeyWatcher = (
 						return true;
 					}
 					return false;
+				},
+			},
+			{
+				key: hotkeys.disable,
+				run: () => {
+					plugin.settings.enabled =
+						!plugin.settingsTab.isCopilotEnabled();
+					plugin.settingsTab.saveSettings(true, false);
+					return true;
 				},
 			},
 		]),

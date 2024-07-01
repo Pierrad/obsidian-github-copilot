@@ -22,6 +22,7 @@ export type Hotkeys = {
 	request: string;
 	partial: string;
 	next: string;
+	disable: string;
 };
 
 export interface CopilotPluginSettings {
@@ -46,6 +47,7 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 		request: "Cmd-Shift-/",
 		partial: "Cmd-Shift-.",
 		next: "Cmd-Shift-ArrowDown",
+		disable: "Cmd-Shift-ArrowRight",
 	},
 	suggestionDelay: 500,
 	debug: false,
@@ -171,6 +173,16 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					this.plugin.settings.hotkeys.next = value;
 				},
 				defaultValue: DEFAULT_SETTINGS.hotkeys.next,
+			},
+			{
+				title: "Enable/Disable Copilot",
+				description:
+					"Keybinding to enable or disable copilot suggestions.",
+				value: this.plugin.settings.hotkeys.disable,
+				onChange: (value: string) => {
+					this.plugin.settings.hotkeys.disable = value;
+				},
+				defaultValue: DEFAULT_SETTINGS.hotkeys.disable,
 			},
 		];
 
