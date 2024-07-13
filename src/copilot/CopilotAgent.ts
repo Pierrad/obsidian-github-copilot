@@ -55,6 +55,18 @@ class CopilotAgent implements SettingsObserver {
 				{
 					shell: true,
 					stdio: "pipe",
+					...(this.plugin.settings.proxy && {
+						env: {
+							...(this.plugin.settings.proxy.startsWith("http://")
+								? { HTTP_PROXY: this.plugin.settings.proxy }
+								: {}),
+							...(this.plugin.settings.proxy.startsWith(
+								"https://",
+							)
+								? { HTTPS_PROXY: this.plugin.settings.proxy }
+								: {}),
+						},
+					}),
 				},
 			);
 		} catch (error) {

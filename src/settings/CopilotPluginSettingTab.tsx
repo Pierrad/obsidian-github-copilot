@@ -36,6 +36,7 @@ export interface CopilotPluginSettings {
 	exclude: string[];
 	deviceSpecificSettings: string[];
 	useDeviceSpecificSettings: boolean;
+	proxy: string;
 }
 
 export const DEFAULT_SETTINGS: CopilotPluginSettings = {
@@ -56,6 +57,7 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 	exclude: [],
 	deviceSpecificSettings: ["nodePath"],
 	useDeviceSpecificSettings: false,
+	proxy: "",
 };
 
 class CopilotPluginSettingTab extends PluginSettingTab {
@@ -269,6 +271,27 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 						this.plugin.settings.useDeviceSpecificSettings = value;
 						await this.saveSettings();
 					}),
+			);
+
+		new Setting(containerEl)
+			.setName("Setup proxy")
+			.setDesc(
+				"Set up a proxy for the copilot service. Should start with http:// or https://.",
+			)
+			.addText((text) =>
+				text
+					.setPlaceholder("Enter the proxy URL.")
+					.setValue(this.plugin.settings.proxy)
+					.onChange(
+						debounce(
+							async (value) => {
+								this.plugin.settings.proxy = value;
+								await this.saveSettings();
+							},
+							1000,
+							true,
+						),
+					),
 			);
 
 		new Setting(containerEl)
