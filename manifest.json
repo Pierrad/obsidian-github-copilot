@@ -1,7 +1,7 @@
 {
 	"id": "github-copilot",
 	"name": "Github Copilot",
-	"version": "1.0.9",
+	"version": "1.0.10",
 	"minAppVersion": "1.5.12",
 	"description": "Implement suggestions from Github Copilot directly in your editor.",
 	"author": "Vasseur Pierre-Adrien",
