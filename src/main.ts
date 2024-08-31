@@ -18,6 +18,10 @@ import agent from "official-copilot/agent.txt";
 import cl100k from "official-copilot/resources/cl100k_base.tiktoken";
 // @ts-expect-error - import to be bundled
 import o200k from "official-copilot/resources/o200k_base.tiktoken";
+// @ts-expect-error - import to be bundled
+import cl100kNoIndex from "official-copilot/resources/cl100k_base.tiktoken.noindex";
+// @ts-expect-error - import to be bundled
+import o200kNoIndex from "official-copilot/resources/o200k_base.tiktoken.noindex";
 import Cacher from "./copilot/Cacher";
 
 export default class CopilotPlugin extends Plugin {
@@ -50,12 +54,20 @@ export default class CopilotPlugin extends Plugin {
 				agent,
 			);
 			await File.createFile(
-				Vault.get100kPath(this.app, this.version),
+				`${Vault.getCopilotResourcesPath(this.app, this.version)}/cl100k_base.tiktoken`,
 				cl100k,
 			);
 			await File.createFile(
-				Vault.get200kPath(this.app, this.version),
+				`${Vault.getCopilotResourcesPath(this.app, this.version)}/o200k_base.tiktoken`,
 				o200k,
+			);
+			await File.createFile(
+				`${Vault.getCopilotResourcesPath(this.app, this.version)}/cl100k_base.tiktoken.noindex`,
+				cl100kNoIndex,
+			);
+			await File.createFile(
+				`${Vault.getCopilotResourcesPath(this.app, this.version)}/o200k_base.tiktoken.noindex`,
+				o200kNoIndex,
 			);
 			await File.removeOldCopilotFolders(
 				this.version,
