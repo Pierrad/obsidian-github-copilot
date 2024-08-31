@@ -24,19 +24,11 @@ class Vault {
 	}
 
 	public static getCopilotResourcesPath(app: App, version: string): string {
-		return `${this.getCopilotPath(app, version)}/resources/`;
+		return `${this.getCopilotPath(app, version)}/resources`;
 	}
 
 	public static getAgentPath(app: App, version: string): string {
 		return `${this.getCopilotPath(app, version)}/agent.cjs`;
-	}
-
-	public static get100kPath(app: App, version: string): string {
-		return `${this.getCopilotResourcesPath(app, version)}/cl100k_base.tiktoken`;
-	}
-
-	public static get200kPath(app: App, version: string): string {
-		return `${this.getCopilotResourcesPath(app, version)}/o200k_base.tiktoken`;
 	}
 
 	public static isFileExcluded(filePath: string, exclude: string[]): boolean {
