@@ -26,21 +26,20 @@ class EventManager implements SettingsObserver {
 
 	public registerEvents(): void {
 		this.plugin.registerEvent(
-			this.plugin.app.workspace.on("file-open", this.fileOpenHandler),
+			this.plugin.app.workspace.on("file-open", async (file: TFile) => {
+				if (this.canRegisterEvent(file)) {
+					this.eventListener.onFileOpen(file);
+				}
+			}),
 		);
 
 		if (this.plugin.settings.onlyOnHotkey) return; // do not register editor change event if onlyOnHotkey is enabled
 
 		this.debouncedEditorChangeHandler = debounce(
 			async (editor: Editor, info: MarkdownView | MarkdownFileInfo) => {
-				if (
-					this.plugin.settingsTab.isCopilotEnabled() &&
-					!Vault.isFileExcluded(
-						info.file?.path as string,
-						this.plugin.settings.exclude,
-					)
-				)
+				if (this.canRegisterEvent(info?.file as TFile)) {
 					this.eventListener.onEditorChange(editor, info);
+				}
 			},
 			this.plugin.settings.suggestionDelay,
 			true,
@@ -65,6 +64,17 @@ class EventManager implements SettingsObserver {
 	private fileOpenHandler = async (file: TFile | null): Promise<void> => {
 		await this.eventListener.onFileOpen(file);
 	};
+
+	// Only register event if copilot is enabled and file is not excluded
+	private canRegisterEvent(file: TFile): boolean {
+		return (
+			this.plugin.settingsTab.isCopilotEnabled() &&
+			!Vault.isFileExcluded(
+				file?.path as string,
+				this.plugin.settings.exclude,
+			)
+		);
+	}
 
 	onSettingsUpdate(): Promise<void> {
 		this.unRegisterEvents();
