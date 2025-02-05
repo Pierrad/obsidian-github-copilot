@@ -11,6 +11,7 @@ import ExtensionManager from "./extensions/ExtensionManager";
 import Vault from "./helpers/Vault";
 import File from "./helpers/File";
 import Logger from "./helpers/Logger";
+import Cacher from "./copilot/Cacher";
 
 // @ts-expect-error - import to be bundled
 import agent from "official-copilot/agent.txt";
@@ -22,7 +23,6 @@ import o200k from "official-copilot/resources/o200k_base.tiktoken";
 import cl100kNoIndex from "official-copilot/resources/cl100k_base.tiktoken.noindex";
 // @ts-expect-error - import to be bundled
 import o200kNoIndex from "official-copilot/resources/o200k_base.tiktoken.noindex";
-import Cacher from "./copilot/Cacher";
 
 export default class CopilotPlugin extends Plugin {
 	settingsTab: CopilotPluginSettingTab;
@@ -32,6 +32,7 @@ export default class CopilotPlugin extends Plugin {
 	private cmExtensionManager: ExtensionManager;
 	private eventManager: EventManager;
 	version = "1.0.11";
+	tabSize = Vault.DEFAULT_TAB_SIZE;
 
 	async onload() {
 		this.settingsTab = new CopilotPluginSettingTab(this.app, this);
@@ -41,6 +42,8 @@ export default class CopilotPlugin extends Plugin {
 		this.statusBar = new StatusBar(this);
 
 		Logger.getInstance().setDebug(this.settings.debug);
+
+		this.tabSize = Vault.getTabSize(this.app);
 
 		// Recreate or update the copilot folder and artifacts from the bundle
 		if (

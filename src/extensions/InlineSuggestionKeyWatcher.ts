@@ -73,6 +73,7 @@ export const inlineSuggestionKeyWatcher = (
 										Cacher.getInstance().getCurrentFilePath()
 											.filePath,
 									),
+									indentSize: plugin.tabSize,
 								},
 							);
 

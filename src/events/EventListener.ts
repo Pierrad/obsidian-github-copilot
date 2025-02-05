@@ -82,6 +82,7 @@ class EventListener {
 				line: cursor.line,
 				character: cursor.ch,
 				version: Cacher.getInstance().getCache(file.path),
+				indentSize: this.plugin.tabSize,
 			});
 
 			await this.plugin.copilotAgent.triggerCompletions(

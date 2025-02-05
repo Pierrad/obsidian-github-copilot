@@ -44,12 +44,13 @@ class LSP {
 		line: number;
 		character: number;
 		version: number;
+		indentSize?: number;
 	}): GetCompletionsParams {
 		return {
 			doc: {
 				tabSize: 2,
-				indentSize: 2,
-				insertSpaces: true,
+				indentSize: args.indentSize || 4,
+				insertSpaces: false,
 				uri: "file://" + args.uri,
 				relativePath: args.relativePath,
 				position: {
