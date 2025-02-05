@@ -59,7 +59,8 @@ const KeybindingInput: React.FC<KeybindingInputProps> = (props) => {
 
 	const handleRemoveHotkey = useCallback(() => {
 		setHotkey("");
-	}, []);
+		onChange("");
+	}, [onChange]);
 
 	const handleResetHotkey = useCallback(() => {
 		setHotkey(defaultValue || "");
