@@ -43,6 +43,7 @@ class CopilotAgent implements SettingsObserver {
 		this.startAgent();
 		this.setupListeners();
 		await this.configureClient();
+		await this.trySignIn();
 		new Notice("Copilot is ready!");
 		return Promise.resolve();
 	}
@@ -72,6 +73,16 @@ class CopilotAgent implements SettingsObserver {
 		} catch (error) {
 			new Notice("Error starting agent: " + error);
 		}
+	}
+
+	// Force sign in at startup for issue : https://github.com/Pierrad/obsidian-github-copilot/issues/36
+	public async trySignIn(): Promise<void> {
+		return await this.client.initiateSignIn().then((res) => {
+			Logger.getInstance().log(
+				"Try to sign in at copilot startup : " + JSON.stringify(res),
+			);
+			return res;
+		});
 	}
 
 	public async configureClient() {
