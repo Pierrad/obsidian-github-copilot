@@ -33,7 +33,7 @@ export default class CopilotPlugin extends Plugin {
 	copilotAgent: CopilotAgent;
 	private cmExtensionManager: ExtensionManager;
 	private eventManager: EventManager;
-	version = "1.0.12";
+	version = "1.0.13";
 	tabSize = Vault.DEFAULT_TAB_SIZE;
 
 	async onload() {
