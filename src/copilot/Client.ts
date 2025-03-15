@@ -57,7 +57,16 @@ class Client {
 				version: "0.0.1",
 			},
 			rootUri: "file://" + this.basePath,
-			initializationOptions: {},
+			initializationOptions: {
+				editorInfo: {
+					name: "obsidian",
+					version: "0.0.1",
+				},
+				editorPluginInfo: {
+					name: "obsidian-copilot",
+					version: "0.0.1",
+				},
+			},
 		});
 		await this.initialized();
 		await this.checkStatus();
