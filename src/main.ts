@@ -23,6 +23,8 @@ import o200k from "official-copilot/resources/o200k_base.tiktoken";
 import cl100kNoIndex from "official-copilot/resources/cl100k_base.tiktoken.noindex";
 // @ts-expect-error - import to be bundled
 import o200kNoIndex from "official-copilot/resources/o200k_base.tiktoken.noindex";
+// @ts-expect-error - import to be bundled
+import crypt32 from "official-copilot/resources/crypt32.node";
 
 export default class CopilotPlugin extends Plugin {
 	settingsTab: CopilotPluginSettingTab;
@@ -71,6 +73,10 @@ export default class CopilotPlugin extends Plugin {
 			await File.createFile(
 				`${Vault.getCopilotResourcesPath(this.app, this.version)}/o200k_base.tiktoken.noindex`,
 				o200kNoIndex,
+			);
+			await File.createFile(
+				`${Vault.getCopilotPath(this.app, this.version)}/crypt32.node`,
+				crypt32,
 			);
 			await File.removeOldCopilotFolders(
 				this.version,

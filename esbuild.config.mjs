@@ -41,6 +41,7 @@ const context = await esbuild.context({
 	loader: {
 		".tiktoken": "text",
 		".noindex": "text",
+		".node": "binary",
 	},
 	jsxSideEffects: true, // Can keep 'unused' imports
 });
