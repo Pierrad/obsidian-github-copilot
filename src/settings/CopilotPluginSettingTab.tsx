@@ -1,4 +1,4 @@
-import { App, Notice, PluginSettingTab, Setting, debounce } from "obsidian";
+import { App, Notice, PluginSettingTab, Setting, TextComponent, debounce } from "obsidian";
 import { StrictMode } from "react";
 import { Root, createRoot } from "react-dom/client";
 
@@ -95,9 +95,13 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					.setTooltip(
 						"This will test the path and verify the version of node.",
 					)
-					.onClick(async () =>
-						Node.testNodePath(this.plugin.settings.nodePath),
-					),
+					.onClick(async () => {
+						const path = await Node.testNodePath(this.plugin.settings.nodePath);
+						if (path) {
+							this.plugin.settings.nodePath = path;
+							await this.saveSettings();
+						}
+					}),
 			);
 
 		new Setting(containerEl)
