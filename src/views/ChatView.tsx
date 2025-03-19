@@ -4,6 +4,7 @@ import { App } from "obsidian";
 import { ItemView, WorkspaceLeaf } from "obsidian";
 import { CHAT_VIEW_TYPE } from "../types/constants";
 import CopilotPlugin from "../main";
+import Chat from "../components/chat/Chat";
 
 export const AppContext = React.createContext<App | undefined>(undefined);
 
@@ -41,7 +42,7 @@ export default class ChatView extends ItemView {
 		root.render(
 			<AppContext.Provider value={this.app}>
 				<React.StrictMode>
-					<div>Chat Interface</div>
+					<Chat />
 				</React.StrictMode>
 			</AppContext.Provider>,
 		);

@@ -105,3 +105,42 @@
 .copilot-settings-exclude-item-remove {
 	font-size: 1.2rem;
 }
+
+/***********************
+ * Copilot Chat Styles
+ ***********************/
+
+.copilot-chat-container {
+	width: 100%;
+	height: 100%;
+}
+
+.copilot-chat-no-history-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+	width: 100%;
+}
+
+.copilot-chat-no-history-icon > svg {
+	width: 50px;
+	height: 50px;
+}
+
+.copilot-chat-no-history-title {
+	margin-top: 0;
+	text-align: center;
+}
+
+.copilot-chat-no-history-text {
+	margin-top: 0;
+	text-align: center;
+}
+
+.copilot-chat-input-form {
+	width: 100%;
+	position: relative;
+	bottom: 35px;
+}
