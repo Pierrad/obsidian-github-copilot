@@ -113,6 +113,9 @@
 .copilot-chat-container {
 	width: 100%;
 	height: 100%;
+	display: flex;
+	flex-direction: column;
+	padding-bottom: 10px;
 }
 
 .copilot-chat-no-history-container {
@@ -139,8 +142,63 @@
 	text-align: center;
 }
 
+.copilot-chat-message-list-container {
+	flex: 1;
+	overflow-y: auto;
+	padding: 10px 0;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.copilot-chat-message-container {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+
+.copilot-chat-message-info {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.copilot-chat-message-icon {
+	border-radius: 50%;
+	border: 1px solid var(--background-modifier-border);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 4px;
+}
+
+.copilot-chat-message-icon > svg {
+	width: 20px;
+	height: 20px;
+}
+
 .copilot-chat-input-form {
+	display: flex;
+	gap: 5px;
 	width: 100%;
 	position: relative;
-	bottom: 35px;
+}
+
+.copilot-chat-input-input {
+	width: 100%;
+}
+
+.copilot-chat-input-button {
+	height: 60px;
+}
+
+.copilot-chat-header-container {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.copilot-chat-header-title {
+	margin: 0;
 }

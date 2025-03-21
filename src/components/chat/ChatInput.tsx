@@ -6,7 +6,9 @@ const BASE_CLASSNAME = "copilot-chat-input";
 const ChatInput: React.FC = () => {
 	const [inputValue, setInputValue] = React.useState<string>("");
 
-	const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+	const handleInputChange = (
+		event: React.ChangeEvent<HTMLTextAreaElement>,
+	) => {
 		setInputValue(event.target.value);
 	};
 
@@ -21,8 +23,7 @@ const ChatInput: React.FC = () => {
 			onSubmit={handleSubmit}
 			className={concat(BASE_CLASSNAME, "form")}
 		>
-			<input
-				type="text"
+			<textarea
 				value={inputValue}
 				onChange={handleInputChange}
 				className={cx(
@@ -30,6 +31,8 @@ const ChatInput: React.FC = () => {
 					concat(BASE_CLASSNAME, "input"),
 				)}
 				placeholder="Type your message..."
+				rows={3}
+				style={{ resize: "none", width: "100%" }}
 			/>
 			<button
 				type="submit"
