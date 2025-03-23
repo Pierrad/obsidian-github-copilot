@@ -1,16 +1,16 @@
 import React from "react";
-import { concat, cx } from "../../utils/style";
+import { concat, cx } from "../../../utils/style";
 
 const BASE_CLASSNAME = "copilot-chat-message";
 
-export interface ChatMessageProps {
+export interface MessageProps {
 	className?: string;
 	icon: string;
 	name: string;
 	message: string;
 }
 
-const ChatMessage: React.FC<ChatMessageProps> = (props) => {
+const ChatMessage: React.FC<MessageProps> = (props) => {
 	const { className, icon, name, message } = props;
 
 	return (

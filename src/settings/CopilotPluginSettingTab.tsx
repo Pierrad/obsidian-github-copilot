@@ -1,4 +1,4 @@
-import { App, Notice, PluginSettingTab, Setting, TextComponent, debounce } from "obsidian";
+import { App, Notice, PluginSettingTab, Setting, debounce } from "obsidian";
 import { StrictMode } from "react";
 import { Root, createRoot } from "react-dom/client";
 
@@ -25,6 +25,16 @@ export type Hotkeys = {
 	disable: string;
 };
 
+export type CopilotChatSettings = {
+	deviceCode: string | null;
+	pat: string | null; // Personal Access Token to create the access token
+	// Access token to authenticate the user
+	accessToken: {
+		token: string | null;
+		expiresAt: number | null;
+	};
+};
+
 export interface CopilotPluginSettings {
 	nodePath: string;
 	enabled: boolean;
@@ -37,6 +47,7 @@ export interface CopilotPluginSettings {
 	deviceSpecificSettings: string[];
 	useDeviceSpecificSettings: boolean;
 	proxy: string;
+	chatSettings?: CopilotChatSettings;
 }
 
 export const DEFAULT_SETTINGS: CopilotPluginSettings = {
@@ -58,6 +69,14 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 	deviceSpecificSettings: ["nodePath"],
 	useDeviceSpecificSettings: false,
 	proxy: "",
+	chatSettings: {
+		deviceCode: null,
+		pat: null,
+		accessToken: {
+			token: null,
+			expiresAt: null,
+		},
+	},
 };
 
 class CopilotPluginSettingTab extends PluginSettingTab {
@@ -96,7 +115,9 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 						"This will test the path and verify the version of node.",
 					)
 					.onClick(async () => {
-						const path = await Node.testNodePath(this.plugin.settings.nodePath);
+						const path = await Node.testNodePath(
+							this.plugin.settings.nodePath,
+						);
 						if (path) {
 							this.plugin.settings.nodePath = path;
 							await this.saveSettings();

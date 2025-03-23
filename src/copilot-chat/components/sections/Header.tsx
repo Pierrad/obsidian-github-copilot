@@ -1,9 +1,9 @@
 import React from "react";
-import { concat } from "../../utils/style";
+import { concat } from "../../../utils/style";
 
 const BASE_CLASSNAME = "copilot-chat-header";
 
-const ChatHeader: React.FC = () => {
+const Header: React.FC = () => {
 	return (
 		<header className={concat(BASE_CLASSNAME, "container")}>
 			<h6 className={concat(BASE_CLASSNAME, "title")}>Chat</h6>
@@ -12,4 +12,4 @@ const ChatHeader: React.FC = () => {
 	);
 };
 
-export default ChatHeader;
+export default Header;

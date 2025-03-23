@@ -1,14 +1,15 @@
 import React from "react";
-import NoHistory from "./NoHistory";
-import ChatHeader from "./ChatHeader";
-import ChatInput from "./ChatInput";
-import { ChatMessageProps } from "./ChatMessage";
-import ChatMessageList from "./ChatMessageList";
+import MainLayout from "../layouts/MainLayout";
+import NoHistory from "./sections/NoHistory";
+import Header from "./sections/Header";
+import Input from "./sections/Input";
+import MessageList from "./sections/MessageList";
+import { MessageProps } from "./atoms/Message";
 import { copilotIcon } from "../../assets/copilot";
 import { userIcon } from "../../assets/user";
 
 const Chat: React.FC = () => {
-	const [messages, setMessages] = React.useState<ChatMessageProps[]>([
+	const [messages, setMessages] = React.useState<MessageProps[]>([
 		{
 			icon: userIcon,
 			name: "User",
@@ -25,15 +26,15 @@ const Chat: React.FC = () => {
 	]);
 
 	return (
-		<div className="copilot-chat-container">
-			<ChatHeader />
+		<MainLayout>
+			<Header />
 			{messages.length === 0 ? (
 				<NoHistory />
 			) : (
-				<ChatMessageList messages={messages} />
+				<MessageList messages={messages} />
 			)}
-			<ChatInput />
-		</div>
+			<Input />
+		</MainLayout>
 	);
 };
 

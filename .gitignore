@@ -25,3 +25,4 @@ device_data.json
 # Exclude plugin resources
 copilot/
 copilot-*/
+!copilot-chat/

@@ -1,15 +1,15 @@
 import React from "react";
-import { concat, cx } from "../../utils/style";
-import ChatMessage, { ChatMessageProps } from "./ChatMessage";
+import { concat, cx } from "../../../utils/style";
+import Message, { MessageProps } from "../atoms/Message";
 
 const BASE_CLASSNAME = "copilot-chat-message-list";
 
-export interface ChatMessageListProps {
+export interface MessageListProps {
 	className?: string;
-	messages: ChatMessageProps[];
+	messages: MessageProps[];
 }
 
-const ChatMessageList: React.FC<ChatMessageListProps> = (props) => {
+const MessageList: React.FC<MessageListProps> = (props) => {
 	const { className, messages } = props;
 
 	return (
@@ -18,11 +18,11 @@ const ChatMessageList: React.FC<ChatMessageListProps> = (props) => {
 		>
 			{messages.map((message, index) => (
 				<div key={index} className={concat(BASE_CLASSNAME, "item")}>
-					<ChatMessage {...message} />
+					<Message {...message} />
 				</div>
 			))}
 		</div>
 	);
 };
 
-export default ChatMessageList;
+export default MessageList;

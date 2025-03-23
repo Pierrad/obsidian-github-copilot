@@ -12,7 +12,7 @@ import Vault from "./helpers/Vault";
 import File from "./helpers/File";
 import Logger from "./helpers/Logger";
 import Cacher from "./copilot/Cacher";
-import ChatView from "./views/ChatView";
+import ChatView from "./copilot-chat/views/ChatView";
 
 // @ts-expect-error - import to be bundled
 import agent from "official-copilot/agent.txt";
@@ -26,7 +26,7 @@ import cl100kNoIndex from "official-copilot/resources/cl100k_base.tiktoken.noind
 import o200kNoIndex from "official-copilot/resources/o200k_base.tiktoken.noindex";
 // @ts-expect-error - import to be bundled
 import crypt32 from "official-copilot/resources/crypt32.node";
-import { CHAT_VIEW_TYPE } from "./types/constants";
+import { CHAT_VIEW_TYPE } from "./copilot-chat/types/constants";
 
 export default class CopilotPlugin extends Plugin {
 	settingsTab: CopilotPluginSettingTab;

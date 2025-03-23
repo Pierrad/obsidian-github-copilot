@@ -110,12 +110,61 @@
  * Copilot Chat Styles
  ***********************/
 
+/***********************
+ * Shared Styles
+ ***********************/
+
+.copilot-big-icon > svg {
+	width: 50px;
+	height: 50px;
+}
+
+.copilot-chat-title {
+	margin-top: 0;
+	text-align: center;
+}
+
+.copilot-chat-subtitle {
+	margin-top: 0;
+	text-align: center;
+}
+
+/***********************
+ * Specific Styles
+ ***********************/
+
 .copilot-chat-container {
 	width: 100%;
 	height: 100%;
 	display: flex;
 	flex-direction: column;
 	padding-bottom: 10px;
+}
+
+.copilot-chat-auth-container {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+	width: 100%;
+}
+
+.copilot-chat-auth-code {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+	margin-top: 10px;
+}
+
+.copilot-chat-auth-code-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
 }
 
 .copilot-chat-no-history-container {
@@ -125,21 +174,6 @@
 	align-items: center;
 	height: 100%;
 	width: 100%;
-}
-
-.copilot-chat-no-history-icon > svg {
-	width: 50px;
-	height: 50px;
-}
-
-.copilot-chat-no-history-title {
-	margin-top: 0;
-	text-align: center;
-}
-
-.copilot-chat-no-history-text {
-	margin-top: 0;
-	text-align: center;
 }
 
 .copilot-chat-message-list-container {

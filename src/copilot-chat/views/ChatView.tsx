@@ -1,20 +1,21 @@
 import * as React from "react";
 import { Root, createRoot } from "react-dom/client";
-import { App } from "obsidian";
 import { ItemView, WorkspaceLeaf } from "obsidian";
 import { CHAT_VIEW_TYPE } from "../types/constants";
-import CopilotPlugin from "../main";
-import Chat from "../components/chat/Chat";
+import CopilotPlugin from "../../main";
+import Chat from "../components/Chat";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "../api/client";
 
-export const AppContext = React.createContext<App | undefined>(undefined);
+export const PluginContext = React.createContext<CopilotPlugin | undefined>(
+	undefined,
+);
 
 export default class ChatView extends ItemView {
 	private root: Root | null = null;
+	private plugin: CopilotPlugin;
 
-	constructor(
-		leaf: WorkspaceLeaf,
-		private plugin: CopilotPlugin,
-	) {
+	constructor(leaf: WorkspaceLeaf, plugin: CopilotPlugin) {
 		super(leaf);
 		this.app = plugin.app;
 		this.plugin = plugin;
@@ -40,11 +41,13 @@ export default class ChatView extends ItemView {
 		const root = createRoot(this.containerEl.children[1]);
 
 		root.render(
-			<AppContext.Provider value={this.app}>
+			<PluginContext.Provider value={this.plugin}>
 				<React.StrictMode>
-					<Chat />
+					<QueryClientProvider client={queryClient}>
+						<Chat />
+					</QueryClientProvider>
 				</React.StrictMode>
-			</AppContext.Provider>,
+			</PluginContext.Provider>,
 		);
 	}
 

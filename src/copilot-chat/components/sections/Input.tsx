@@ -1,9 +1,9 @@
 import React from "react";
-import { concat, cx } from "../../utils/style";
+import { concat, cx } from "../../../utils/style";
 
 const BASE_CLASSNAME = "copilot-chat-input";
 
-const ChatInput: React.FC = () => {
+const Input: React.FC = () => {
 	const [inputValue, setInputValue] = React.useState<string>("");
 
 	const handleInputChange = (
@@ -44,4 +44,4 @@ const ChatInput: React.FC = () => {
 	);
 };
 
-export default ChatInput;
+export default Input;
