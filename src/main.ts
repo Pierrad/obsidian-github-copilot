@@ -126,8 +126,6 @@ export default class CopilotPlugin extends Plugin {
 	async activateView(): Promise<void> {
 		const { workspace } = this.app;
 
-		console.log("Activating view");
-
 		let leaf: WorkspaceLeaf | null = null;
 		const leaves = workspace.getLeavesOfType(CHAT_VIEW_TYPE);
 		if (leaves.length > 0) {

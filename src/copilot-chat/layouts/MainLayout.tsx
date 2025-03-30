@@ -11,7 +11,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 	const plugin = usePlugin();
 	const init = useAuthStore((state) => state.init);
 	const isAuth = useAuthStore((state) => state.isAuthenticated);
-	const reset = useAuthStore((state) => state.reset);
+	// const reset = useAuthStore((state) => state.reset);
 
 	useEffect(() => {
 		if (plugin) {
@@ -22,13 +22,13 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 	return (
 		<div className="copilot-chat-container">
 			{isAuth ? children : <Auth />}
-			<button
+			{/* <button
 				onClick={() => {
 					if (plugin) reset(plugin);
 				}}
 			>
 				Reset
-			</button>
+			</button> */}
 		</div>
 	);
 };

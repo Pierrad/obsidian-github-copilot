@@ -22,6 +22,7 @@ const NoHistory: React.FC = () => {
 			>
 				Ask Copilot
 			</h1>
+
 			<p
 				className={cx(
 					concat(BASE_CLASSNAME, "text"),
@@ -31,6 +32,17 @@ const NoHistory: React.FC = () => {
 				Copilot is powered by AI, so mistakes are possible. Review
 				output carefully before use.
 			</p>
+
+			<div className="copilot-chat-model-warning">
+				<h6 className="copilot-chat-model-warning-title">
+					Model Activation Required
+				</h6>
+				<p className="copilot-chat-model-warning-text">
+					To use Claude or Gemini models, you might need to enable
+					them in your IDE first. Make a request in your IDE and click
+					"Enable" when prompted.
+				</p>
+			</div>
 		</div>
 	);
 };

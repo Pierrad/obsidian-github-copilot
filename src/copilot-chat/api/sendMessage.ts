@@ -93,8 +93,6 @@ export const sendMessage = async (
 	accessToken: string,
 ): Promise<SendMessageResponse> => {
 	try {
-		console.log("Sending message to GitHub Copilot API:", data);
-		console.log("Access Token:", accessToken);
 		const response: RequestUrlResponse = await requestUrl({
 			url: "https://api.githubcopilot.com/chat/completions",
 			method: "POST",

@@ -10,17 +10,35 @@ export interface MessageData {
 	timestamp: number;
 }
 
+export interface ModelOption {
+	label: string;
+	value: string;
+}
+
 export interface MessageSlice {
 	messages: MessageData[];
 	isLoading: boolean;
 	error: string | null;
+	selectedModel: ModelOption;
+	availableModels: ModelOption[];
 
 	sendMessage: (
 		plugin: CopilotPlugin | undefined,
 		content: string,
 	) => Promise<void>;
 	clearMessages: () => void;
+	setSelectedModel: (model: ModelOption) => void;
 }
+
+const defaultModels: ModelOption[] = [
+	{ label: "GPT-4o", value: "gpt-4o-2024-08-06" },
+	{ label: "GPT-o1", value: "o1-2024-12-17" },
+	{ label: "GPT-o3-mini", value: "o3-mini" },
+	{ label: "Claude 3.7 Sonnet Thinking", value: "claude-3.7-sonnet-thought" },
+	{ label: "Claude 3.7 Sonnet", value: "claude-3.7-sonnet" },
+	{ label: "Claude 3.5 Sonnet", value: "claude-3.5-sonnet" },
+	{ label: "Gemini 2.0 Flash", value: "gemini-2.0-flash-001" },
+];
 
 export const createMessageSlice: StateCreator<
 	any, // We use any here as we'll properly type it in the store.ts
@@ -31,6 +49,8 @@ export const createMessageSlice: StateCreator<
 	messages: [],
 	isLoading: false,
 	error: null,
+	selectedModel: defaultModels[0],
+	availableModels: defaultModels,
 
 	sendMessage: async (plugin: CopilotPlugin | undefined, content: string) => {
 		if (!get().isAuthenticated) {
@@ -65,7 +85,7 @@ export const createMessageSlice: StateCreator<
 
 			const requestData: SendMessageRequest = {
 				intent: false,
-				model: "gpt-4o-2024-08-06",
+				model: get().selectedModel.value,
 				temperature: 0,
 				top_p: 1,
 				n: 1,
@@ -105,6 +125,12 @@ export const createMessageSlice: StateCreator<
 		set({
 			messages: [],
 			error: null,
+		});
+	},
+
+	setSelectedModel: (model: ModelOption) => {
+		set({
+			selectedModel: model,
 		});
 	},
 });

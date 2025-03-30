@@ -129,6 +129,10 @@
 	text-align: center;
 }
 
+.copilot-chat-container * {
+	user-select: text;
+}
+
 /***********************
  * Specific Styles
  ***********************/
@@ -176,6 +180,32 @@
 	width: 100%;
 }
 
+.copilot-chat-model-warning {
+	background-color: var(--background-modifier-form-field);
+	border: 1px solid var(--color-yellow);
+	border-radius: 4px;
+	padding: 12px 16px;
+	margin: 10px 0 16px;
+	text-align: center;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	width: 80%;
+	max-width: 500px;
+}
+
+.copilot-chat-model-warning-title {
+	font-weight: 600;
+	margin: 0;
+	color: var(--color-yellow-darker);
+	font-size: 1rem;
+}
+
+.copilot-chat-model-warning-text {
+	margin: 0;
+	font-size: 0.8rem;
+}
+
 .copilot-chat-message-list-container {
 	flex: 1;
 	overflow-y: auto;
@@ -213,6 +243,13 @@
 
 .copilot-chat-input-container {
 	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	width: 100%;
+}
+
+.copilot-chat-input-input-container {
+	display: flex;
 	gap: 5px;
 	width: 100%;
 	position: relative;
@@ -235,4 +272,184 @@
 
 .copilot-chat-header-title {
 	margin: 0;
+}
+
+/***********************
+ * Model Selector Styles
+ ***********************/
+.copilot-chat-model-selector-container {
+	display: flex;
+	align-items: center;
+	margin-bottom: 8px;
+	position: relative;
+	width: 100%;
+}
+
+.copilot-chat-model-selector-select {
+	width: 100%;
+	background-color: var(--background-secondary);
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 0.9rem;
+	border: 1px solid var(--background-modifier-border);
+	color: var(--text-normal);
+	transition: border-color 0.2s ease;
+	appearance: auto;
+	-webkit-appearance: listbox;
+}
+
+.copilot-chat-model-selector-select:focus {
+	outline: none;
+	border-color: var(--interactive-accent);
+}
+
+.copilot-chat-model-selector-select:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+.copilot-chat-model-selector-disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.copilot-chat-model-selector-select option {
+	background-color: var(--background-primary);
+	color: var(--text-normal);
+}
+
+/***********************
+ * Markdown Formatting
+ ***********************/
+
+.copilot-chat-message {
+	line-height: 1.6;
+}
+
+.copilot-chat-message h1,
+.copilot-chat-message h2,
+.copilot-chat-message h3,
+.copilot-chat-message h4,
+.copilot-chat-message h5,
+.copilot-chat-message h6 {
+	margin-top: 1rem;
+	margin-bottom: 0.5rem;
+	font-weight: 600;
+}
+
+.copilot-chat-message h1 {
+	font-size: 1.8rem;
+}
+
+.copilot-chat-message h2 {
+	font-size: 1.5rem;
+}
+
+.copilot-chat-message h3 {
+	font-size: 1.3rem;
+}
+
+.copilot-chat-message p {
+	margin-bottom: 0.8rem;
+}
+
+.copilot-chat-message ul,
+.copilot-chat-message ol {
+	margin-left: 1.5rem;
+	margin-bottom: 0.8rem;
+}
+
+.copilot-chat-message li {
+	margin-bottom: 0.3rem;
+}
+
+.copilot-chat-message code {
+	background-color: var(--background-modifier-form-field);
+	padding: 0.2rem 0.4rem;
+	border-radius: 3px;
+	font-family: var(--font-monospace);
+	font-size: 0.85em;
+}
+
+/* Theme-sensitive code backgrounds */
+:root {
+	--code-background: var(--background-primary-alt);
+}
+
+.theme-dark .copilot-chat-message pre {
+	--code-background: var(--background-primary-alt);
+	background-color: var(--code-background);
+}
+
+.theme-light .copilot-chat-message pre {
+	--code-background: var(--background-primary-alt);
+	background-color: var(--code-background);
+}
+
+.copilot-chat-message pre {
+	border-radius: 4px;
+	padding: 0.5rem;
+	margin-bottom: 1rem;
+	overflow-x: auto;
+}
+
+.copilot-chat-message pre code {
+	background-color: transparent;
+	padding: 0;
+	font-size: 0.9em;
+}
+
+/* Make sure the syntax highlighter picks up theme colors */
+.copilot-chat-message .theme-dark pre > div {
+	background-color: var(--code-background) !important;
+}
+
+.copilot-chat-message .theme-light pre > div {
+	background-color: var(--code-background) !important;
+}
+
+/* Override syntax highlighter background */
+.copilot-chat-message pre > div {
+	margin: 0 !important;
+	padding: 0 !important;
+	background-color: var(--code-background) !important;
+}
+
+/* Adjust code block token colors for better visibility in both themes */
+.theme-dark .copilot-chat-message pre {
+	color: var(--text-normal);
+}
+
+.theme-light .copilot-chat-message pre {
+	color: var(--text-normal);
+}
+
+.copilot-chat-message blockquote {
+	border-left: 4px solid var(--text-muted);
+	padding-left: 1rem;
+	margin-left: 0;
+	margin-right: 0;
+	font-style: italic;
+	color: var(--text-muted);
+}
+
+.copilot-chat-message img {
+	max-width: 100%;
+	height: auto;
+}
+
+/* Table styles */
+.copilot-chat-message table {
+	border-collapse: collapse;
+	margin: 1rem 0;
+	width: 100%;
+}
+
+.copilot-chat-message table th,
+.copilot-chat-message table td {
+	border: 1px solid var(--background-modifier-border);
+	padding: 0.4rem 0.8rem;
+}
+
+.copilot-chat-message table th {
+	background-color: var(--background-secondary);
 }
