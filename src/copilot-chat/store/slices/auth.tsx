@@ -22,6 +22,7 @@ export interface AuthSlice {
 	deviceCodeData: DeviceCodeResponse | null;
 
 	init: (plugin: CopilotPlugin) => void;
+	checkAndRefreshToken: (plugin: CopilotPlugin) => Promise<string | null>;
 
 	setDeviceCode: (plugin: CopilotPlugin, code: string) => void;
 	setPAT: (plugin: CopilotPlugin, pat: string) => void;
@@ -54,6 +55,10 @@ const defaultChatSettings: CopilotChatSettings = {
 	},
 };
 
+const isTokenExpired = (expiresAt: number): boolean => {
+	return Date.now() >= expiresAt * 1000;
+};
+
 export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 	deviceCode: null,
 	pat: null,
@@ -67,7 +72,7 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 	isLoadingToken: false,
 	deviceCodeData: null,
 
-	init: (plugin: CopilotPlugin) => {
+	init: async (plugin: CopilotPlugin) => {
 		const chatSettings =
 			plugin.settings.chatSettings || defaultChatSettings;
 
@@ -78,12 +83,51 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 				token: null,
 				expiresAt: 0,
 			},
-			isAuthenticated: !!(
-				chatSettings.deviceCode &&
-				chatSettings.pat &&
-				chatSettings.accessToken?.token
-			),
 		});
+
+		if (
+			chatSettings.pat &&
+			(!chatSettings.accessToken?.token ||
+				isTokenExpired(chatSettings.accessToken?.expiresAt || 0))
+		) {
+			try {
+				await get().fetchToken(plugin, chatSettings.pat);
+			} catch (error) {
+				console.error("Failed to refresh token during init:", error);
+			}
+		} else {
+			set({
+				isAuthenticated: !!(
+					chatSettings.deviceCode &&
+					chatSettings.pat &&
+					chatSettings.accessToken?.token &&
+					!isTokenExpired(chatSettings.accessToken?.expiresAt || 0)
+				),
+			});
+		}
+	},
+
+	checkAndRefreshToken: async (plugin: CopilotPlugin) => {
+		const { accessToken, pat } = get();
+
+		if (!accessToken.token || isTokenExpired(accessToken.expiresAt || 0)) {
+			console.log("Token expired or about to expire, refreshing...");
+
+			if (!pat) {
+				console.error("Cannot refresh token: No PAT available");
+				return null;
+			}
+
+			try {
+				const data = await get().fetchToken(plugin, pat);
+				return data?.token || null;
+			} catch (error) {
+				console.error("Failed to refresh token:", error);
+				return null;
+			}
+		}
+
+		return accessToken.token;
 	},
 
 	setDeviceCode: async (plugin: CopilotPlugin, code: string) => {
@@ -130,7 +174,8 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 		}
 		set({
 			accessToken: token,
-			isAuthenticated: !!token.token,
+			isAuthenticated:
+				!!token.token && !isTokenExpired(token.expiresAt || 0),
 		});
 	},
 
@@ -212,7 +257,6 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 			deviceCodeData: null,
 		});
 
-		// Ensure chatSettings exists before resetting
 		if (!plugin.settings.chatSettings) {
 			plugin.settings.chatSettings = { ...defaultChatSettings };
 		} else {

@@ -1,26 +1,39 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import ChatMessage, { MessageProps } from "../atoms/Message";
 import { concat, cx } from "../../../utils/style";
-import Message, { MessageProps } from "../atoms/Message";
 
 const BASE_CLASSNAME = "copilot-chat-message-list";
 
-export interface MessageListProps {
-	className?: string;
+interface MessageListProps {
 	messages: MessageProps[];
 }
 
-const MessageList: React.FC<MessageListProps> = (props) => {
-	const { className, messages } = props;
+const MessageList: React.FC<MessageListProps> = ({ messages }) => {
+	const endOfMessagesRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (endOfMessagesRef.current) {
+			endOfMessagesRef.current.scrollIntoView({ behavior: "smooth" });
+		}
+	}, [messages]);
 
 	return (
-		<div
-			className={cx(concat(BASE_CLASSNAME, "container"), className || "")}
-		>
+		<div className={concat(BASE_CLASSNAME, "container")}>
 			{messages.map((message, index) => (
-				<div key={index} className={concat(BASE_CLASSNAME, "item")}>
-					<Message {...message} />
-				</div>
+				<ChatMessage
+					key={index}
+					className={cx(
+						concat(BASE_CLASSNAME, "item"),
+						message.name === "GitHub Copilot"
+							? concat(BASE_CLASSNAME, "assistant")
+							: concat(BASE_CLASSNAME, "user"),
+					)}
+					icon={message.icon}
+					name={message.name}
+					message={message.message}
+				/>
 			))}
+			<div ref={endOfMessagesRef} />
 		</div>
 	);
 };

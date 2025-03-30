@@ -1,46 +1,62 @@
-import React from "react";
+import React, { useState, KeyboardEvent } from "react";
 import { concat, cx } from "../../../utils/style";
+import { useCopilotStore } from "../../store/store";
+import { usePlugin } from "../../hooks/usePlugin";
 
 const BASE_CLASSNAME = "copilot-chat-input";
 
-const Input: React.FC = () => {
-	const [inputValue, setInputValue] = React.useState<string>("");
+interface InputProps {
+	isLoading?: boolean;
+}
 
-	const handleInputChange = (
-		event: React.ChangeEvent<HTMLTextAreaElement>,
-	) => {
-		setInputValue(event.target.value);
+const Input: React.FC<InputProps> = ({ isLoading = false }) => {
+	const [message, setMessage] = useState("");
+	const plugin = usePlugin();
+	const { sendMessage, isAuthenticated } = useCopilotStore();
+
+	const handleSubmit = async () => {
+		if (message.trim() === "" || isLoading || !isAuthenticated) return;
+
+		console.log("Sending message:", message);
+		try {
+			await sendMessage(plugin, message);
+			setMessage("");
+		} catch (error) {
+			console.error("Failed to send message:", error);
+		}
 	};
 
-	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-		event.preventDefault();
-		console.log("Submitted:", inputValue);
-		setInputValue("");
+	const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+		if (e.key === "Enter" && !e.shiftKey) {
+			console.log("calling handleSubmit");
+			e.preventDefault();
+			handleSubmit();
+		}
 	};
 
 	return (
-		<form
-			onSubmit={handleSubmit}
-			className={concat(BASE_CLASSNAME, "form")}
-		>
+		<div className={concat(BASE_CLASSNAME, "container")}>
 			<textarea
-				value={inputValue}
-				onChange={handleInputChange}
 				className={cx(
 					"setting-item-input",
 					concat(BASE_CLASSNAME, "input"),
 				)}
-				placeholder="Type your message..."
-				rows={3}
-				style={{ resize: "none", width: "100%" }}
+				value={message}
+				onChange={(e) => setMessage(e.target.value)}
+				onKeyDown={handleKeyDown}
+				placeholder="Ask GitHub Copilot something..."
+				disabled={isLoading || !isAuthenticated}
 			/>
 			<button
-				type="submit"
 				className={cx("mod-cta", concat(BASE_CLASSNAME, "button"))}
+				onClick={handleSubmit}
+				disabled={
+					isLoading || message.trim() === "" || !isAuthenticated
+				}
 			>
-				Send
+				{isLoading ? "Thinking..." : "Send"}
 			</button>
-		</form>
+		</div>
 	);
 };
 

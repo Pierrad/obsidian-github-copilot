@@ -7,33 +7,26 @@ import MessageList from "./sections/MessageList";
 import { MessageProps } from "./atoms/Message";
 import { copilotIcon } from "../../assets/copilot";
 import { userIcon } from "../../assets/user";
+import { useCopilotStore } from "../store/store";
 
 const Chat: React.FC = () => {
-	const [messages, setMessages] = React.useState<MessageProps[]>([
-		{
-			icon: userIcon,
-			name: "User",
-			message: "What is the weather like today?",
-		},
-		{
-			icon: copilotIcon,
-			name: "GitHub Copilot",
-			message:
-				"The weather is sunny with a high of 75°F. \n" +
-				"It's a great day to go outside and enjoy the sun! \n" +
-				"Don't forget to wear sunscreen.",
-		},
-	]);
+	const { messages, isLoading } = useCopilotStore();
+
+	const formattedMessages: MessageProps[] = messages.map((message) => ({
+		icon: message.role === "assistant" ? copilotIcon : userIcon,
+		name: message.role === "assistant" ? "GitHub Copilot" : "User",
+		message: message.content,
+	}));
 
 	return (
 		<MainLayout>
 			<Header />
-			{messages.length === 0 ? (
+			{formattedMessages.length === 0 ? (
 				<NoHistory />
 			) : (
-				<MessageList messages={messages} />
+				<MessageList messages={formattedMessages} />
 			)}
-			<Input />
+			<Input isLoading={isLoading} />
 		</MainLayout>
 	);
 };

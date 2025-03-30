@@ -1,5 +1,13 @@
 import { requestUrl, RequestUrlResponse } from "obsidian";
 
+export interface DeviceCodeResponse {
+	device_code: string;
+	user_code: string;
+	verification_uri: string;
+	expires_in: number;
+	interval: number;
+}
+
 /**
  * Fetch a device code from GitHub's OAuth API
  * @returns Promise with the device code data

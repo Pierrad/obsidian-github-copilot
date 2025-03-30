@@ -211,7 +211,7 @@
 	height: 20px;
 }
 
-.copilot-chat-input-form {
+.copilot-chat-input-container {
 	display: flex;
 	gap: 5px;
 	width: 100%;
