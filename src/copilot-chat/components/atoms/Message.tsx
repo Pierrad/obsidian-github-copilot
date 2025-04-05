@@ -13,6 +13,11 @@ export interface MessageProps {
 	icon: string;
 	name: string;
 	message: string;
+	linkedNotes?: {
+		path: string;
+		filename: string;
+		content: string;
+	}[];
 }
 
 interface CodeProps {
@@ -23,7 +28,7 @@ interface CodeProps {
 }
 
 const ChatMessage: React.FC<MessageProps> = (props) => {
-	const { className, icon, name, message } = props;
+	const { className, icon, name, message, linkedNotes } = props;
 	const plugin = usePlugin();
 
 	const isDarkTheme = useMemo(() => {
@@ -84,6 +89,44 @@ const ChatMessage: React.FC<MessageProps> = (props) => {
 				>
 					{message}
 				</ReactMarkdown>
+
+				{linkedNotes && linkedNotes.length > 0 && (
+					<div className={concat(BASE_CLASSNAME, "linked-notes")}>
+						<div
+							className={concat(
+								BASE_CLASSNAME,
+								"linked-notes-title",
+							)}
+						>
+							Linked Notes:
+						</div>
+						<div
+							className={concat(
+								BASE_CLASSNAME,
+								"linked-notes-list",
+							)}
+						>
+							{linkedNotes.map((note, index) => (
+								<div
+									key={index}
+									className={concat(
+										BASE_CLASSNAME,
+										"linked-note",
+									)}
+								>
+									<span
+										className={concat(
+											BASE_CLASSNAME,
+											"linked-note-filename",
+										)}
+									>
+										[[{note.filename}]]
+									</span>
+								</div>
+							))}
+						</div>
+					</div>
+				)}
 			</div>
 		</div>
 	);

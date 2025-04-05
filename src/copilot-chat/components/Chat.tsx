@@ -36,6 +36,7 @@ const Chat: React.FC = () => {
 			icon: message.role === "assistant" ? copilotIcon : userIcon,
 			name: message.role === "assistant" ? "GitHub Copilot" : "User",
 			message: message.content,
+			linkedNotes: message.linkedNotes,
 		}),
 	);
 

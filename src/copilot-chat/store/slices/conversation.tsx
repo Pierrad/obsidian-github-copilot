@@ -80,7 +80,6 @@ export const createConversationSlice: StateCreator<
 		try {
 			const filePath = getConversationsFilePath(plugin);
 
-			// Check if conversations file exists
 			if (!existsSync(filePath)) {
 				console.log(
 					"No conversations file found. Starting with empty conversations.",
@@ -99,10 +98,6 @@ export const createConversationSlice: StateCreator<
 						activeConversationId:
 							conversationsData.activeConversationId || null,
 					});
-
-					console.log(
-						`Loaded ${conversationsData.conversations.length} conversations`,
-					);
 				}
 			}
 		} catch (error) {
@@ -136,7 +131,6 @@ export const createConversationSlice: StateCreator<
 				filePath,
 				JSON.stringify(conversationsData, null, 2),
 			);
-			console.log(`Saved ${recentConversations.length} conversations`);
 		} catch (error) {
 			console.error("Failed to save conversations:", error);
 			new Notice("Failed to save conversation history");

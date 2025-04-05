@@ -8,6 +8,11 @@ export interface MessageData {
 	content: string;
 	role: "user" | "assistant" | "system";
 	timestamp: number;
+	linkedNotes?: {
+		path: string;
+		filename: string;
+		content: string;
+	}[];
 }
 
 export interface ModelOption {
@@ -25,7 +30,9 @@ export interface MessageSlice {
 	initMessageService: (plugin: CopilotPlugin | undefined) => void;
 	sendMessage: (
 		plugin: CopilotPlugin | undefined,
-		content: string,
+		apiMessage: string,
+		displayMessage?: string,
+		linkedNotes?: { path: string; filename: string; content: string }[],
 	) => Promise<void>;
 	clearMessages: () => void;
 	setSelectedModel: (
@@ -64,17 +71,25 @@ export const createMessageSlice: StateCreator<
 			}
 		}
 	},
-	sendMessage: async (plugin: CopilotPlugin | undefined, content: string) => {
+	sendMessage: async (
+		plugin: CopilotPlugin | undefined,
+		apiMessage: string,
+		displayMessage?: string,
+		linkedNotes?: { path: string; filename: string; content: string }[],
+	) => {
 		if (!get().isAuthenticated) {
 			new Notice("You need to be authenticated to send messages");
 			return;
 		}
 
+		const notes = linkedNotes || [];
+
 		const userMessage: MessageData = {
 			id: Date.now().toString(),
-			content,
+			content: displayMessage || apiMessage,
 			role: "user",
 			timestamp: Date.now(),
+			linkedNotes: notes.length > 0 ? notes : undefined,
 		};
 
 		let activeConversationId = get().activeConversationId;
@@ -119,6 +134,23 @@ export const createMessageSlice: StateCreator<
 			const messages = systemPrompt
 				? [{ content: systemPrompt, role: "system" }, ...messageHistory]
 				: messageHistory;
+
+			if (notes.length > 0 && messages.length > 0) {
+				const lastUserMessageIndex = messages.length - 1;
+
+				const lastUserMessage = messages[lastUserMessageIndex];
+				const linkedNotesText = notes
+					.map(
+						(note) =>
+							`\n\nReferenced content from [[${note.filename}]]:\n${note.content}`,
+					)
+					.join("\n\n");
+
+				messages[lastUserMessageIndex] = {
+					...lastUserMessage,
+					content: `${lastUserMessage.content}${linkedNotesText}`,
+				};
+			}
 
 			const requestData: SendMessageRequest = {
 				intent: false,

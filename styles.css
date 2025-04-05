@@ -449,6 +449,80 @@
 }
 
 /***********************
+ * File Suggestion Styles
+ ***********************/
+.copilot-chat-file-suggestion-container {
+  background-color: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  max-height: 200px;
+  width: 250px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.copilot-chat-file-suggestion-list {
+  padding: 5px 0;
+}
+
+.copilot-chat-file-suggestion-item {
+  padding: 5px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.copilot-chat-file-suggestion-item:hover {
+  background-color: var(--background-modifier-hover);
+}
+
+.copilot-chat-file-suggestion-item-selected {
+  background-color: var(--background-secondary);
+}
+
+.copilot-chat-file-suggestion-no-results {
+  padding: 10px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+/***********************
+ * Linked Notes Styles
+ ***********************/
+.copilot-chat-message-linked-notes {
+  margin-top: 10px;
+  padding-top: 5px;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.copilot-chat-message-linked-notes-title {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: var(--text-muted);
+  font-size: 0.9em;
+}
+
+.copilot-chat-message-linked-notes-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.copilot-chat-message-linked-note {
+  background-color: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.85em;
+}
+
+.copilot-chat-message-linked-note-filename {
+  color: var(--text-accent);
+}
+
+/***********************
  * Markdown Formatting
  ***********************/
 
