@@ -9,7 +9,7 @@ export interface SendMessageRequest {
 	stream: boolean;
 	messages: {
 		content: string;
-		role: "user" | "assistant";
+		role: "user" | "assistant" | "system";
 	}[];
 }
 

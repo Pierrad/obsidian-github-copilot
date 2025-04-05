@@ -48,6 +48,7 @@ export interface CopilotPluginSettings {
 	useDeviceSpecificSettings: boolean;
 	proxy: string;
 	chatSettings?: CopilotChatSettings;
+	systemPrompt: string;
 }
 
 export const DEFAULT_SETTINGS: CopilotPluginSettings = {
@@ -77,6 +78,8 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 			expiresAt: null,
 		},
 	},
+	systemPrompt:
+		"You are GitHub Copilot, an AI assistant. You are helping the user with their tasks in Obsidian.",
 };
 
 class CopilotPluginSettingTab extends PluginSettingTab {
@@ -93,6 +96,8 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 
 		containerEl.empty();
+
+		containerEl.createEl("h1", { text: "Inline Copilot Settings" });
 
 		new Setting(containerEl)
 			.setName("Node binary path")
@@ -360,6 +365,31 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 						});
 					}),
 			);
+
+		containerEl.createEl("h1", { text: "Copilot Chat Settings" });
+
+		new Setting(containerEl)
+			.setName("System prompt")
+			.setDesc(
+				"Configure the system prompt used for new chat conversations.",
+			)
+			.addTextArea((text) => {
+				text.inputEl.rows = 4;
+				text.inputEl.cols = 50;
+				return text
+					.setPlaceholder("Enter a system prompt for Copilot Chat.")
+					.setValue(this.plugin.settings.systemPrompt)
+					.onChange(
+						debounce(
+							async (value) => {
+								this.plugin.settings.systemPrompt = value;
+								await this.saveSettings(false, true);
+							},
+							1000,
+							true,
+						),
+					);
+			});
 	}
 
 	public hide(): void {

@@ -6,7 +6,7 @@ import { SendMessageRequest, sendMessage } from "../../api/sendMessage";
 export interface MessageData {
 	id: string;
 	content: string;
-	role: "user" | "assistant";
+	role: "user" | "assistant" | "system";
 	timestamp: number;
 }
 
@@ -83,6 +83,11 @@ export const createMessageSlice: StateCreator<
 				role: msg.role,
 			}));
 
+			const systemPrompt = plugin?.settings.systemPrompt;
+			const messages = systemPrompt
+				? [{ content: systemPrompt, role: "system" }, ...messageHistory]
+				: messageHistory;
+
 			const requestData: SendMessageRequest = {
 				intent: false,
 				model: get().selectedModel.value,
@@ -90,7 +95,7 @@ export const createMessageSlice: StateCreator<
 				top_p: 1,
 				n: 1,
 				stream: false,
-				messages: messageHistory,
+				messages: messages,
 			};
 
 			const response = await sendMessage(requestData, validToken);

@@ -47,7 +47,10 @@ Use Github Copilot in the Obsidian editor. This plugin is a bridge between the O
 - "Tab" completion can be buggy in some cases (e.g. in bullet points in LateX Math mode for example). It depends on plugin priority over the keybindings. See [this issue](https://github.com/Pierrad/obsidian-github-copilot/issues/38) for more information. 
 
 
-Liste de modèles : 
-- https://docs.github.com/en/copilot/using-github-copilot/ai-models/changing-the-ai-model-for-copilot-chat
-  - GPT-4o : gpt-4o-2024-08-06
-  - 
+# TODO
+
+- [x] Add a setting to configure a system prompt to use with the chat
+- [ ] Remember the last model used
+- [ ] Find a way to remember chats between sessions
+- [ ] Find a way to link the current note to the chat
+- [ ] Stream the response from the API
