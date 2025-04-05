@@ -51,6 +51,7 @@ Use Github Copilot in the Obsidian editor. This plugin is a bridge between the O
 
 - [x] Add a setting to configure a system prompt to use with the chat
 - [x] Remember the last model used
-- [ ] Find a way to remember chats between sessions
+- [x] Find a way to remember chats between sessions
 - [ ] Find a way to link the current note to the chat
 - [ ] Stream the response from the API
+- [ ] Let the user choose between enter a new line or send the message

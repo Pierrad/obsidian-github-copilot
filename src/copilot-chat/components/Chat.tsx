@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import MainLayout from "../layouts/MainLayout";
 import NoHistory from "./sections/NoHistory";
 import Header from "./sections/Header";
@@ -8,15 +8,36 @@ import { MessageProps } from "./atoms/Message";
 import { copilotIcon } from "../../assets/copilot";
 import { userIcon } from "../../assets/user";
 import { useCopilotStore } from "../store/store";
+import { usePlugin } from "../hooks/usePlugin";
 
 const Chat: React.FC = () => {
-	const { messages, isLoading } = useCopilotStore();
+	const plugin = usePlugin();
+	const {
+		messages,
+		isLoading,
+		conversations,
+		activeConversationId,
+		initConversationService,
+	} = useCopilotStore();
 
-	const formattedMessages: MessageProps[] = messages.map((message) => ({
-		icon: message.role === "assistant" ? copilotIcon : userIcon,
-		name: message.role === "assistant" ? "GitHub Copilot" : "User",
-		message: message.content,
-	}));
+	useEffect(() => {
+		if (plugin) {
+			initConversationService(plugin);
+		}
+	}, [plugin, initConversationService]);
+
+	const displayMessages = activeConversationId
+		? conversations.find((conv) => conv.id === activeConversationId)
+				?.messages || []
+		: messages;
+
+	const formattedMessages: MessageProps[] = displayMessages.map(
+		(message) => ({
+			icon: message.role === "assistant" ? copilotIcon : userIcon,
+			name: message.role === "assistant" ? "GitHub Copilot" : "User",
+			message: message.content,
+		}),
+	);
 
 	return (
 		<MainLayout>

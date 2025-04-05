@@ -77,6 +77,17 @@ export const createMessageSlice: StateCreator<
 			timestamp: Date.now(),
 		};
 
+		let activeConversationId = get().activeConversationId;
+
+		if (!activeConversationId) {
+			activeConversationId = get().createConversation(
+				plugin,
+				get().selectedModel,
+			);
+		}
+
+		get().addMessageToConversation(activeConversationId, userMessage);
+
 		set((state: MessageSlice) => ({
 			messages: [...state.messages, userMessage],
 			isLoading: true,
@@ -90,10 +101,19 @@ export const createMessageSlice: StateCreator<
 				throw new Error("Failed to get a valid access token");
 			}
 
-			const messageHistory = get().messages.map((msg: MessageData) => ({
-				content: msg.content,
-				role: msg.role,
-			}));
+			const activeConversation = get().conversations.find(
+				(conv: any) => conv.id === activeConversationId,
+			);
+
+			const messageHistory = activeConversation
+				? activeConversation.messages.map((msg: MessageData) => ({
+						content: msg.content,
+						role: msg.role,
+					}))
+				: get().messages.map((msg: MessageData) => ({
+						content: msg.content,
+						role: msg.role,
+					}));
 
 			const systemPrompt = plugin?.settings.systemPrompt;
 			const messages = systemPrompt
@@ -120,10 +140,19 @@ export const createMessageSlice: StateCreator<
 					timestamp: Date.now(),
 				};
 
+				get().addMessageToConversation(
+					activeConversationId,
+					assistantMessage,
+				);
+
 				set((state: MessageSlice) => ({
 					messages: [...state.messages, assistantMessage],
 					isLoading: false,
 				}));
+
+				if (plugin) {
+					get().saveConversations(plugin);
+				}
 			}
 		} catch (error) {
 			console.error("Error sending message:", error);
@@ -143,6 +172,11 @@ export const createMessageSlice: StateCreator<
 			messages: [],
 			error: null,
 		});
+
+		const plugin = get().plugin;
+		if (plugin) {
+			get().createConversation(plugin, get().selectedModel);
+		}
 	},
 
 	setSelectedModel: (

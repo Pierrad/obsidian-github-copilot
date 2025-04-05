@@ -13,6 +13,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 	const initMessageService = useCopilotStore(
 		(state) => state.initMessageService,
 	);
+	const initConversationService = useCopilotStore(
+		(state) => state.initConversationService,
+	);
 	const isAuth = useAuthStore((state) => state.isAuthenticated);
 	// const reset = useAuthStore((state) => state.reset);
 
@@ -20,8 +23,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 		if (plugin) {
 			initAuthService(plugin);
 			initMessageService(plugin);
+			initConversationService(plugin);
 		}
-	}, [plugin, initAuthService, initMessageService]);
+	}, [plugin, initAuthService, initMessageService, initConversationService]);
 
 	return (
 		<div className="copilot-chat-container">

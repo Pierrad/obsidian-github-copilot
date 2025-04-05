@@ -1,16 +1,44 @@
-import React from "react";
+import React, { useState } from "react";
 import { concat } from "../../../utils/style";
+import { usePlugin } from "../../hooks/usePlugin";
 import { useCopilotStore } from "../../store/store";
+import ConversationSelector from "./ConversationSelector";
 
 const BASE_CLASSNAME = "copilot-chat-header";
 
 const Header: React.FC = () => {
-	const { clearMessages } = useCopilotStore();
+	const plugin = usePlugin();
+	const {
+		clearMessages,
+		activeConversationId,
+		deleteConversation,
+		createConversation,
+		selectedModel,
+	} = useCopilotStore();
+	const [isConversationSelectorOpen, setIsConversationSelectorOpen] =
+		useState(false);
 
 	const handleClearChat = () => {
-		if (confirm("Are you sure you want to clear the chat history?")) {
+		if (confirm("Are you sure you want to delete this conversation?")) {
+			if (activeConversationId && plugin) {
+				deleteConversation(plugin, activeConversationId);
+				clearMessages();
+				createConversation(plugin, selectedModel);
+			} else {
+				clearMessages();
+			}
+		}
+	};
+
+	const handleNewConversation = () => {
+		if (plugin) {
+			createConversation(plugin, selectedModel);
 			clearMessages();
 		}
+	};
+
+	const toggleConversationSelector = () => {
+		setIsConversationSelectorOpen(!isConversationSelectorOpen);
 	};
 
 	return (
@@ -19,8 +47,48 @@ const Header: React.FC = () => {
 			<div className={concat(BASE_CLASSNAME, "actions")}>
 				<button
 					className={concat(BASE_CLASSNAME, "action-button")}
+					onClick={handleNewConversation}
+					title="Start new conversation"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					>
+						<path d="M12 5v14"></path>
+						<path d="M5 12h14"></path>
+					</svg>
+				</button>
+				<button
+					className={concat(BASE_CLASSNAME, "action-button")}
+					onClick={toggleConversationSelector}
+					title="View conversation history"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+					>
+						<circle cx="12" cy="12" r="10"></circle>
+						<polyline points="12 6 12 12 16 14"></polyline>
+					</svg>
+				</button>
+				<button
+					className={concat(BASE_CLASSNAME, "action-button")}
 					onClick={handleClearChat}
-					title="Clear chat history"
+					title="Delete this conversation"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -39,6 +107,10 @@ const Header: React.FC = () => {
 					</svg>
 				</button>
 			</div>
+			<ConversationSelector
+				isOpen={isConversationSelectorOpen}
+				onClose={() => setIsConversationSelectorOpen(false)}
+			/>
 		</div>
 	);
 };
