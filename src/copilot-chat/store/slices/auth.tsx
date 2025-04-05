@@ -21,7 +21,7 @@ export interface AuthSlice {
 	isLoadingToken: boolean;
 	deviceCodeData: DeviceCodeResponse | null;
 
-	init: (plugin: CopilotPlugin) => void;
+	initAuthService: (plugin: CopilotPlugin) => void;
 	checkAndRefreshToken: (plugin: CopilotPlugin) => Promise<string | null>;
 
 	setDeviceCode: (plugin: CopilotPlugin, code: string) => void;
@@ -72,7 +72,7 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 	isLoadingToken: false,
 	deviceCodeData: null,
 
-	init: async (plugin: CopilotPlugin) => {
+	initAuthService: async (plugin: CopilotPlugin) => {
 		const chatSettings =
 			plugin.settings.chatSettings || defaultChatSettings;
 

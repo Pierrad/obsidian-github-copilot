@@ -22,15 +22,19 @@ export interface MessageSlice {
 	selectedModel: ModelOption;
 	availableModels: ModelOption[];
 
+	initMessageService: (plugin: CopilotPlugin | undefined) => void;
 	sendMessage: (
 		plugin: CopilotPlugin | undefined,
 		content: string,
 	) => Promise<void>;
 	clearMessages: () => void;
-	setSelectedModel: (model: ModelOption) => void;
+	setSelectedModel: (
+		plugin: CopilotPlugin | undefined,
+		model: ModelOption,
+	) => void;
 }
 
-const defaultModels: ModelOption[] = [
+export const defaultModels: ModelOption[] = [
 	{ label: "GPT-4o", value: "gpt-4o-2024-08-06" },
 	{ label: "GPT-o1", value: "o1-2024-12-17" },
 	{ label: "GPT-o3-mini", value: "o3-mini" },
@@ -52,6 +56,14 @@ export const createMessageSlice: StateCreator<
 	selectedModel: defaultModels[0],
 	availableModels: defaultModels,
 
+	initMessageService: (plugin: CopilotPlugin | undefined) => {
+		if (plugin && plugin.settings.chatSettings) {
+			const { selectedModel } = plugin.settings.chatSettings;
+			if (selectedModel) {
+				set({ selectedModel });
+			}
+		}
+	},
 	sendMessage: async (plugin: CopilotPlugin | undefined, content: string) => {
 		if (!get().isAuthenticated) {
 			new Notice("You need to be authenticated to send messages");
@@ -133,9 +145,32 @@ export const createMessageSlice: StateCreator<
 		});
 	},
 
-	setSelectedModel: (model: ModelOption) => {
+	setSelectedModel: (
+		plugin: CopilotPlugin | undefined,
+		model: ModelOption,
+	) => {
 		set({
 			selectedModel: model,
 		});
+
+		if (plugin) {
+			if (!plugin.settings.chatSettings) {
+				plugin.settings.chatSettings = {
+					deviceCode: null,
+					pat: null,
+					accessToken: {
+						token: null,
+						expiresAt: null,
+					},
+					selectedModel: model,
+				};
+			} else {
+				plugin.settings.chatSettings.selectedModel = model;
+			}
+
+			plugin.saveData(plugin.settings).catch((error) => {
+				console.error("Failed to save selected model:", error);
+			});
+		}
 	},
 });

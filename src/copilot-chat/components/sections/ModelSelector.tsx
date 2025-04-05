@@ -1,6 +1,7 @@
 import React from "react";
 import { concat, cx } from "../../../utils/style";
 import { useCopilotStore } from "../../store/store";
+import { usePlugin } from "../../hooks/usePlugin";
 
 const BASE_CLASSNAME = "copilot-chat-model-selector";
 
@@ -9,6 +10,7 @@ interface ModelSelectorProps {
 }
 
 const ModelSelector: React.FC<ModelSelectorProps> = ({ isAuthenticated }) => {
+	const plugin = usePlugin();
 	const { selectedModel, availableModels, setSelectedModel } =
 		useCopilotStore();
 
@@ -19,7 +21,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ isAuthenticated }) => {
 		);
 
 		if (selectedModelOption) {
-			setSelectedModel(selectedModelOption);
+			setSelectedModel(plugin, selectedModelOption);
 		}
 	};
 

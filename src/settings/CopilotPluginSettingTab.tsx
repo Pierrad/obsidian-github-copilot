@@ -11,6 +11,7 @@ import Logger from "../helpers/Logger";
 import File from "../helpers/File";
 import Json from "../helpers/Json";
 import Vault from "../helpers/Vault";
+import { defaultModels } from "../copilot-chat/store/slices/message";
 
 export interface SettingsObserver {
 	onSettingsUpdate(): Promise<void>;
@@ -32,6 +33,10 @@ export type CopilotChatSettings = {
 	accessToken: {
 		token: string | null;
 		expiresAt: number | null;
+	};
+	selectedModel?: {
+		label: string;
+		value: string;
 	};
 };
 
@@ -77,6 +82,7 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 			token: null,
 			expiresAt: null,
 		},
+		selectedModel: defaultModels[4],
 	},
 	systemPrompt:
 		"You are GitHub Copilot, an AI assistant. You are helping the user with their tasks in Obsidian.",
