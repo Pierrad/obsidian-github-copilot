@@ -4,8 +4,6 @@ import { ItemView, WorkspaceLeaf } from "obsidian";
 import { CHAT_VIEW_TYPE } from "../types/constants";
 import CopilotPlugin from "../../main";
 import Chat from "../components/Chat";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "../api/client";
 
 export const PluginContext = React.createContext<CopilotPlugin | undefined>(
 	undefined,
@@ -43,9 +41,7 @@ export default class ChatView extends ItemView {
 		root.render(
 			<PluginContext.Provider value={this.plugin}>
 				<React.StrictMode>
-					<QueryClientProvider client={queryClient}>
-						<Chat />
-					</QueryClientProvider>
+					<Chat />
 				</React.StrictMode>
 			</PluginContext.Provider>,
 		);
