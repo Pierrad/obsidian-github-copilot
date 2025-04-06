@@ -318,6 +318,7 @@
 	transition: border-color 0.2s ease;
 	appearance: auto;
 	-webkit-appearance: listbox;
+	padding: 0 0 0 4px;
 }
 
 .copilot-chat-model-selector-select:focus {
@@ -386,7 +387,7 @@
   color: var(--text-muted);
   font-size: 1.5rem;
   cursor: pointer;
-  padding: 0;
+  padding: 0 0 4px 0;
   display: flex;
   align-items: center;
   justify-content: center;
