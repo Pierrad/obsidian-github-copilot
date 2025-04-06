@@ -61,8 +61,7 @@ Use **Github Copilot** in the Obsidian editor. This plugin is a bridge between t
 
 ## 💬 Github Copilot Chat
 
-<video src="https://github.com/Pierrad/obsidian-github-copilot/blob/master/.github/assets/example-chat.mov" width="180"></video> 
-
+https://github.com/user-attachments/assets/89089920-45de-47c3-80b1-f2d58d1ba55e
 
 ### Installation
 
