@@ -164,9 +164,7 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 
 		try {
 			const linkedNotes = (await extractLinkedNotes()) || undefined;
-
 			const displayMessage = message;
-
 			const apiMessage = linkedNotes
 				? `${message}\n\n${linkedNotes
 						.map(
@@ -184,12 +182,25 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 	};
 
 	const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-		if (e.key === "Enter" && !e.shiftKey && !showFileSuggestion) {
-			e.preventDefault();
-			handleSubmit();
-		} else {
-			updateCursorPosition();
+		if (!plugin) return;
+
+		const invertBehavior = plugin.settings.invertEnterSendBehavior;
+
+		if (e.key === "Enter" && !showFileSuggestion) {
+			if (invertBehavior) {
+				if (e.shiftKey) {
+					e.preventDefault();
+					handleSubmit();
+				}
+			} else {
+				if (!e.shiftKey) {
+					e.preventDefault();
+					handleSubmit();
+				}
+			}
 		}
+
+		updateCursorPosition();
 	};
 
 	useEffect(() => {

@@ -49,6 +49,13 @@ const ChatMessage: React.FC<MessageProps> = (props) => {
 			<div className={concat(BASE_CLASSNAME, "message")}>
 				<ReactMarkdown
 					components={{
+						p({ children }) {
+							return (
+								<p style={{ whiteSpace: "pre-wrap" }}>
+									{children}
+								</p>
+							);
+						},
 						code({
 							className,
 							inline,

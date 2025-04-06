@@ -54,6 +54,7 @@ export interface CopilotPluginSettings {
 	proxy: string;
 	chatSettings?: CopilotChatSettings;
 	systemPrompt: string;
+	invertEnterSendBehavior: boolean;
 }
 
 export const DEFAULT_SETTINGS: CopilotPluginSettings = {
@@ -86,6 +87,7 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 	},
 	systemPrompt:
 		"You are GitHub Copilot, an AI assistant. You are helping the user with their tasks in Obsidian.",
+	invertEnterSendBehavior: false,
 };
 
 class CopilotPluginSettingTab extends PluginSettingTab {
@@ -373,6 +375,20 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 			);
 
 		containerEl.createEl("h1", { text: "Copilot Chat Settings" });
+
+		new Setting(containerEl)
+			.setName("Invert Enter/Shift+Enter behavior")
+			.setDesc(
+				"When enabled, pressing Enter will create a new line and Shift+Enter will send the message. By default, Enter sends the message and Shift+Enter creates a new line.",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.invertEnterSendBehavior)
+					.onChange(async (value) => {
+						this.plugin.settings.invertEnterSendBehavior = value;
+						await this.saveSettings();
+					}),
+			);
 
 		new Setting(containerEl)
 			.setName("System prompt")

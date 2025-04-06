@@ -53,5 +53,5 @@ Use Github Copilot in the Obsidian editor. This plugin is a bridge between the O
 - [x] Remember the last model used
 - [x] Find a way to remember chats between sessions
 - [x] Find a way to link a note to the chat
-- [ ] Stream the response from the API
-- [ ] Let the user choose between enter a new line or send the message
+- [ ] Stream the response from the API (waiting for requestUrl to implement Streaming : https://forum.obsidian.md/t/support-streaming-the-request-and-requesturl-response-body/87381)
+- [x] Let the user choose between enter a new line or send the message
