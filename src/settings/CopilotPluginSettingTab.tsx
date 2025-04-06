@@ -1,4 +1,4 @@
-import { App, Notice, PluginSettingTab, Setting, TextComponent, debounce } from "obsidian";
+import { App, Notice, PluginSettingTab, Setting, debounce } from "obsidian";
 import { StrictMode } from "react";
 import { Root, createRoot } from "react-dom/client";
 
@@ -11,6 +11,7 @@ import Logger from "../helpers/Logger";
 import File from "../helpers/File";
 import Json from "../helpers/Json";
 import Vault from "../helpers/Vault";
+import { defaultModels } from "../copilot-chat/store/slices/message";
 
 export interface SettingsObserver {
 	onSettingsUpdate(): Promise<void>;
@@ -25,6 +26,20 @@ export type Hotkeys = {
 	disable: string;
 };
 
+export type CopilotChatSettings = {
+	deviceCode: string | null;
+	pat: string | null; // Personal Access Token to create the access token
+	// Access token to authenticate the user
+	accessToken: {
+		token: string | null;
+		expiresAt: number | null;
+	};
+	selectedModel?: {
+		label: string;
+		value: string;
+	};
+};
+
 export interface CopilotPluginSettings {
 	nodePath: string;
 	enabled: boolean;
@@ -37,6 +52,9 @@ export interface CopilotPluginSettings {
 	deviceSpecificSettings: string[];
 	useDeviceSpecificSettings: boolean;
 	proxy: string;
+	chatSettings?: CopilotChatSettings;
+	systemPrompt: string;
+	invertEnterSendBehavior: boolean;
 }
 
 export const DEFAULT_SETTINGS: CopilotPluginSettings = {
@@ -58,6 +76,18 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 	deviceSpecificSettings: ["nodePath"],
 	useDeviceSpecificSettings: false,
 	proxy: "",
+	chatSettings: {
+		deviceCode: null,
+		pat: null,
+		accessToken: {
+			token: null,
+			expiresAt: null,
+		},
+		selectedModel: defaultModels[4],
+	},
+	systemPrompt:
+		"You are GitHub Copilot, an AI assistant. You are helping the user with their tasks in Obsidian.",
+	invertEnterSendBehavior: false,
 };
 
 class CopilotPluginSettingTab extends PluginSettingTab {
@@ -74,6 +104,8 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 
 		containerEl.empty();
+
+		containerEl.createEl("h1", { text: "Inline Copilot Settings" });
 
 		new Setting(containerEl)
 			.setName("Node binary path")
@@ -96,7 +128,9 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 						"This will test the path and verify the version of node.",
 					)
 					.onClick(async () => {
-						const path = await Node.testNodePath(this.plugin.settings.nodePath);
+						const path = await Node.testNodePath(
+							this.plugin.settings.nodePath,
+						);
 						if (path) {
 							this.plugin.settings.nodePath = path;
 							await this.saveSettings();
@@ -339,6 +373,45 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 						});
 					}),
 			);
+
+		containerEl.createEl("h1", { text: "Copilot Chat Settings" });
+
+		new Setting(containerEl)
+			.setName("Invert Enter/Shift+Enter behavior")
+			.setDesc(
+				"When enabled, pressing Enter will create a new line and Shift+Enter will send the message. By default, Enter sends the message and Shift+Enter creates a new line.",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.invertEnterSendBehavior)
+					.onChange(async (value) => {
+						this.plugin.settings.invertEnterSendBehavior = value;
+						await this.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName("System prompt")
+			.setDesc(
+				"Configure the system prompt used for new chat conversations.",
+			)
+			.addTextArea((text) => {
+				text.inputEl.rows = 4;
+				text.inputEl.cols = 50;
+				return text
+					.setPlaceholder("Enter a system prompt for Copilot Chat.")
+					.setValue(this.plugin.settings.systemPrompt)
+					.onChange(
+						debounce(
+							async (value) => {
+								this.plugin.settings.systemPrompt = value;
+								await this.saveSettings(false, true);
+							},
+							1000,
+							true,
+						),
+					);
+			});
 	}
 
 	public hide(): void {

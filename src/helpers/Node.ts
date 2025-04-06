@@ -34,9 +34,13 @@ class Node {
 		if (os.platform() === "win32") {
 			// Ensure consistent use of backslashes on Windows
 			nodePath = nodePath.replace(/\//g, "\\");
-			
+
 			// If no extension specified and it's not a directory, try to add .exe
-			if (!nodePath.endsWith(".exe") && !fs.existsSync(nodePath) && !fs.existsSync(nodePath + "\\")) {
+			if (
+				!nodePath.endsWith(".exe") &&
+				!fs.existsSync(nodePath) &&
+				!fs.existsSync(nodePath + "\\")
+			) {
 				const pathWithExe = nodePath + ".exe";
 				if (fs.existsSync(pathWithExe)) {
 					nodePath = pathWithExe;
@@ -57,7 +61,7 @@ class Node {
 	public static async testNodePath(nodePath: string): Promise<string | void> {
 		try {
 			const normalizedPath = this.normalizePath(nodePath);
-			
+
 			if (!fs.existsSync(normalizedPath)) {
 				new Notice(
 					`Node.js executable not found at: ${normalizedPath}. Please check the path.`,
@@ -67,7 +71,7 @@ class Node {
 
 			const result = await new Promise<string>((resolve, reject) => {
 				let spawnOptions = {};
-				
+
 				if (os.platform() === "win32") {
 					spawnOptions = { shell: true };
 				}
@@ -75,9 +79,9 @@ class Node {
 				const nodeProcess = child_process.spawn(
 					normalizedPath,
 					["--version"],
-					spawnOptions
+					spawnOptions,
 				);
-				
+
 				let output = "";
 				let errorOutput = "";
 
@@ -94,7 +98,9 @@ class Node {
 						resolve(output.trim());
 					} else {
 						reject(
-							new Error(`Node process exited with code ${code}${errorOutput ? ': ' + errorOutput.trim() : ''}`)
+							new Error(
+								`Node process exited with code ${code}${errorOutput ? ": " + errorOutput.trim() : ""}`,
+							),
 						);
 					}
 				});

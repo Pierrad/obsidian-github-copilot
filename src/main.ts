@@ -1,4 +1,4 @@
-import { Notice, Plugin } from "obsidian";
+import { Notice, Plugin, WorkspaceLeaf } from "obsidian";
 
 import EventManager from "./events/EventManager";
 import CopilotAgent from "./copilot/CopilotAgent";
@@ -12,6 +12,7 @@ import Vault from "./helpers/Vault";
 import File from "./helpers/File";
 import Logger from "./helpers/Logger";
 import Cacher from "./copilot/Cacher";
+import ChatView from "./copilot-chat/views/ChatView";
 
 // @ts-expect-error - import to be bundled
 import agent from "official-copilot/agent.txt";
@@ -25,6 +26,7 @@ import cl100kNoIndex from "official-copilot/resources/cl100k_base.tiktoken.noind
 import o200kNoIndex from "official-copilot/resources/o200k_base.tiktoken.noindex";
 // @ts-expect-error - import to be bundled
 import crypt32 from "official-copilot/resources/crypt32.node";
+import { CHAT_VIEW_TYPE } from "./copilot-chat/types/constants";
 
 export default class CopilotPlugin extends Plugin {
 	settingsTab: CopilotPluginSettingTab;
@@ -110,10 +112,36 @@ export default class CopilotPlugin extends Plugin {
 				file.path,
 			);
 		}
+
+		this.registerView(CHAT_VIEW_TYPE, (leaf) => new ChatView(leaf, this));
+		this.activateView();
 	}
 
 	onunload() {
 		this.copilotAgent?.stopAgent();
 		this.statusBar = null;
+		this.deactivateView();
+	}
+
+	async activateView(): Promise<void> {
+		const { workspace } = this.app;
+
+		let leaf: WorkspaceLeaf | null = null;
+		const leaves = workspace.getLeavesOfType(CHAT_VIEW_TYPE);
+		if (leaves.length > 0) {
+			leaf = leaves[0];
+		} else {
+			leaf = workspace.getRightLeaf(false);
+			await leaf?.setViewState({ type: CHAT_VIEW_TYPE, active: true });
+		}
+		if (!leaf) {
+			Logger.getInstance().error("Failed to create chat view.");
+			return;
+		}
+		workspace.revealLeaf(leaf);
+	}
+
+	async deactivateView() {
+		this.app.workspace.detachLeavesOfType(CHAT_VIEW_TYPE);
 	}
 }

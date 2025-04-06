@@ -18,6 +18,7 @@ main.js
 # obsidian
 data.json
 device_data.json
+conversations.json
 
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
@@ -25,3 +26,4 @@ device_data.json
 # Exclude plugin resources
 copilot/
 copilot-*/
+!copilot-chat/
