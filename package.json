@@ -1,7 +1,7 @@
 {
 	"name": "obsidian-github-copilot",
-	"version": "1.0.13",
-	"description": "Implement suggestions from Github Copilot directly in your editor.",
+	"version": "1.1.0",
+	"description": "Implement Github Copilot services (suggestion and chat) in Obsidian",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",

@@ -1,9 +1,9 @@
 {
 	"id": "github-copilot",
 	"name": "Github Copilot",
-	"version": "1.0.13",
+	"version": "1.1.0",
 	"minAppVersion": "1.5.12",
-	"description": "Implement suggestions from Github Copilot directly in your editor.",
+	"description": "Implement Github Copilot services (suggestion and chat) in Obsidian",
 	"author": "Vasseur Pierre-Adrien",
 	"authorUrl": "https://github.com/Pierrad",
 	"isDesktopOnly": true
