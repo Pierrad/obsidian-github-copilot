@@ -19,7 +19,7 @@ class AuthModal extends Modal {
 
 	onOpen() {
 		const { contentEl } = this;
-		contentEl.createEl("h2", { text: "Sign in to Github Copilot" });
+		contentEl.createEl("h2", { text: "Sign in to GitHub Copilot" });
 		const box = contentEl.createEl("div", {
 			text: `To sign in, visit `,
 			cls: "copilot-modal-auth-box",
