@@ -138,7 +138,6 @@ export default class CopilotPlugin extends Plugin {
 			Logger.getInstance().error("Failed to create chat view.");
 			return;
 		}
-		workspace.revealLeaf(leaf);
 	}
 
 	async deactivateView() {
