@@ -49,6 +49,7 @@ export const defaultModels: ModelOption[] = [
 	{ label: "Claude 3.7 Sonnet", value: "claude-3.7-sonnet" },
 	{ label: "Claude 3.5 Sonnet", value: "claude-3.5-sonnet" },
 	{ label: "Gemini 2.0 Flash", value: "gemini-2.0-flash-001" },
+	{ label: "Gemini 2.5 Pro", value: "gemini-2.5-pro-preview-03-25" },
 ];
 
 export const createMessageSlice: StateCreator<
