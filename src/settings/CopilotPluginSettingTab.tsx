@@ -42,6 +42,7 @@ export type CopilotChatSettings = {
 
 export interface CopilotPluginSettings {
 	nodePath: string;
+	nodePathUpdatedToNode20: boolean;
 	enabled: boolean;
 	hotkeys: Hotkeys;
 	suggestionDelay: number;
@@ -59,6 +60,7 @@ export interface CopilotPluginSettings {
 
 export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 	nodePath: "default",
+	nodePathUpdatedToNode20: false,
 	enabled: true,
 	hotkeys: {
 		accept: "Tab",
@@ -108,9 +110,23 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 		containerEl.createEl("h1", { text: "Inline Copilot Settings" });
 
 		new Setting(containerEl)
+			.setName("Enable Copilot")
+			.setDesc(
+				"Enable or disable the inline copilot. This will also start the copilot server.",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.enabled)
+					.onChange(async (value) => {
+						this.plugin.settings.enabled = value;
+						await this.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
 			.setName("Node binary path")
 			.setDesc(
-				"The path to your node binary (at least Node v18). This is used to run the copilot server.",
+				"The path to your node binary (at least Node v20). This is used to run the copilot server.",
 			)
 			.addText((text) =>
 				text
@@ -483,8 +499,12 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 		return (
 			this.isCopilotEnabled() &&
 			(await Node.testNodePath(this.plugin.settings.nodePath, true).then(
-				(path) => {
+				async (path) => {
 					if (!path) return false;
+					if (path) {
+						this.plugin.settings.nodePathUpdatedToNode20 = true;
+						await this.saveSettings(false, false);
+					}
 					return true;
 				},
 			))

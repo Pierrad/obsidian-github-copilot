@@ -148,8 +148,8 @@ class CopilotAgent implements SettingsObserver {
 		}
 	}
 
-	onSettingsUpdate(): Promise<void> {
-		if (this.plugin.settingsTab.isCopilotEnabled()) return this.setup();
+	async onSettingsUpdate(): Promise<void> {
+		if (await this.plugin.settingsTab.isCopilotEnabledWithPathCheck()) return this.setup();
 		return this.stopAgent();
 	}
 }
