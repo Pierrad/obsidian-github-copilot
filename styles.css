@@ -490,6 +490,51 @@
 }
 
 /***********************
+ * Message Styles
+ ***********************/
+.copilot-chat-message-info {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+}
+
+.copilot-chat-message-icon {
+  margin-right: 5px;
+}
+
+.copilot-chat-message-name {
+  flex-grow: 1;
+}
+
+.copilot-chat-message-copy-button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+  margin-left: auto;
+}
+
+.copilot-chat-message-copy-button:hover {
+  opacity: 1;
+  background-color: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.copilot-chat-message-copy-button[title="Copied!"] {
+  opacity: 1;
+  color: var(--text-accent);
+  background-color: var(--background-modifier-success-hover);
+}
+
+/***********************
  * Linked Notes Styles
  ***********************/
 .copilot-chat-message-linked-notes {
