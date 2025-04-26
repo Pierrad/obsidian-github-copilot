@@ -27,7 +27,7 @@ class EventManager implements SettingsObserver {
 	public registerEvents(): void {
 		this.plugin.registerEvent(
 			this.plugin.app.workspace.on("file-open", async (file: TFile) => {
-				if (this.canRegisterEvent(file)) {
+				if (await this.canRegisterEvent(file)) {
 					this.eventListener.onFileOpen(file);
 				}
 			}),
@@ -37,7 +37,7 @@ class EventManager implements SettingsObserver {
 
 		this.debouncedEditorChangeHandler = debounce(
 			async (editor: Editor, info: MarkdownView | MarkdownFileInfo) => {
-				if (this.canRegisterEvent(info?.file as TFile)) {
+				if (await this.canRegisterEvent(info?.file as TFile)) {
 					this.eventListener.onEditorChange(editor, info);
 				}
 			},
@@ -66,9 +66,9 @@ class EventManager implements SettingsObserver {
 	};
 
 	// Only register event if copilot is enabled and file is not excluded
-	private canRegisterEvent(file: TFile): boolean {
+	private async canRegisterEvent(file: TFile): Promise<boolean> {
 		return (
-			this.plugin.settingsTab.isCopilotEnabled() &&
+			(await this.plugin.settingsTab.isCopilotEnabledWithPathCheck()) &&
 			!Vault.isFileExcluded(
 				file?.path as string,
 				this.plugin.settings.exclude,

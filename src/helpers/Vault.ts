@@ -29,8 +29,12 @@ class Vault {
 		return `${this.getCopilotPath(app, version)}/resources`;
 	}
 
+	public static getAgentInitializerPath(app: App, version: string): string {
+		return `${this.getCopilotPath(app, version)}/agent-initializer.cjs`;
+	}
+
 	public static getAgentPath(app: App, version: string): string {
-		return `${this.getCopilotPath(app, version)}/agent.cjs`;
+		return `${this.getCopilotPath(app, version)}/main.js`;
 	}
 
 	public static isFileExcluded(filePath: string, exclude: string[]): boolean {

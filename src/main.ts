@@ -15,6 +15,8 @@ import Cacher from "./copilot/Cacher";
 import ChatView from "./copilot-chat/views/ChatView";
 
 // @ts-expect-error - import to be bundled
+import agentInitializer from "official-copilot/agent-initializer.txt";
+// @ts-expect-error - import to be bundled
 import agent from "official-copilot/agent.txt";
 // @ts-expect-error - import to be bundled
 import cl100k from "official-copilot/resources/cl100k_base.tiktoken";
@@ -56,6 +58,10 @@ export default class CopilotPlugin extends Plugin {
 			await File.createFolder(
 				Vault.getCopilotResourcesPath(this.app, this.version),
 			);
+			await File.createFile(
+				Vault.getAgentInitializerPath(this.app, this.version),
+				agentInitializer,
+			)
 			await File.createFile(
 				Vault.getAgentPath(this.app, this.version),
 				agent,
