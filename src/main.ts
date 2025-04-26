@@ -86,18 +86,19 @@ export default class CopilotPlugin extends Plugin {
 			);
 		}
 
-		if (this.settings.nodePath === DEFAULT_SETTINGS.nodePath) {
+		if (
+			this.settings.nodePath === DEFAULT_SETTINGS.nodePath ||
+			this.settings.nodePath === ""
+		) {
 			new Notice(
-				"Please set the path to your node executable in the settings.",
+				"[GitHub Copilot] Please set the path to your node executable in the settings to use autocomplete feature.",
 			);
 		}
 
 		this.copilotAgent = new CopilotAgent(this);
-		if (
-			this.settingsTab.isCopilotEnabled() &&
-			this.settings.nodePath !== DEFAULT_SETTINGS.nodePath
-		)
+		if (await this.settingsTab.isCopilotEnabledWithPathCheck()) {
 			await this.copilotAgent.setup();
+		}
 
 		this.eventManager = new EventManager(this);
 		this.eventManager.registerEvents();

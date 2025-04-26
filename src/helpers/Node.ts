@@ -2,7 +2,7 @@ import * as child_process from "child_process";
 import * as path from "path";
 import * as os from "os";
 import * as fs from "fs";
-import { Notice } from "obsidian";
+import Obsidian from "./Obsidian";
 
 class Node {
 	public static expandPath(nodePath: string): string {
@@ -58,13 +58,17 @@ class Node {
 		return path.normalize(this.expandPath(nodePath));
 	}
 
-	public static async testNodePath(nodePath: string): Promise<string | void> {
+	public static async testNodePath(
+		nodePath: string,
+		silentCheck = false,
+	): Promise<string | void> {
 		try {
 			const normalizedPath = this.normalizePath(nodePath);
 
 			if (!fs.existsSync(normalizedPath)) {
-				new Notice(
+				Obsidian.Notice(
 					`Node.js executable not found at: ${normalizedPath}. Please check the path.`,
+					silentCheck,
 				);
 				return;
 			}
@@ -114,25 +118,31 @@ class Node {
 			const requiredVersion = 18;
 
 			if (parseFloat(nodeVersion) >= requiredVersion) {
-				new Notice(
+				Obsidian.Notice(
 					`Node.js path is valid and the version ${nodeVersion} is compatible.`,
+					silentCheck,
 				);
 
 				if (nodePath !== normalizedPath) {
-					new Notice(
+					Obsidian.Notice(
 						`Node.js path has been normalized to: ${normalizedPath}. It will be used from now on. You might need to reload the plugin view to see the changes.`,
+						silentCheck,
 					);
 				}
 
 				return normalizedPath;
 			} else {
-				new Notice(
+				Obsidian.Notice(
 					`Node.js path is valid, but the version ${nodeVersion} is not compatible. Please use Node.js v${requiredVersion} or later.`,
+					silentCheck,
 				);
 				return;
 			}
 		} catch (err) {
-			new Notice(`Error while testing the Node.js path: ${err.message}`);
+			Obsidian.Notice(
+				`Error while testing the Node.js path: ${err.message}`,
+				silentCheck,
+			);
 			return;
 		}
 	}

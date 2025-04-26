@@ -116,10 +116,16 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 				text
 					.setPlaceholder("Enter the path to your node binary.")
 					.setValue(this.plugin.settings.nodePath)
-					.onChange(async (value) => {
-						this.plugin.settings.nodePath = value;
-						await this.saveSettings();
-					}),
+					.onChange(
+						debounce(
+							async (value) => {
+								this.plugin.settings.nodePath = value;
+								await this.saveSettings();
+							},
+							1000,
+							true,
+						),
+					),
 			)
 			.addButton((button) =>
 				button
@@ -466,7 +472,23 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 	}
 
 	public isCopilotEnabled(): boolean {
-		return this.plugin.settings.enabled;
+		return (
+			this.plugin.settings.enabled &&
+			this.plugin.settings.nodePath !== "" &&
+			this.plugin.settings.nodePath !== DEFAULT_SETTINGS.nodePath
+		);
+	}
+
+	public async isCopilotEnabledWithPathCheck(): Promise<boolean> {
+		return (
+			this.isCopilotEnabled() &&
+			(await Node.testNodePath(this.plugin.settings.nodePath, true).then(
+				(path) => {
+					if (!path) return false;
+					return true;
+				},
+			))
+		);
 	}
 
 	private async needCopilotAgentEnabled(callback: () => void) {
