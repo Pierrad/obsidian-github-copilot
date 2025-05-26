@@ -43,6 +43,21 @@ const NoHistory: React.FC = () => {
 					"Enable" when prompted.
 				</p>
 			</div>
+
+			<div className="copilot-chat-model-warning">
+				<h6 className="copilot-chat-model-warning-title">
+					Some users have seen their Copilot access suspended after
+					using this Chat extension.
+				</h6>
+				<p className="copilot-chat-model-warning-text">
+					If you experience this, you can try to restore your access
+					by contacting GitHub support. Use this chat extension at
+					your own risk. Please see{" "}
+					<a href="https://github.com/Pierrad/obsidian-github-copilot/issues/67">
+						the following issue for more details.
+					</a>
+				</p>
+			</div>
 		</div>
 	);
 };
