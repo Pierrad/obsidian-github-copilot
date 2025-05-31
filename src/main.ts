@@ -61,7 +61,7 @@ export default class CopilotPlugin extends Plugin {
 			await File.createFile(
 				Vault.getAgentInitializerPath(this.app, this.version),
 				agentInitializer,
-			)
+			);
 			await File.createFile(
 				Vault.getAgentPath(this.app, this.version),
 				agent,
@@ -101,10 +101,13 @@ export default class CopilotPlugin extends Plugin {
 			);
 		}
 
-		if (this.settingsTab.isCopilotEnabled() && !this.settings.nodePathUpdatedToNode20) {
+		if (
+			this.settingsTab.isCopilotEnabled() &&
+			!this.settings.nodePathUpdatedToNode20
+		) {
 			new Notice(
 				"[GitHub Copilot] Copilot has changed the minimum node version to 20. Please update your node version if you are using an older version.",
-			);	
+			);
 		}
 
 		this.copilotAgent = new CopilotAgent(this);
@@ -128,6 +131,19 @@ export default class CopilotPlugin extends Plugin {
 
 		this.registerView(CHAT_VIEW_TYPE, (leaf) => new ChatView(leaf, this));
 		this.activateView();
+
+		this.addCommand({
+			id: "open-copilot-chat",
+			name: "Open Copilot Chat",
+			callback: () => {
+				this.activateView();
+				const leaves =
+					this.app.workspace.getLeavesOfType(CHAT_VIEW_TYPE);
+				if (leaves.length > 0) {
+					this.app.workspace.revealLeaf(leaves[0]);
+				}
+			},
+		});
 	}
 
 	onunload() {
