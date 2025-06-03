@@ -61,10 +61,11 @@ class CopilotAgent implements SettingsObserver {
 							...(this.plugin.settings.proxy.startsWith("http://")
 								? { HTTP_PROXY: this.plugin.settings.proxy }
 								: {}),
-							...(this.plugin.settings.proxy.startsWith(
-								"https://",
-							)
+							...(this.plugin.settings.proxy.startsWith("https://")
 								? { HTTPS_PROXY: this.plugin.settings.proxy }
+								: {}),
+							...(this.plugin.settings.extraCACerts && this.plugin.settings.extraCACerts.trim() !== ""
+								? { NODE_EXTRA_CA_CERTS: this.plugin.settings.extraCACerts.trim() }
 								: {}),
 						},
 					}),
