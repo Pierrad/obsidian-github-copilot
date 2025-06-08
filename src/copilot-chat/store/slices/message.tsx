@@ -43,6 +43,7 @@ export interface MessageSlice {
 
 export const defaultModels: ModelOption[] = [
 	{ label: "GPT-4o", value: "gpt-4o-2024-08-06" },
+	{ label: "GPT-4.1", value: "gpt-4.1-2025-04-14" },
 	{ label: "GPT-o1", value: "o1-2024-12-17" },
 	{ label: "GPT-o3-mini", value: "o3-mini" },
 	{ label: "GPT-o4-mini", value: "o4-mini" },
