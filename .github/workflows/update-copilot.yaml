@@ -23,11 +23,11 @@ jobs:
 
       - name: Copy latest copilot.vim/dist
         run: |
-          mv copilot.vim/dist/language-server.js copilot.vim/dist/agent-initializer.txt
-          mv copilot.vim/dist/main.js copilot.vim/dist/agent.txt
-          cp -r copilot.vim/dist/agent-initializer.txt official-copilot/agent-initializer.txt
-          cp -r copilot.vim/dist/agent.txt official-copilot/agent.txt
-          cp -r copilot.vim/dist/resources/* official-copilot/resources/
+          mv copilot.vim/copilot-language-server/dist/language-server.js copilot.vim/copilot-language-server/dist/agent-initializer.txt
+          mv copilot.vim/copilot-language-server/dist/main.js copilot.vim/copilot-language-server/dist/agent.txt
+          cp -r copilot.vim/copilot-language-server/dist/agent-initializer.txt official-copilot/agent-initializer.txt
+          cp -r copilot.vim/copilot-language-server/dist/agent.txt official-copilot/agent.txt
+          cp -r copilot.vim/copilot-language-server/dist/resources/* official-copilot/resources/
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
