@@ -61,11 +61,17 @@ class CopilotAgent implements SettingsObserver {
 							...(this.plugin.settings.proxy.startsWith("http://")
 								? { HTTP_PROXY: this.plugin.settings.proxy }
 								: {}),
-							...(this.plugin.settings.proxy.startsWith("https://")
+							...(this.plugin.settings.proxy.startsWith(
+								"https://",
+							)
 								? { HTTPS_PROXY: this.plugin.settings.proxy }
 								: {}),
-							...(this.plugin.settings.extraCACerts && this.plugin.settings.extraCACerts.trim() !== ""
-								? { NODE_EXTRA_CA_CERTS: this.plugin.settings.extraCACerts.trim() }
+							...(this.plugin.settings.extraCACerts &&
+							this.plugin.settings.extraCACerts.trim() !== ""
+								? {
+										NODE_EXTRA_CA_CERTS:
+											this.plugin.settings.extraCACerts.trim(),
+									}
 								: {}),
 						},
 					}),
@@ -150,7 +156,8 @@ class CopilotAgent implements SettingsObserver {
 	}
 
 	async onSettingsUpdate(): Promise<void> {
-		if (await this.plugin.settingsTab.isCopilotEnabledWithPathCheck()) return this.setup();
+		if (await this.plugin.settingsTab.isCopilotEnabledWithPathCheck())
+			return this.setup();
 		return this.stopAgent();
 	}
 }
