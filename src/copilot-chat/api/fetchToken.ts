@@ -9,11 +9,10 @@ export interface TokenResponse {
 	codesearch: boolean;
 	copilotignore_enabled: boolean;
 	endpoints: {
-		api: string;
-		"origin-tracker": string;
-		proxy: string;
-		telemetry: string;
-	};
+			api: string;
+			"origin-tracker": string;
+			telemetry: string;
+		};
 	expires_at: number;
 	individual: boolean;
 	limited_user_quotas: null;

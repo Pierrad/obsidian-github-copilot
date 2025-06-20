@@ -26,8 +26,7 @@ import o200k from "official-copilot/resources/o200k_base.tiktoken";
 import cl100kNoIndex from "official-copilot/resources/cl100k_base.tiktoken.noindex";
 // @ts-expect-error - import to be bundled
 import o200kNoIndex from "official-copilot/resources/o200k_base.tiktoken.noindex";
-// @ts-expect-error - import to be bundled
-import crypt32 from "official-copilot/resources/crypt32.node";
+
 import { CHAT_VIEW_TYPE } from "./copilot-chat/types/constants";
 
 export default class CopilotPlugin extends Plugin {
@@ -37,7 +36,7 @@ export default class CopilotPlugin extends Plugin {
 	copilotAgent: CopilotAgent;
 	private cmExtensionManager: ExtensionManager;
 	private eventManager: EventManager;
-	version = "1.1.5";
+	version = "1.1.6";
 	tabSize = Vault.DEFAULT_TAB_SIZE;
 
 	async onload() {
@@ -82,10 +81,7 @@ export default class CopilotPlugin extends Plugin {
 				`${Vault.getCopilotResourcesPath(this.app, this.version)}/o200k_base.tiktoken.noindex`,
 				o200kNoIndex,
 			);
-			await File.createFile(
-				`${Vault.getCopilotPath(this.app, this.version)}/crypt32.node`,
-				crypt32,
-			);
+
 			await File.removeOldCopilotFolders(
 				this.version,
 				Vault.getPluginPath(this.app),

@@ -37,5 +37,5 @@ jobs:
           base: master
           branch: create-pull-request/update-copilot
           commit-message: "⬆️ Update copilot"
-          reviewers: "Pierrad"
+          reviewers: "ivan-mezentsev"
           title: "Update copilot"

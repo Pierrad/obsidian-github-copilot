@@ -1,10 +1,10 @@
 {
-	"id": "github-copilot",
-	"name": "GitHub Copilot",
-	"version": "1.1.5",
+	"id": "github-copilot-native",
+	"name": "GitHub Copilot Native",
+	"version": "1.1.6",
 	"minAppVersion": "1.5.12",
-	"description": "Implement GitHub Copilot services (suggestion and chat) in Obsidian",
-	"author": "Vasseur Pierre-Adrien",
-	"authorUrl": "https://github.com/Pierrad",
+	"description": "Implement GitHub Copilot services (suggestion and chat) in Obsidian. Based on GitHub Copilot plugin by Vasseur Pierre-Adrien",
+	"author": "Ivan Mezentsev",
+	"authorUrl": "https://github.com/ivan-mezentsev",
 	"isDesktopOnly": true
 }

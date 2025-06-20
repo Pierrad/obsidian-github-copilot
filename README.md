@@ -1,7 +1,13 @@
-# Obsidian GitHub Copilot Plugin
+# Obsidian GitHub Copilot Native Plugin
 
-![Obsidian plugin](https://img.shields.io/endpoint?url=https://scambier.xyz/obsidian-endpoints/github-copilot.json)
-![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/pierrad/obsidian-github-copilot)
+> ⚠️ **ATTENTION!** 
+> 
+> This is not a production-ready project, but rather a prepared fork aimed at implementing plugin functionality without Node.js dependencies running in the background! Please check the changelog for updates!
+
+
+![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/ivan-mezentsev/obsidian-github-copilot-native)
+
+For a detailed history of changes, see the [Changelog](CHANGELOG.md).
 
 Use **GitHub Copilot** in the Obsidian editor. This plugin is a bridge between the Obsidian editor and the GitHub Copilot service.
 
@@ -20,7 +26,7 @@ Use **GitHub Copilot** in the Obsidian editor. This plugin is a bridge between t
 
 ## 🤖 GitHub Copilot Inline
 
-![https://github.com/Pierrad/obsidian-github-copilot/tree/master/.github/assets/example.gif](https://github.com/Pierrad/obsidian-github-copilot/blob/master/.github/assets/example.gif)
+![https://github.com/ivan-mezentsev/obsidian-github-copilot-native/tree/master/.github/assets/example.gif](https://github.com/ivan-mezentsev/obsidian-github-copilot-native/blob/master/.github/assets/example.gif)
 
 ### Requirements
 
@@ -34,7 +40,7 @@ Use **GitHub Copilot** in the Obsidian editor. This plugin is a bridge between t
    2. Or, you will receive a notice saying that Copilot is ready to use. (This will happen if you have already signed in to Copilot in the past in IDEs)
 
 > [!NOTE]  
-> If you install the plugin by cloning it or downloading the release files from GitHub, you will need to name the plugin folder `github-copilot` for the plugin to work.
+> If you install the plugin by cloning it or downloading the release files from GitHub, you will need to name the plugin folder `github-copilot-native` for the plugin to work.
 
 
 ### Usage
@@ -55,8 +61,8 @@ Use **GitHub Copilot** in the Obsidian editor. This plugin is a bridge between t
 
 ### Known issues
 
-- If you installed Obsidian with Flatpak, you might need to use NVM to handle Node.js versions as the default binary path is not accessible in the Flatpak sandbox. See [this issue](https://github.com/Pierrad/obsidian-github-copilot/issues/6) for more information.
-- "Tab" completion can be buggy in some cases (e.g. in bullet points in LateX Math mode for example). It depends on plugin priority over the keybindings. See [this issue](https://github.com/Pierrad/obsidian-github-copilot/issues/38) for more information. 
+- If you installed Obsidian with Flatpak, you might need to use NVM to handle Node.js versions as the default binary path is not accessible in the Flatpak sandbox. See [this issue](https://github.com/ivan-mezentsev/obsidian-github-copilot-native/issues/6) for more information.
+- "Tab" completion can be buggy in some cases (e.g. in bullet points in LateX Math mode for example). It depends on plugin priority over the keybindings. See [this issue](https://github.com/ivan-mezentsev/obsidian-github-copilot-native/issues/38) for more information. 
 
 
 ## 💬 GitHub Copilot Chat
@@ -78,9 +84,19 @@ https://github.com/user-attachments/assets/89089920-45de-47c3-80b1-f2d58d1ba55e
 
 - [x] Use GitHub Copilot Chat in the Obsidian editor
 - [x] Choose the model to use between all models available in the GitHub Copilot Chat service
+
+## Credits
+
+This project is a fork of [GitHub Copilot for Obsidian](https://github.com/Pierrad/obsidian-github-copilot) by Vasseur Pierre-Adrien.
+
+Original work: https://github.com/Pierrad/obsidian-github-copilot
+
+Special thanks to the original author for creating this amazing plugin!
 - [x] Implement a chat history
 - [x] Link notes with [[double bracket syntax]] in the chat
 - [x] Configure a custom prompt as a system message in the settings
 - [x] Let the user choose the default behavior of the enter key (send message or add a new line)
-- [ ] Stream the response from the API
-  - Waiting for requestUrl to implement Streaming : https://forum.obsidian.md/t/support-streaming-the-request-and-requesturl-response-body/87381
+- [x] Removed proxy support - incompatibility with mobile client `crypt32.node` (binary module)
+- [ ] Create Web Worker and MessagePort transport, LSP logic from monaco-languageclient or alternatives
+- [ ] Implementation of the mobile version
+

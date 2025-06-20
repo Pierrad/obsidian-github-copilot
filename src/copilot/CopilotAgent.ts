@@ -54,28 +54,9 @@ class CopilotAgent implements SettingsObserver {
 				File.wrapFilePath(this.plugin.settings.nodePath),
 				[File.wrapFilePath(this.agentPath), "--stdio"],
 				{
-					shell: true,
-					stdio: "pipe",
-					...(this.plugin.settings.proxy && {
-						env: {
-							...(this.plugin.settings.proxy.startsWith("http://")
-								? { HTTP_PROXY: this.plugin.settings.proxy }
-								: {}),
-							...(this.plugin.settings.proxy.startsWith(
-								"https://",
-							)
-								? { HTTPS_PROXY: this.plugin.settings.proxy }
-								: {}),
-							...(this.plugin.settings.extraCACerts &&
-							this.plugin.settings.extraCACerts.trim() !== ""
-								? {
-										NODE_EXTRA_CA_CERTS:
-											this.plugin.settings.extraCACerts.trim(),
-									}
-								: {}),
-						},
-					}),
-				},
+				shell: true,
+				stdio: "pipe",
+			},
 			);
 		} catch (error) {
 			new Notice("Error starting agent: " + error);

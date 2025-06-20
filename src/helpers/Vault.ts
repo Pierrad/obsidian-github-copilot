@@ -18,7 +18,7 @@ class Vault {
 	}
 
 	public static getPluginPath(app: App): string {
-		return `${this.getConfigPath(app)}/plugins/github-copilot`;
+		return `${this.getConfigPath(app)}/plugins/github-copilot-native`;
 	}
 
 	public static getCopilotPath(app: App, version: string): string {

@@ -53,7 +53,7 @@ const NoHistory: React.FC = () => {
 					If you experience this, you can try to restore your access
 					by contacting GitHub support. Use this chat extension at
 					your own risk. Please see{" "}
-					<a href="https://github.com/Pierrad/obsidian-github-copilot/issues/67">
+					<a href="https://github.com/ivan-mezentsev/obsidian-github-copilot-native/issues/67">
 						the following issue for more details.
 					</a>
 				</p>

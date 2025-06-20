@@ -52,11 +52,11 @@ export interface CopilotPluginSettings {
 	exclude: string[];
 	deviceSpecificSettings: string[];
 	useDeviceSpecificSettings: boolean;
-	proxy: string;
+
 	chatSettings?: CopilotChatSettings;
 	systemPrompt: string;
 	invertEnterSendBehavior: boolean;
-	extraCACerts?: string;
+
 }
 
 export const DEFAULT_SETTINGS: CopilotPluginSettings = {
@@ -78,7 +78,7 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 	exclude: [],
 	deviceSpecificSettings: ["nodePath"],
 	useDeviceSpecificSettings: false,
-	proxy: "",
+
 	chatSettings: {
 		deviceCode: null,
 		pat: null,
@@ -91,7 +91,7 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 	systemPrompt:
 		"You are GitHub Copilot, an AI assistant. You are helping the user with their tasks in Obsidian.",
 	invertEnterSendBehavior: false,
-	extraCACerts: "",
+
 };
 
 class CopilotPluginSettingTab extends PluginSettingTab {
@@ -335,47 +335,9 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					}),
 			);
 
-		new Setting(containerEl)
-			.setName("Setup proxy")
-			.setDesc(
-				"Set up a proxy for the copilot service. Should start with http:// or https://.",
-			)
-			.addText((text) =>
-				text
-					.setPlaceholder("Enter the proxy URL.")
-					.setValue(this.plugin.settings.proxy)
-					.onChange(
-						debounce(
-							async (value) => {
-								this.plugin.settings.proxy = value;
-								await this.saveSettings();
-							},
-							1000,
-							true,
-						),
-					),
-			);
 
-		new Setting(containerEl)
-			.setName("Root certificates (NODE_EXTRA_CA_CERTS)")
-			.setDesc(
-				"Path to a PEM file containing additional root certificates. This will be set as NODE_EXTRA_CA_CERTS for the Copilot agent. Leave blank to use system defaults.",
-			)
-			.addText((text) =>
-				text
-					.setPlaceholder("C:/path/to/cacert.pem")
-					.setValue(this.plugin.settings.extraCACerts || "")
-					.onChange(
-						debounce(
-							async (value) => {
-								this.plugin.settings.extraCACerts = value;
-								await this.saveSettings();
-							},
-							1000,
-							true,
-						),
-					),
-			);
+
+
 
 		new Setting(containerEl)
 			.setName("Enable debug mode")
