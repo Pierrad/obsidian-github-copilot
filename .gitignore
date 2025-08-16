@@ -19,6 +19,7 @@ main.js
 data.json
 device_data.json
 conversations.json
+secure-credentials.dat
 
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store

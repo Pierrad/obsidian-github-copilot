@@ -2,6 +2,7 @@ import { StateCreator } from "zustand";
 import { Notice } from "obsidian";
 import CopilotPlugin from "../../../main";
 import { CopilotChatSettings } from "../../../settings/CopilotPluginSettingTab";
+import SecureCredentialManager from "../../../helpers/SecureCredentialManager";
 import {
 	fetchDeviceCode,
 	fetchPAT,
@@ -20,6 +21,7 @@ export interface AuthSlice {
 	isLoadingPAT: boolean;
 	isLoadingToken: boolean;
 	deviceCodeData: DeviceCodeResponse | null;
+	storageInfo: { method: string; secure: boolean } | null;
 
 	initAuthService: (plugin: CopilotPlugin) => void;
 	checkAndRefreshToken: (plugin: CopilotPlugin) => Promise<string | null>;
@@ -44,6 +46,10 @@ export interface AuthSlice {
 	) => Promise<TokenResponse | null>;
 
 	reset: (plugin: CopilotPlugin) => void;
+	migrateCredentialsToSecureStorage: (
+		plugin: CopilotPlugin,
+	) => Promise<boolean>;
+	loadCredentialsFromSecureStorage: (plugin: CopilotPlugin) => Promise<void>;
 }
 
 const defaultChatSettings: CopilotChatSettings = {
@@ -71,37 +77,73 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 	isLoadingPAT: false,
 	isLoadingToken: false,
 	deviceCodeData: null,
+	storageInfo: null,
 
 	initAuthService: async (plugin: CopilotPlugin) => {
+		const secureManager = SecureCredentialManager.getInstance();
+
+		// Initialize storage info
+		set({
+			storageInfo: secureManager.getStorageInfo(),
+		});
+
 		const chatSettings =
 			plugin.settings.chatSettings || defaultChatSettings;
 
-		set({
-			deviceCode: chatSettings.deviceCode,
-			pat: chatSettings.pat,
-			accessToken: chatSettings.accessToken || {
-				token: null,
-				expiresAt: 0,
-			},
-		});
+		// Check if we need to migrate from plain text to secure storage
+		const hasPlainTextCredentials = !!(
+			chatSettings.deviceCode ||
+			chatSettings.pat ||
+			chatSettings.accessToken?.token
+		);
 
+		const hasSecureCredentials = await secureManager.hasCredentials(
+			plugin.app,
+		);
+
+		if (hasPlainTextCredentials && !hasSecureCredentials) {
+			console.log(
+				"[AuthSlice] Detected plain text credentials, initiating migration...",
+			);
+			const migrationSuccess =
+				await get().migrateCredentialsToSecureStorage(plugin);
+
+			if (migrationSuccess) {
+				// Clear plain text credentials from data.json after successful migration
+				if (plugin.settings.chatSettings) {
+					plugin.settings.chatSettings.deviceCode = null;
+					plugin.settings.chatSettings.pat = null;
+					plugin.settings.chatSettings.accessToken = {
+						token: null,
+						expiresAt: 0,
+					};
+					await plugin.saveData(plugin.settings);
+				}
+			}
+		}
+
+		// Load credentials from secure storage
+		await get().loadCredentialsFromSecureStorage(plugin);
+
+		// Check if token needs refreshing
+		const { pat, accessToken } = get();
 		if (
-			chatSettings.pat &&
-			(!chatSettings.accessToken?.token ||
-				isTokenExpired(chatSettings.accessToken?.expiresAt || 0))
+			pat &&
+			(!accessToken?.token || isTokenExpired(accessToken?.expiresAt || 0))
 		) {
 			try {
-				await get().fetchToken(plugin, chatSettings.pat);
+				await get().fetchToken(plugin, pat);
 			} catch (error) {
 				console.error("Failed to refresh token during init:", error);
 			}
 		} else {
+			const { deviceCode, pat, accessToken } = get();
 			set({
 				isAuthenticated: !!(
-					chatSettings.deviceCode &&
-					chatSettings.pat &&
-					chatSettings.accessToken?.token &&
-					!isTokenExpired(chatSettings.accessToken?.expiresAt || 0)
+					deviceCode &&
+					pat &&
+					accessToken?.token &&
+					!isTokenExpired(accessToken?.expiresAt || 0)
 				),
 			});
 		}
@@ -131,30 +173,44 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 	},
 
 	setDeviceCode: async (plugin: CopilotPlugin, code: string) => {
-		if (plugin) {
-			console.log("setDeviceCode", code);
+		console.log("setDeviceCode", code);
 
-			if (!plugin.settings.chatSettings) {
-				plugin.settings.chatSettings = { ...defaultChatSettings };
-			}
+		const secureManager = SecureCredentialManager.getInstance();
+		const currentCredentials = (await secureManager.getCredentials(
+			plugin.app,
+		)) || {
+			deviceCode: null,
+			pat: null,
+			accessToken: { token: null, expiresAt: null },
+		};
 
-			plugin.settings.chatSettings.deviceCode = code;
-			await plugin.saveData(plugin.settings);
-		}
+		const updatedCredentials = {
+			...currentCredentials,
+			deviceCode: code,
+		};
+
+		await secureManager.storeCredentials(updatedCredentials, plugin.app);
 		set({ deviceCode: code });
 	},
 
 	setPAT: async (plugin: CopilotPlugin, pat: string) => {
-		if (plugin) {
-			console.log("setPAT", pat);
+		console.log("setPAT", pat);
 
-			if (!plugin.settings.chatSettings) {
-				plugin.settings.chatSettings = { ...defaultChatSettings };
-			}
+		const secureManager = SecureCredentialManager.getInstance();
+		const currentCredentials = (await secureManager.getCredentials(
+			plugin.app,
+		)) || {
+			deviceCode: null,
+			pat: null,
+			accessToken: { token: null, expiresAt: null },
+		};
 
-			plugin.settings.chatSettings.pat = pat;
-			await plugin.saveData(plugin.settings);
-		}
+		const updatedCredentials = {
+			...currentCredentials,
+			pat: pat,
+		};
+
+		await secureManager.storeCredentials(updatedCredentials, plugin.app);
 		set({ pat: pat });
 	},
 
@@ -162,16 +218,23 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 		plugin: CopilotPlugin,
 		token: CopilotChatSettings["accessToken"],
 	) => {
-		if (plugin) {
-			console.log("setAccessToken", token);
+		console.log("setAccessToken", token);
 
-			if (!plugin.settings.chatSettings) {
-				plugin.settings.chatSettings = { ...defaultChatSettings };
-			}
+		const secureManager = SecureCredentialManager.getInstance();
+		const currentCredentials = (await secureManager.getCredentials(
+			plugin.app,
+		)) || {
+			deviceCode: null,
+			pat: null,
+			accessToken: { token: null, expiresAt: null },
+		};
 
-			plugin.settings.chatSettings.accessToken = token;
-			await plugin.saveData(plugin.settings);
-		}
+		const updatedCredentials = {
+			...currentCredentials,
+			accessToken: token,
+		};
+
+		await secureManager.storeCredentials(updatedCredentials, plugin.app);
 		set({
 			accessToken: token,
 			isAuthenticated:
@@ -244,8 +307,12 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 		}
 	},
 
-	reset: (plugin: CopilotPlugin) => {
+	reset: async (plugin: CopilotPlugin) => {
 		console.log("reset");
+
+		const secureManager = SecureCredentialManager.getInstance();
+		await secureManager.deleteCredentials(plugin.app);
+
 		set({
 			deviceCode: null,
 			pat: null,
@@ -257,6 +324,7 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 			deviceCodeData: null,
 		});
 
+		// Also clear any remaining data from plugin settings
 		if (!plugin.settings.chatSettings) {
 			plugin.settings.chatSettings = { ...defaultChatSettings };
 		} else {
@@ -267,6 +335,45 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 				expiresAt: 0,
 			};
 		}
-		plugin.saveData(plugin.settings);
+		await plugin.saveData(plugin.settings);
+	},
+
+	migrateCredentialsToSecureStorage: async (plugin: CopilotPlugin) => {
+		const secureManager = SecureCredentialManager.getInstance();
+		const chatSettings =
+			plugin.settings.chatSettings || defaultChatSettings;
+
+		const credentialsToMigrate = {
+			deviceCode: chatSettings.deviceCode,
+			pat: chatSettings.pat,
+			accessToken: chatSettings.accessToken || {
+				token: null,
+				expiresAt: null,
+			},
+		};
+
+		return await secureManager.migrateFromPlainText(credentialsToMigrate);
+	},
+
+	loadCredentialsFromSecureStorage: async (plugin: CopilotPlugin) => {
+		const secureManager = SecureCredentialManager.getInstance();
+		const credentials = await secureManager.getCredentials(plugin.app);
+
+		if (credentials) {
+			set({
+				deviceCode: credentials.deviceCode,
+				pat: credentials.pat,
+				accessToken: credentials.accessToken || {
+					token: null,
+					expiresAt: 0,
+				},
+				isAuthenticated: !!(
+					credentials.deviceCode &&
+					credentials.pat &&
+					credentials.accessToken?.token &&
+					!isTokenExpired(credentials.accessToken?.expiresAt || 0)
+				),
+			});
+		}
 	},
 });
