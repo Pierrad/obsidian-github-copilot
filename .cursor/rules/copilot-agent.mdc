@@ -1,0 +1,78 @@
+---
+globs: src/copilot/**/*.ts,src/extensions/**/*.ts,src/modal/**/*.ts
+description: Guidelines for the GitHub Copilot agent and inline suggestion system
+---
+
+# Copilot Agent & Inline Suggestions
+
+This rule covers the core copilot agent functionality and inline suggestion system.
+
+## Architecture Overview
+
+The copilot agent system consists of several key components:
+
+- **CopilotAgent**: Main orchestrator class that manages the LSP agent process
+- **Client**: Handles LSP communication with the GitHub Copilot service  
+- **InlineSuggestionPlugin**: CodeMirror extension for rendering suggestions
+- **InlineSuggestionState**: State management for suggestions using CodeMirror effects
+
+## Key Files
+
+- [CopilotAgent.ts](mdc:src/copilot/CopilotAgent.ts) - Main agent class that spawns and manages the copilot process
+- [Client.ts](mdc:src/copilot/Client.ts) - LSP client for communication with GitHub Copilot
+- [InlineSuggestionPlugin.ts](mdc:src/extensions/InlineSuggestionPlugin.ts) - CodeMirror plugin for rendering suggestions
+- [InlineSuggestionState.ts](mdc:src/extensions/InlineSuggestionState.ts) - State management using CodeMirror effects
+- [AuthModal.ts](mdc:src/modal/AuthModal.ts) - Authentication modal for GitHub sign-in
+
+## Coding Patterns & Conventions
+
+### Class-Based Architecture
+- Use TypeScript classes for main components (CopilotAgent, Client)
+- Implement proper constructors with dependency injection
+- Use public/private access modifiers appropriately
+
+### Async/Await Pattern
+- All LSP operations should use async/await
+- Handle errors with proper try-catch blocks
+- Return Promise<void> for setup/teardown methods
+
+### LSP Communication
+- Use structured request/response patterns
+- Handle DocumentVersionMismatch and NotSignedIn states
+- Implement proper cleanup for child processes
+
+### CodeMirror Integration
+- Use ViewPlugin.fromClass for editor plugins
+- Implement proper decoration lifecycle (create, update, destroy)  
+- Use effects for state changes: `InlineSuggestionEffect.of()`
+
+### Error Handling
+- Show user-friendly notices for errors: `new Notice("Error message")`
+- Log detailed errors using Logger.getInstance()
+- Gracefully handle agent startup failures
+
+### Settings Integration
+- Implement SettingsObserver interface for configuration changes
+- Support proxy settings and custom CA certificates
+- Handle node path configuration
+
+## Example Usage
+
+```typescript
+// Triggering completions
+await agent.triggerCompletions(view, {
+    uri: fileUri,
+    position: { line: 10, character: 5 },
+    context: { triggerKind: 1 }
+});
+
+// Managing suggestions state
+view.dispatch({
+    effects: [
+        InlineSuggestionEffect.of({
+            suggestions: completions,
+            index: 0,
+        }),
+    ],
+});
+```

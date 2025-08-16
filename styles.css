@@ -405,15 +405,6 @@
   max-height: 60vh;
 }
 
-.copilot-chat-conversation-selector-item {
-  padding: 12px;
-  border-radius: 4px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  border: 1px solid var(--background-modifier-border);
-  transition: background-color 0.2s ease;
-}
-
 .copilot-chat-conversation-selector-item:hover {
   background-color: var(--background-modifier-hover);
 }
@@ -447,6 +438,71 @@
   padding: 24px;
   text-align: center;
   color: var(--text-muted);
+}
+
+.copilot-chat-conversation-selector-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.copilot-chat-conversation-selector-delete-all-button {
+  background: none;
+  border: 1px solid var(--background-modifier-border);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.copilot-chat-conversation-selector-delete-all-button:hover {
+  color: var(--text-accent-hover);
+  border-color: var(--text-accent-hover);
+  background-color: var(--background-modifier-hover);
+}
+
+.copilot-chat-conversation-selector-item {
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.copilot-chat-conversation-selector-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.copilot-chat-conversation-selector-delete-button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.copilot-chat-conversation-selector-item:hover .copilot-chat-conversation-selector-delete-button {
+  opacity: 1;
+}
+
+.copilot-chat-conversation-selector-delete-button:hover {
+  color: var(--text-accent-hover);
+  background-color: var(--background-modifier-hover);
 }
 
 /***********************

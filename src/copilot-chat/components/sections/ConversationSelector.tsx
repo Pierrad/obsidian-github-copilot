@@ -1,6 +1,7 @@
 import React from "react";
 import { concat, cx } from "../../../utils/style";
 import { useCopilotStore } from "../../store/store";
+import { usePlugin } from "../../hooks/usePlugin";
 
 const BASE_CLASSNAME = "copilot-chat-conversation-selector";
 
@@ -13,8 +14,14 @@ const ConversationSelector: React.FC<ConversationSelectorProps> = ({
 	isOpen,
 	onClose,
 }) => {
-	const { conversations, activeConversationId, selectConversation } =
-		useCopilotStore();
+	const plugin = usePlugin();
+	const {
+		conversations,
+		activeConversationId,
+		selectConversation,
+		deleteConversation,
+		deleteAllConversations,
+	} = useCopilotStore();
 
 	if (!isOpen) return null;
 
@@ -25,6 +32,31 @@ const ConversationSelector: React.FC<ConversationSelectorProps> = ({
 	const handleSelectConversation = (conversationId: string) => {
 		selectConversation(conversationId);
 		onClose();
+	};
+
+	const handleDeleteConversation = (
+		e: React.MouseEvent,
+		conversationId: string,
+	) => {
+		e.stopPropagation();
+		if (!plugin) return;
+
+		if (confirm("Are you sure you want to delete this conversation?")) {
+			deleteConversation(plugin, conversationId);
+		}
+	};
+
+	const handleDeleteAllConversations = () => {
+		if (!plugin) return;
+
+		if (
+			confirm(
+				"Are you sure you want to delete all conversations? This action cannot be undone.",
+			)
+		) {
+			deleteAllConversations(plugin);
+			onClose();
+		}
 	};
 
 	const formatDate = (timestamp: number) => {
@@ -42,12 +74,26 @@ const ConversationSelector: React.FC<ConversationSelectorProps> = ({
 					<h3 className={concat(BASE_CLASSNAME, "title")}>
 						Conversation History
 					</h3>
-					<button
-						className={concat(BASE_CLASSNAME, "close-button")}
-						onClick={onClose}
-					>
-						×
-					</button>
+					<div className={concat(BASE_CLASSNAME, "header-actions")}>
+						{conversations.length > 0 && (
+							<button
+								className={concat(
+									BASE_CLASSNAME,
+									"delete-all-button",
+								)}
+								onClick={handleDeleteAllConversations}
+								title="Delete all conversations"
+							>
+								Delete All
+							</button>
+						)}
+						<button
+							className={concat(BASE_CLASSNAME, "close-button")}
+							onClick={onClose}
+						>
+							×
+						</button>
+					</div>
 				</div>
 
 				<div className={concat(BASE_CLASSNAME, "list")}>
@@ -72,34 +118,71 @@ const ConversationSelector: React.FC<ConversationSelectorProps> = ({
 								<div
 									className={concat(
 										BASE_CLASSNAME,
-										"item-title",
+										"item-content",
 									)}
 								>
-									{conversation.title}
+									<div
+										className={concat(
+											BASE_CLASSNAME,
+											"item-title",
+										)}
+									>
+										{conversation.title}
+									</div>
+									<div
+										className={concat(
+											BASE_CLASSNAME,
+											"item-meta",
+										)}
+									>
+										<span
+											className={concat(
+												BASE_CLASSNAME,
+												"item-model",
+											)}
+										>
+											{conversation.model.label}
+										</span>
+										<span
+											className={concat(
+												BASE_CLASSNAME,
+												"item-date",
+											)}
+										>
+											{formatDate(conversation.updatedAt)}
+										</span>
+									</div>
 								</div>
-								<div
+								<button
 									className={concat(
 										BASE_CLASSNAME,
-										"item-meta",
+										"delete-button",
 									)}
+									onClick={(e) =>
+										handleDeleteConversation(
+											e,
+											conversation.id,
+										)
+									}
+									title="Delete conversation"
 								>
-									<span
-										className={concat(
-											BASE_CLASSNAME,
-											"item-model",
-										)}
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										width="16"
+										height="16"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
 									>
-										{conversation.model.label}
-									</span>
-									<span
-										className={concat(
-											BASE_CLASSNAME,
-											"item-date",
-										)}
-									>
-										{formatDate(conversation.updatedAt)}
-									</span>
-								</div>
+										<polyline points="3 6 5 6 21 6"></polyline>
+										<path d="m19 6-1 14H6L5 6"></path>
+										<path d="m10 11 0 6"></path>
+										<path d="m14 11 0 6"></path>
+									</svg>
+								</button>
 							</div>
 						))
 					)}

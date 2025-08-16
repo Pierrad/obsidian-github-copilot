@@ -1,0 +1,123 @@
+---
+globs: src/copilot-chat/**/*.ts,src/copilot-chat/**/*.tsx
+description: Guidelines for the GitHub Copilot chat interface and conversation management
+---
+
+# Copilot Chat Interface
+
+This rule covers the React-based chat interface, conversation management, and authentication system for GitHub Copilot chat.
+
+## Architecture Overview
+
+The copilot chat system follows a modern React architecture with:
+
+- **React Components**: Functional components with hooks
+- **Zustand Store**: Centralized state management with slices
+- **API Layer**: Modular API functions for external communication  
+- **Custom Hooks**: Reusable logic abstraction
+- **TypeScript**: Full type safety throughout
+
+## Key Directories & Files
+
+### Components
+- [Chat.tsx](mdc:src/copilot-chat/components/Chat.tsx) - Main chat component
+- [sections/](mdc:src/copilot-chat/components/sections) - UI sections (Header, Input, MessageList, etc.)
+- [atoms/](mdc:src/copilot-chat/components/atoms) - Reusable atomic components
+
+### State Management  
+- [store.ts](mdc:src/copilot-chat/store/store.ts) - Main Zustand store configuration
+- [slices/auth.tsx](mdc:src/copilot-chat/store/slices/auth.tsx) - Authentication state slice
+- [slices/message.tsx](mdc:src/copilot-chat/store/slices/message.tsx) - Message state slice  
+- [slices/conversation.tsx](mdc:src/copilot-chat/store/slices/conversation.tsx) - Conversation state slice
+
+### API Layer
+- [api/index.ts](mdc:src/copilot-chat/api/index.ts) - API exports
+- [api/fetchToken.ts](mdc:src/copilot-chat/api/fetchToken.ts) - GitHub token management
+- [api/sendMessage.ts](mdc:src/copilot-chat/api/sendMessage.ts) - Chat message API
+
+### Other
+- [views/ChatView.tsx](mdc:src/copilot-chat/views/ChatView.tsx) - Main chat view for Obsidian
+- [hooks/usePlugin.ts](mdc:src/copilot-chat/hooks/usePlugin.ts) - Plugin context hook
+
+## Coding Patterns & Conventions
+
+### React Components
+- Use functional components with TypeScript
+- Prefer React hooks over class components
+- Use proper TypeScript interfaces for props
+- Follow consistent naming: PascalCase for components
+
+```typescript
+interface ComponentProps {
+    prop: string;
+}
+
+const MyComponent: React.FC<ComponentProps> = ({ prop }) => {
+    return <div>{prop}</div>;
+};
+```
+
+### State Management (Zustand)
+- Split store into logical slices (auth, message, conversation)
+- Use create() for store creation
+- Use StateCreator pattern for slice composition
+- Keep state immutable and use proper typing
+
+```typescript
+export const createMessageSlice: StateCreator<
+    StoreState,
+    [],
+    [],
+    MessageSlice
+> = (set, get) => ({
+    messages: [],
+    setMessages: (messages) => set({ messages }),
+});
+```
+
+### Custom Hooks
+- Create reusable hooks for common logic
+- Use proper dependency arrays in useEffect
+- Return objects with clear naming
+- Handle loading and error states
+
+### API Functions
+- Use async/await for all API calls
+- Implement proper error handling and logging
+- Return typed responses
+- Keep API functions pure and testable
+
+### TypeScript Usage
+- Define interfaces for all data structures
+- Use union types for different message roles  
+- Implement proper generic types for store slices
+- Avoid `any` - use proper typing
+
+### Component Organization
+- **Atoms**: Small, reusable UI components
+- **Sections**: Larger UI sections with specific functionality
+- **Layouts**: Page-level layout components
+- **Views**: Obsidian-specific view components
+
+## Example Usage
+
+```typescript
+// Using the store
+const { messages, sendMessage, isLoading } = useCopilotStore();
+
+// Component with proper typing
+interface MessageProps {
+    icon: string;
+    name: string;
+    message: string;
+}
+
+const Message: React.FC<MessageProps> = ({ icon, name, message }) => {
+    return (
+        <div className="message">
+            <img src={icon} alt={name} />
+            <span>{name}: {message}</span>
+        </div>
+    );
+};
+```

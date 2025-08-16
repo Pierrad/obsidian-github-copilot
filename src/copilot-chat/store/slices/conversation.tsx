@@ -31,6 +31,7 @@ export interface ConversationSlice {
 		conversation: Conversation,
 	) => void;
 	deleteConversation: (plugin: CopilotPlugin, conversationId: string) => void;
+	deleteAllConversations: (plugin: CopilotPlugin) => void;
 
 	addMessageToConversation: (
 		conversationId: string,
@@ -194,6 +195,19 @@ export const createConversationSlice: StateCreator<
 		});
 
 		get().saveConversations(plugin);
+	},
+
+	deleteAllConversations: (plugin: CopilotPlugin) => {
+		set({
+			conversations: [],
+			activeConversationId: null,
+		});
+
+		get().saveConversations(plugin);
+
+		get().clearMessages();
+
+		new Notice("All conversations deleted");
 	},
 
 	addMessageToConversation: (
