@@ -4,7 +4,7 @@ const KeybindingModifier = {
 	Shift: "Shift-",
 	Alt: "Alt-",
 	Control: "Ctrl-",
-	Meta: "Meta-",
+	Meta: navigator.platform.includes("Mac") ? "Cmd-" : "Meta-",
 	Cmd: "Cmd-",
 };
 
