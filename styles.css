@@ -62,6 +62,18 @@
 	margin-top: 0;
 }
 
+.copilot-settings-warning {
+	font-size: 0.9rem;
+	color: var(--text-muted);
+	padding-top: 0;
+	margin-top: 0;
+	border: 1px solid var(--color-yellow);
+	background-color: var(--background-modifier-form-field);
+	border-radius: 4px;
+	padding: 12px 16px;
+	margin: 10px 0 16px;
+}
+
 .copilot-settings-hotkeys-container {
 	padding: 0.75em 0;
 	border-top: 1px solid var(--background-modifier-border);

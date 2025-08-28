@@ -421,6 +421,11 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 
 		containerEl.createEl("h1", { text: "Copilot Chat Settings" });
 
+		containerEl.createEl("p", {
+			text: "When authenticating in Copilot Chat, a personal token will be encrypted and stored as a file in the plugin folder. This file is called `secure-credentials.dat`. It is only decrytable by your machine but you should never share it with anyone.",
+			cls: "copilot-settings-warning",
+		});
+
 		new Setting(containerEl)
 			.setName("Invert Enter/Shift+Enter behavior")
 			.setDesc(
