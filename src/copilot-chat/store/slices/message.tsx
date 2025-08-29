@@ -47,6 +47,8 @@ export const defaultModels: ModelOption[] = [
 	{ label: "GPT-o1", value: "o1-2024-12-17" },
 	{ label: "GPT-o3-mini", value: "o3-mini" },
 	{ label: "GPT-o4-mini", value: "o4-mini" },
+	{ label: "GPT-5", value: "gpt-5" },
+	{ label: "GPT-5-mini", value: "gpt-5-mini" },
 	{ label: "Claude 3.7 Sonnet Thinking", value: "claude-3.7-sonnet-thought" },
 	{ label: "Claude 3.7 Sonnet", value: "claude-3.7-sonnet" },
 	{ label: "Claude 3.5 Sonnet", value: "claude-3.5-sonnet" },
