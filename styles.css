@@ -751,6 +751,86 @@
 	color: var(--text-muted);
 }
 
+/***********************
+ * Mermaid Diagrams
+ ***********************/
+
+.copilot-chat-mermaid-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin: 1rem 0;
+	padding: 1rem;
+	background-color: var(--background-secondary);
+	border-radius: 8px;
+	border: 1px solid var(--background-modifier-border);
+	overflow-x: auto;
+}
+
+.copilot-chat-mermaid-container svg {
+	max-width: 100%;
+	height: auto;
+}
+
+.copilot-chat-mermaid-loading {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin: 1rem 0;
+	padding: 2rem;
+	background-color: var(--background-secondary);
+	border-radius: 8px;
+	border: 1px solid var(--background-modifier-border);
+	color: var(--text-muted);
+	font-style: italic;
+}
+
+.copilot-chat-mermaid-error {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	margin: 1rem 0;
+	padding: 1rem;
+	background-color: var(--background-modifier-error);
+	border-radius: 8px;
+	border: 1px solid var(--color-red);
+}
+
+.copilot-chat-mermaid-error-title {
+	font-weight: 600;
+	color: var(--color-red);
+	margin: 0;
+	font-size: 0.9rem;
+}
+
+.copilot-chat-mermaid-error-message {
+	margin: 0;
+	padding: 0;
+	background-color: transparent;
+	color: var(--text-muted);
+	font-size: 0.8rem;
+	white-space: pre-wrap;
+	border: none;
+}
+
+/* Mermaid theme adjustments for dark mode */
+.theme-dark .copilot-chat-mermaid-container {
+	background-color: var(--background-primary-alt);
+}
+
+.theme-dark .copilot-chat-mermaid-loading {
+	background-color: var(--background-primary-alt);
+}
+
+/* Mermaid theme adjustments for light mode */
+.theme-light .copilot-chat-mermaid-container {
+	background-color: var(--background-secondary);
+}
+
+.theme-light .copilot-chat-mermaid-loading {
+	background-color: var(--background-secondary);
+}
+
 .copilot-chat-message img {
 	max-width: 100%;
 	height: auto;
