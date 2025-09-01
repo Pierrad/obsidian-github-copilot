@@ -82,5 +82,37 @@ https://github.com/user-attachments/assets/89089920-45de-47c3-80b1-f2d58d1ba55e
 - [x] Link notes with [[double bracket syntax]] in the chat
 - [x] Configure a custom prompt as a system message in the settings
 - [x] Let the user choose the default behavior of the enter key (send message or add a new line)
+- [x] **Mermaid diagram support** - Render Mermaid diagrams in chat responses
 - [ ] Stream the response from the API
   - Waiting for requestUrl to implement Streaming : https://forum.obsidian.md/t/support-streaming-the-request-and-requesturl-response-body/87381
+
+### Mermaid Diagrams
+
+The chat supports rendering Mermaid diagrams when GitHub Copilot responds with Mermaid code blocks. Simply ask Copilot to create a diagram and it will render visually in the chat.
+
+**Example usage:**
+```
+You: Can you create a flowchart showing the software development lifecycle?
+
+Copilot: Here's a flowchart of the software development lifecycle:
+
+```mermaid
+flowchart TD
+    A[Requirements Analysis] --> B[Design]
+    B --> C[Implementation]
+    C --> D[Testing]
+    D --> E[Deployment]
+    E --> F[Maintenance]
+    F --> A
+```
+
+**Supported diagram types:**
+- Flowcharts
+- Sequence diagrams
+- Class diagrams
+- State diagrams
+- Gantt charts
+- Pie charts
+- And more...
+
+The diagrams automatically adapt to your Obsidian theme (light/dark mode) and are fully integrated into the chat interface.

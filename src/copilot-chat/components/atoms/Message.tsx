@@ -1,10 +1,13 @@
 import React, { useMemo } from "react";
-import { concat, cx } from "../../../utils/style";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
+
+import { concat, cx } from "../../../utils/style";
 import { usePlugin } from "../../hooks/usePlugin";
+import MermaidDiagram from "./MermaidDiagram";
 
 const BASE_CLASSNAME = "copilot-chat-message";
 
@@ -35,6 +38,8 @@ const ChatMessage: React.FC<MessageProps> = (props) => {
 	const isDarkTheme = useMemo(() => {
 		return document.body.classList.contains("theme-dark");
 	}, [plugin?.app]);
+
+	const isMarkdownEnabled = plugin?.settings?.enableMarkdownRendering ?? true;
 
 	const handleCopyMessage = () => {
 		navigator.clipboard
@@ -106,55 +111,88 @@ const ChatMessage: React.FC<MessageProps> = (props) => {
 				</button>
 			</div>
 			<div className={concat(BASE_CLASSNAME, "message")}>
-				<ReactMarkdown
-					components={{
-						p({ children }) {
-							return (
-								<p style={{ whiteSpace: "pre-wrap" }}>
-									{children}
-								</p>
-							);
-						},
-						code({
-							className,
-							inline,
-							children,
-							...props
-						}: CodeProps) {
-							const match = /language-(\w+)/.exec(
-								className || "",
-							);
-							return !inline && match ? (
-								<SyntaxHighlighter
-									language={match[1]}
-									style={
-										isDarkTheme
-											? vscDarkPlus
-											: (oneLight as Record<
-													string,
-													React.CSSProperties
-												>)
-									}
-									PreTag="div"
-									className={`theme-${isDarkTheme ? "dark" : "light"}`}
-									customStyle={{
-										background: "var(--code-background)",
-										borderRadius: "4px",
-									}}
-									{...props}
-								>
-									{String(children || "").replace(/\n$/, "")}
-								</SyntaxHighlighter>
-							) : (
-								<code className={className} {...props}>
-									{children}
-								</code>
-							);
-						},
-					}}
-				>
-					{message}
-				</ReactMarkdown>
+				{isMarkdownEnabled ? (
+					<ReactMarkdown
+						remarkPlugins={[remarkGfm]}
+						components={{
+							p({ children }) {
+								return (
+									<p style={{ whiteSpace: "pre-wrap" }}>
+										{children}
+									</p>
+								);
+							},
+							code({
+								className,
+								inline,
+								children,
+								...props
+							}: CodeProps) {
+								const match = /language-(\w+)/.exec(
+									className || "",
+								);
+								const language = match ? match[1] : "";
+								const codeContent = String(
+									children || "",
+								).replace(/\n$/, "");
+
+								// Handle Mermaid diagrams
+								if (
+									!inline &&
+									(language === "mermaid" ||
+										language === "mmd")
+								) {
+									return (
+										<MermaidDiagram
+											chart={codeContent}
+											isDarkTheme={isDarkTheme}
+										/>
+									);
+								}
+
+								// Handle other code blocks with syntax highlighting
+								return !inline && match ? (
+									<SyntaxHighlighter
+										language={language}
+										style={
+											isDarkTheme
+												? vscDarkPlus
+												: (oneLight as Record<
+														string,
+														React.CSSProperties
+													>)
+										}
+										PreTag="div"
+										className={`theme-${
+											isDarkTheme ? "dark" : "light"
+										}`}
+										customStyle={{
+											background:
+												"var(--code-background)",
+											borderRadius: "4px",
+										}}
+										{...props}
+									>
+										{codeContent}
+									</SyntaxHighlighter>
+								) : (
+									<code className={className} {...props}>
+										{children}
+									</code>
+								);
+							},
+						}}
+					>
+						{message}
+					</ReactMarkdown>
+				) : (
+					<div
+						className={concat(BASE_CLASSNAME, "plain-text")}
+						style={{ whiteSpace: "pre-wrap" }}
+					>
+						{message}
+					</div>
+				)}
 
 				{linkedNotes && linkedNotes.length > 0 && (
 					<div className={concat(BASE_CLASSNAME, "linked-notes")}>
