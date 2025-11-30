@@ -39,6 +39,16 @@ export interface MessageSlice {
 		plugin: CopilotPlugin | undefined,
 		model: ModelOption,
 	) => void;
+
+	// New actions for UI callbacks
+	deleteMessage: (
+		plugin: CopilotPlugin | undefined,
+		messageId: string,
+	) => void;
+	retryMessage: (
+		plugin: CopilotPlugin | undefined,
+		messageId: string,
+	) => Promise<void>;
 }
 
 export const defaultModels: ModelOption[] = [
@@ -244,5 +254,74 @@ export const createMessageSlice: StateCreator<
 				console.error("Failed to save selected model:", error);
 			});
 		}
+	},
+
+	deleteMessage: (plugin: CopilotPlugin | undefined, messageId: string) => {
+		// Remove from flat messages
+		set((state: MessageSlice) => ({
+			messages: state.messages.filter((m) => m.id !== messageId),
+		}));
+
+		// Remove from active conversation
+		const activeId = get().activeConversationId;
+		if (activeId) {
+			set((state: any) => ({
+				conversations: state.conversations.map((conv: any) =>
+					conv.id === activeId
+						? {
+								...conv,
+								messages: conv.messages.filter(
+									(m: MessageData) => m.id !== messageId,
+								),
+								updatedAt: Date.now(),
+							}
+						: conv,
+				),
+			}));
+		}
+
+		if (plugin) {
+			get().saveConversations(plugin);
+		}
+	},
+
+	retryMessage: async (
+		plugin: CopilotPlugin | undefined,
+		messageId: string,
+	) => {
+		if (!plugin) {
+			new Notice("Plugin not initialized");
+			return;
+		}
+
+		const activeId = get().activeConversationId;
+		const conversation = activeId
+			? get().conversations.find((c: any) => c.id === activeId)
+			: undefined;
+
+		const messages = conversation ? conversation.messages : get().messages;
+		// Find nearest previous user message before the target assistant message
+		const index = messages.findIndex(
+			(m: MessageData) => m.id === messageId,
+		);
+		let userMsg: MessageData | undefined;
+		for (let i = index - 1; i >= 0; i--) {
+			if (messages[i].role === "user") {
+				userMsg = messages[i];
+				break;
+			}
+		}
+
+		if (!userMsg) {
+			new Notice("No user prompt found to retry");
+			return;
+		}
+
+		await get().sendMessage(
+			plugin,
+			userMsg.content,
+			undefined,
+			userMsg.linkedNotes,
+		);
 	},
 });

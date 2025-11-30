@@ -18,6 +18,8 @@ const Chat: React.FC = () => {
 		conversations,
 		activeConversationId,
 		initConversationService,
+		deleteMessage,
+		retryMessage,
 	} = useCopilotStore();
 
 	useEffect(() => {
@@ -28,11 +30,12 @@ const Chat: React.FC = () => {
 
 	const displayMessages = activeConversationId
 		? conversations.find((conv) => conv.id === activeConversationId)
-				?.messages || []
+			?.messages || []
 		: messages;
 
 	const formattedMessages: MessageProps[] = displayMessages.map(
 		(message) => ({
+			messageId: message.id,
 			icon: message.role === "assistant" ? copilotIcon : userIcon,
 			name: message.role === "assistant" ? "GitHub Copilot" : "User",
 			message: message.content,
@@ -40,13 +43,53 @@ const Chat: React.FC = () => {
 		}),
 	);
 
+	// Handlers for message actions
+	const handleCopy: (id?: string | number, content?: string) => void = (
+		id,
+		content,
+	) => {
+		/* No changes needed here */
+	};
+
+	const handleDelete: (id?: string | number) => void = (id) => {
+		if (typeof id === "string") {
+			deleteMessage(plugin, id);
+		} else if (typeof id === "number") {
+			const conv = activeConversationId
+				? conversations.find((c) => c.id === activeConversationId)
+				: undefined;
+			const list = conv ? conv.messages : messages;
+			const msg = list[id ?? -1];
+			if (msg) deleteMessage(plugin, msg.id);
+		}
+	};
+
+	const handleRetry: (id?: string | number) => void = (id) => {
+		if (typeof id === "string") {
+			retryMessage(plugin, id);
+		} else if (typeof id === "number") {
+			const conv = activeConversationId
+				? conversations.find((c) => c.id === activeConversationId)
+				: undefined;
+			const list = conv ? conv.messages : messages;
+			const msg = list[id ?? -1];
+			if (msg) retryMessage(plugin, msg.id);
+		}
+	};
+
 	return (
 		<MainLayout>
 			<Header />
 			{formattedMessages.length === 0 ? (
 				<NoHistory />
 			) : (
-				<MessageList messages={formattedMessages} />
+				<MessageList
+					messages={formattedMessages}
+					isLoading={isLoading}
+					onCopy={handleCopy}
+					onDelete={handleDelete}
+					onRetry={handleRetry}
+				/>
 			)}
 			<Input isLoading={isLoading} />
 		</MainLayout>
