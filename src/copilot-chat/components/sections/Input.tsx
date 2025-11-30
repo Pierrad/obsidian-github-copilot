@@ -4,7 +4,8 @@ import { useCopilotStore } from "../../store/store";
 import { usePlugin } from "../../hooks/usePlugin";
 import ModelSelector from "./ModelSelector";
 import FileSuggestion from "../atoms/FileSuggestion";
-import { Notice } from "obsidian";
+import { Notice, TFile } from "obsidian";
+import { ObsidianIcon } from "../atoms/ObsidianIcon";
 
 const BASE_CLASSNAME = "copilot-chat-input";
 
@@ -28,10 +29,22 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 	});
 	const [showFileSuggestion, setShowFileSuggestion] = useState(false);
 	const [fileSearchQuery, setFileSearchQuery] = useState("");
-	const [dropdownPosition] = useState({
-		top: 0,
-		left: 0,
-	});
+
+	// Parse attachments from the message content
+	const attachments = React.useMemo(() => {
+		const regex = /\[\[(.*?)\]\]/g;
+		const list: string[] = [];
+		const seen = new Set<string>();
+		let match;
+		while ((match = regex.exec(message)) !== null) {
+			const filename = match[1];
+			if (!seen.has(filename)) {
+				seen.add(filename);
+				list.push(filename);
+			}
+		}
+		return list;
+	}, [message]);
 
 	const updateCursorPosition = () => {
 		if (!textareaRef.current) return;
@@ -71,20 +84,22 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 		const { start, end } = cursorPosition;
 
 		const { startIndex } = checkForFileLinkPattern(value, start);
-		if (startIndex === -1) return;
+		const token = `[[${file.filename}]]`;
+
+		const insertStart = startIndex !== -1 ? startIndex : start;
+		const insertEnd = startIndex !== -1 ? end : end;
 
 		const newValue =
-			value.substring(0, startIndex) +
-			`[[${file.filename}]]` +
-			value.substring(end);
+			value.substring(0, insertStart) +
+			token +
+			value.substring(insertEnd);
 
 		setMessage(newValue);
-
 		setShowFileSuggestion(false);
 
 		setTimeout(() => {
 			if (textareaRef.current) {
-				const newCursorPos = startIndex + `[[${file.filename}]]`.length;
+				const newCursorPos = insertStart + token.length;
 				textareaRef.current.focus();
 				textareaRef.current.setSelectionRange(
 					newCursorPos,
@@ -118,6 +133,68 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 			end: e.target.selectionEnd,
 		});
 	};
+
+	// When clicking the attachment icon, open file suggestions (no query); insert [[filename]] on selection
+	const handleAttachClick = () => {
+		setFileSearchQuery("");
+		setShowFileSuggestion(true);
+		// 将下拉定位到文本框光标（简单保持现状）
+		updateCursorPosition();
+	};
+
+	// Remove an attachment from the input (delete all occurrences of [[filename]])
+	const handleRemoveAttachment = (filename: string) => {
+		const regex = new RegExp(`\\[\\[${filename}\\]\\]`, "g");
+		const newValue = message.replace(regex, "");
+		setMessage(newValue);
+	};
+
+	// Open the corresponding note when clicking an attachment tag
+	const openLinkedNote = (note: { path: string; filename: string }) => {
+		if (!plugin) return;
+		try {
+			const file = plugin.app.vault.getAbstractFileByPath(note.path);
+			if (file instanceof TFile) {
+				const leaves = plugin.app.workspace.getLeavesOfType("markdown");
+				const existing = leaves.find((leaf) => {
+					type ViewWithFile = { file?: { path?: string } };
+					const view = leaf.view as unknown as ViewWithFile;
+					const currentPath = view?.file?.path;
+					return currentPath === file.path;
+				});
+				if (existing) {
+					plugin.app.workspace.revealLeaf(existing);
+					return;
+				}
+
+				plugin.app.workspace
+					.getLeaf(true)
+					.openFile(file)
+					.catch((e) => {
+						console.error("Failed to open file", e);
+						new Notice("无法打开文件: " + note.filename);
+					});
+			} else {
+				plugin.app.workspace.openLinkText(note.filename, "", false);
+			}
+		} catch (e) {
+			console.error("Open note error", e);
+			new Notice("打开笔记失败: " + note.filename);
+		}
+	};
+
+	// Auto-size the textarea based on content (including wrapping), up to 10 lines
+	useEffect(() => {
+		const el = textareaRef.current;
+		if (!el) return;
+		const style = window.getComputedStyle(el);
+		const lineHeight = parseFloat(style.lineHeight || "20");
+		const maxHeight = lineHeight * 10; // 10 行上限
+		el.style.height = "auto";
+		const next = Math.min(el.scrollHeight, maxHeight);
+		el.style.height = `${next}px`;
+		el.style.overflowY = el.scrollHeight > maxHeight ? "auto" : "hidden";
+	}, [message]);
 
 	const extractLinkedNotes = async () => {
 		if (!plugin) return null;
@@ -166,16 +243,11 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 			const linkedNotes = (await extractLinkedNotes()) || undefined;
 			const displayMessage = message;
 			const apiMessage = linkedNotes
-				? `${message}\n\n${linkedNotes
-						.map(
-							(note) =>
-								`Referenced content from [[${note.filename}]]:\n${note.content}`,
-						)
-						.join("\n\n")}`
+				? `${message}\n\n${linkedNotes.map((note) => `Referenced content from [[${note.filename}]]:\n${note.content}`).join("\n\n")}`
 				: message;
 
-			await sendMessage(plugin, apiMessage, displayMessage, linkedNotes);
 			setMessage("");
+			await sendMessage(plugin, apiMessage, displayMessage, linkedNotes);
 		} catch (error) {
 			console.error("Failed to send message:", error);
 		}
@@ -228,8 +300,56 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 
 	return (
 		<div className={concat(BASE_CLASSNAME, "container")}>
-			<ModelSelector isAuthenticated={isAuthenticated} />
-			<div className={concat(BASE_CLASSNAME, "input-container")}>
+			{/* 第一部分：附件栏 */}
+			<div className={concat(BASE_CLASSNAME, "attachments-bar")}>
+				<button
+					className={concat(BASE_CLASSNAME, "attach-button")}
+					onClick={handleAttachClick}
+					disabled={!isAuthenticated || isLoading}
+					aria-label="Add attachment"
+				>
+					<ObsidianIcon name="lucide-paperclip" />
+				</button>
+				{attachments.map((name) => (
+					<span
+						key={name}
+						className={concat(BASE_CLASSNAME, "attachment-tag")}
+						onClick={() => {
+							if (!plugin) return;
+							const files = plugin.app.vault.getMarkdownFiles();
+							const file = files.find((f) => f.basename === name);
+							if (file) {
+								openLinkedNote({
+									path: file.path,
+									filename: file.basename,
+								});
+							} else {
+								new Notice("File not found: " + name);
+							}
+						}}
+					>
+						{name}
+						<button
+							className={cx(
+								concat(BASE_CLASSNAME, "attachment-remove"),
+							)}
+							onClick={(e) => {
+								e.stopPropagation();
+								handleRemoveAttachment(name);
+							}}
+							aria-label={`Remove ${name}`}
+						>
+							<ObsidianIcon name="lucide-x" />
+						</button>
+					</span>
+				))}
+			</div>
+
+			{/* 第二部分：可自增高度输入框 */}
+			<div
+				className={concat(BASE_CLASSNAME, "input-area")}
+				style={{ position: "relative" }}
+			>
 				<textarea
 					ref={textareaRef}
 					className={cx(
@@ -241,24 +361,39 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 					onKeyDown={handleKeyDown}
 					placeholder="Ask GitHub Copilot something... Use [[]] to link notes"
 					disabled={isLoading || !isAuthenticated}
+					rows={1}
+					style={{
+						resize: "none",
+					}}
 				/>
 				{showFileSuggestion && (
 					<FileSuggestion
 						query={fileSearchQuery}
-						position={dropdownPosition}
 						onSelect={handleFileSelect}
 						onClose={() => setShowFileSuggestion(false)}
 						plugin={plugin}
 					/>
 				)}
+			</div>
+
+			{/* 第三部分：模型选择器与发送按钮 */}
+			<div className={concat(BASE_CLASSNAME, "actions-bar")}>
+				<ModelSelector isAuthenticated={isAuthenticated} />
 				<button
-					className={cx("mod-cta", concat(BASE_CLASSNAME, "button"))}
+					className={concat(BASE_CLASSNAME, "send-button")}
 					onClick={handleSubmit}
 					disabled={
 						isLoading || message.trim() === "" || !isAuthenticated
 					}
+					aria-label="Send"
 				>
-					{isLoading ? "Thinking..." : "Send"}
+					<ObsidianIcon
+						name={
+							isLoading
+								? "lucide-loader"
+								: "lucide-send-horizontal"
+						}
+					/>
 				</button>
 			</div>
 		</div>

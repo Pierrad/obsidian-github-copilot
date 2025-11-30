@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { concat } from "../../../utils/style";
+import { concat, cx } from "../../../utils/style";
 import { usePlugin } from "../../hooks/usePlugin";
 import { useCopilotStore } from "../../store/store";
 import ConversationSelector from "./ConversationSelector";
+import { ObsidianIcon } from "../atoms/ObsidianIcon";
 
 const BASE_CLASSNAME = "copilot-chat-header";
 
@@ -46,65 +47,34 @@ const Header: React.FC = () => {
 			<div className={concat(BASE_CLASSNAME, "title")}>Chat</div>
 			<div className={concat(BASE_CLASSNAME, "actions")}>
 				<button
-					className={concat(BASE_CLASSNAME, "action-button")}
+					className={cx(
+						concat(BASE_CLASSNAME, "action-button"),
+						"clickable-icon",
+					)}
 					onClick={handleNewConversation}
-					title="Start new conversation"
+					aria-label="Start new conversation"
 				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="16"
-						height="16"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-					>
-						<path d="M12 5v14"></path>
-						<path d="M5 12h14"></path>
-					</svg>
+					<ObsidianIcon name="lucide-plus" />
 				</button>
 				<button
-					className={concat(BASE_CLASSNAME, "action-button")}
+					className={cx(
+						concat(BASE_CLASSNAME, "action-button"),
+						"clickable-icon",
+					)}
 					onClick={toggleConversationSelector}
-					title="View conversation history"
+					aria-label="View conversation history"
 				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="16"
-						height="16"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-					>
-						<circle cx="12" cy="12" r="10"></circle>
-						<polyline points="12 6 12 12 16 14"></polyline>
-					</svg>
+					<ObsidianIcon name="lucide-history" />
 				</button>
 				<button
-					className={concat(BASE_CLASSNAME, "action-button")}
+					className={cx(
+						concat(BASE_CLASSNAME, "action-button"),
+						"clickable-icon",
+					)}
 					onClick={handleClearChat}
-					title="Delete this conversation"
+					aria-label="Delete this conversation"
 				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="16"
-						height="16"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						strokeWidth="2"
-						strokeLinecap="round"
-						strokeLinejoin="round"
-					>
-						<path d="M3 6h18"></path>
-						<path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-						<path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-					</svg>
+					<ObsidianIcon name="lucide-trash" />
 				</button>
 			</div>
 			<ConversationSelector

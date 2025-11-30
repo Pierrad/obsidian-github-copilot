@@ -7,7 +7,7 @@ const BASE_CLASSNAME = "copilot-chat-file-suggestion";
 
 interface FileSuggestionProps {
 	query: string;
-	position: { top: number; left: number };
+	position?: { top: number; left: number };
 	onSelect: (file: { path: string; filename: string }) => void;
 	onClose: () => void;
 	plugin: CopilotPlugin | undefined;
@@ -48,7 +48,7 @@ const FileSuggestion: React.FC<FileSuggestionProps> = ({
 			setSelectedIndex(
 				(prev) => (prev - 1 + files.length) % files.length,
 			);
-		} else if (e.key === "Enter") {
+		} else if (e.key === "Enter" || e.key === "Tab") {
 			e.preventDefault();
 			if (files[selectedIndex]) {
 				handleSelect(files[selectedIndex]);
@@ -86,29 +86,17 @@ const FileSuggestion: React.FC<FileSuggestionProps> = ({
 	};
 
 	const getDirectory = (path: string) => {
-		const lastSlashIndex = path.lastIndexOf("/");
-		if (lastSlashIndex === -1) return "";
-		return path.substring(0, lastSlashIndex);
+		// Normalize path by trimming leading/trailing slashes
+		const normalized = (path || "").replace(/^\/+|\/+$/g, "");
+		const parts = normalized.split("/").filter(Boolean);
+		// If no folder part, it's root
+		if (parts.length <= 1) return "";
+		// Join folder parts and ensure a leading slash
+		return "/" + parts.slice(0, -1).join("/");
 	};
 
 	return (
-		<div
-			className={concat(BASE_CLASSNAME, "container")}
-			style={{
-				position: "absolute",
-				top: `-200px`,
-				left: `10px`,
-				width: "calc(100% - 20px)",
-				maxHeight: "200px",
-				overflowY: "auto",
-				zIndex: 1000,
-				backgroundColor: "var(--background-primary)",
-				border: "1px solid var(--background-modifier-border)",
-				borderRadius: "4px",
-				boxShadow: "0px 5px 10px rgba(0, 0, 0, 0.1)",
-			}}
-			ref={containerRef}
-		>
+		<div className={concat(BASE_CLASSNAME, "container")} ref={containerRef}>
 			{files.length === 0 ? (
 				<div
 					className={concat(BASE_CLASSNAME, "no-results")}
@@ -117,47 +105,25 @@ const FileSuggestion: React.FC<FileSuggestionProps> = ({
 					No files found
 				</div>
 			) : (
-				<div className={concat(BASE_CLASSNAME, "list")}>
-					{files.map((file, index) => (
-						<div
-							key={file.path}
-							className={cx(
-								concat(BASE_CLASSNAME, "item"),
-								index === selectedIndex
-									? concat(BASE_CLASSNAME, "item-selected")
-									: "",
-							)}
-							onClick={() => handleSelect(file)}
-							style={{
-								padding: "8px 10px",
-								cursor: "pointer",
-								borderBottom:
-									"1px solid var(--background-modifier-border)",
-								backgroundColor:
-									index === selectedIndex
-										? "var(--background-secondary)"
-										: "transparent",
-								display: "flex",
-								flexDirection: "column",
-							}}
-						>
-							<div style={{ fontWeight: "500" }}>
-								{file.basename}
-							</div>
-							{getDirectory(file.path) && (
-								<div
-									style={{
-										fontSize: "0.8em",
-										color: "var(--text-muted)",
-										marginTop: "2px",
-									}}
-								>
-									{getDirectory(file.path)}
-								</div>
-							)}
+				files.map((file, index) => (
+					<div
+						key={file.path}
+						className={cx(
+							concat(BASE_CLASSNAME, "item"),
+							index === selectedIndex
+								? concat(BASE_CLASSNAME, "item-selected")
+								: "",
+						)}
+						onClick={() => handleSelect(file)}
+					>
+						<div className={concat(BASE_CLASSNAME, "item-name")}>
+							{file.basename}
 						</div>
-					))}
-				</div>
+						<div className={concat(BASE_CLASSNAME, "item-path")}>
+							{getDirectory(file.path)}
+						</div>
+					</div>
+				))
 			)}
 		</div>
 	);
