@@ -57,6 +57,7 @@ export interface CopilotPluginSettings {
 	systemPrompt: string;
 	invertEnterSendBehavior: boolean;
 	extraCACerts?: string;
+	enableMarkdownRendering: boolean;
 }
 
 export const DEFAULT_SETTINGS: CopilotPluginSettings = {
@@ -92,6 +93,7 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 		"You are GitHub Copilot, an AI assistant. You are helping the user with their tasks in Obsidian.",
 	invertEnterSendBehavior: false,
 	extraCACerts: "",
+	enableMarkdownRendering: true,
 };
 
 class CopilotPluginSettingTab extends PluginSettingTab {
@@ -425,6 +427,20 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 			text: "When authenticating in Copilot Chat, a personal token will be encrypted and stored as a file in the plugin folder. This file is called `secure-credentials.dat`. It is only decrytable by your machine but you should never share it with anyone.",
 			cls: "copilot-settings-warning",
 		});
+
+		new Setting(containerEl)
+			.setName("Enable markdown rendering")
+			.setDesc(
+				"Enable or disable markdown rendering in chat messages. When disabled, messages will be displayed as plain text with basic formatting.",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.enableMarkdownRendering)
+					.onChange(async (value) => {
+						this.plugin.settings.enableMarkdownRendering = value;
+						await this.saveSettings();
+					}),
+			);
 
 		new Setting(containerEl)
 			.setName("Invert Enter/Shift+Enter behavior")
