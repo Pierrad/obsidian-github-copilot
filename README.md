@@ -8,12 +8,6 @@ Use **GitHub Copilot** in the Obsidian editor. This plugin is a bridge between t
 - 🤖 Get inline suggestion as you type using GitHub Copilot service
 - 💬 Use the GitHub Copilot Chat service to ask questions about your notes
 
-> [!WARNING]  
-> As I'm now using other services for AI completion and Chat in my IDE and dev workflow, I don't have a Copilot subscription anymore. <br>
-> I won't be able to develop new features and fix bug that requires the copilot subscription.<br>
->
-> But if you want to contribute I would be delighted to accept any help. 
-
 ## 🗒️ Requirements
 
 - A GitHub Copilot subscription (https://copilot.github.com/)
