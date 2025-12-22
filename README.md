@@ -24,11 +24,11 @@ Use **GitHub Copilot** in the Obsidian editor. This plugin is a bridge between t
 
 ### Requirements
 
-- Node.js 20 or later
+- Node.js 22 or later
 
 ### Installation
 
-1. Once installed, go to the plugin settings and enter the path to the Node +20 binary. You can find it by running `which node` in your terminal.
+1. Once installed, go to the plugin settings and enter the path to the Node +22 binary. You can find it by running `which node` in your terminal.
 2. Either
    1. A modal will appear asking you to sign in to Copilot. Follow the instructions to sign in.
    2. Or, you will receive a notice saying that Copilot is ready to use. (This will happen if you have already signed in to Copilot in the past in IDEs)

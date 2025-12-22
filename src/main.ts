@@ -83,10 +83,10 @@ export default class CopilotPlugin extends Plugin {
 
 		if (
 			this.settingsTab.isCopilotEnabled() &&
-			!this.settings.nodePathUpdatedToNode20
+			!this.settings.nodePathUpdatedToNode22
 		) {
 			new Notice(
-				"[GitHub Copilot] Copilot has changed the minimum node version to 20. Please update your node version if you are using an older version.",
+				"[GitHub Copilot] Copilot has changed the minimum node version to 22. Please update your node version if you are using an older version.",
 			);
 		}
 

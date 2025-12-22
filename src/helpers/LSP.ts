@@ -45,19 +45,23 @@ class LSP {
 		character: number;
 		version: number;
 		indentSize?: number;
-	}): GetCompletionsParams {
+	}): any {
 		return {
-			doc: {
-				tabSize: 2,
+			textDocument: {
+				uri: "file://" + args.uri,
+				version: args.version,
+			},
+			position: {
+				line: args.line,
+				character: args.character,
+			},
+			context: {
+				triggerKind: 2,
+			},
+			formattingOptions: {
+				tabSize: args.indentSize || 4,
 				indentSize: args.indentSize || 4,
 				insertSpaces: false,
-				uri: "file://" + args.uri,
-				relativePath: args.relativePath,
-				position: {
-					line: args.line,
-					character: args.character,
-				},
-				version: args.version,
 			},
 		};
 	}

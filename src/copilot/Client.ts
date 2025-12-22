@@ -47,9 +47,8 @@ class Client {
 		await this.initialize({
 			processId: this.plugin.copilotAgent.getAgent().pid as number,
 			capabilities: {
-				// @ts-expect-error - we're not using all the capabilities
-				copilot: {
-					openURL: true,
+				workspace: {
+					workspaceFolders: true,
 				},
 			},
 			clientInfo: {
@@ -57,6 +56,12 @@ class Client {
 				version: "0.0.1",
 			},
 			rootUri: "file://" + this.basePath,
+			workspaceFolders: [
+				{
+					name: "Obsidian",
+					uri: "file://" + this.basePath,
+				},
+			],
 			initializationOptions: {
 				editorInfo: {
 					name: "obsidian",
@@ -70,6 +75,7 @@ class Client {
 		});
 		await this.initialized();
 		await this.checkStatus();
+		// await this.setConfiguration();
 		await this.setEditorInfo();
 	}
 
@@ -81,6 +87,24 @@ class Client {
 
 	private async initialized(): Promise<void> {
 		await this.client.initialized();
+	}
+
+	private async setConfiguration(): Promise<void> {
+		await this.client.customRequest("workspace/didChangeConfiguration", {
+			settings: {
+				// http: {
+				// 	proxy: "http://localhost:8888",
+				// 	proxyStrictSSL: true,
+				// 	proxyKerberosServicePrincipal: "spn",
+				// },
+				telemetry: {
+					telemetryLevel: "off",
+				},
+				// "github-enterprise": {
+				// 	uri: "https://example.ghe.com",
+				// },
+			},
+		});
 	}
 
 	public async checkStatus(): Promise<void> {
@@ -156,11 +180,14 @@ class Client {
 		params: GetCompletionsParams,
 	): Promise<CompletionList> {
 		try {
-			return this.client.customRequest("getCompletionsCycling", params);
+			return this.client.customRequest(
+				"textDocument/inlineCompletion",
+				params,
+			);
 		} catch (error) {
 			Logger.getInstance().error("Error in completion: " + error);
 			return {
-				completions: [],
+				items: [],
 			};
 		}
 	}

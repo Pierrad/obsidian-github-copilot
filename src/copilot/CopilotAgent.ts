@@ -23,7 +23,7 @@ class CopilotAgent implements SettingsObserver {
 	constructor(plugin: CopilotPlugin) {
 		this.plugin = plugin;
 		this.agentPath = path.join(
-			Vault.getAgentInitializerPath(this.plugin.app, this.plugin.version),
+			Vault.getAgentPath(this.plugin.app, this.plugin.version),
 		);
 		this.plugin.settingsTab.registerObserver(this);
 	}
@@ -142,8 +142,10 @@ class CopilotAgent implements SettingsObserver {
 		const res = await this.client.completion(params);
 		this.plugin.statusBar?.updateElement();
 
-		if (res && res.completions && res.completions.length > 0) {
-			const completions = res.completions.map((c) => c.displayText);
+		console.log("Completions response:", res);
+
+		if (res && res.items && res.items.length > 0) {
+			const completions = res.items.map((c) => c.insertText);
 			view.dispatch({
 				effects: [
 					InlineSuggestionEffect.of({
