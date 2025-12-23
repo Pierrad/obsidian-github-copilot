@@ -45,7 +45,7 @@ class LSP {
 		character: number;
 		version: number;
 		indentSize?: number;
-	}): any {
+	}): GetCompletionsParams {
 		return {
 			textDocument: {
 				uri: "file://" + args.uri,
@@ -61,7 +61,7 @@ class LSP {
 			formattingOptions: {
 				tabSize: args.indentSize || 4,
 				indentSize: args.indentSize || 4,
-				insertSpaces: false,
+				insertSpaces: true,
 			},
 		};
 	}

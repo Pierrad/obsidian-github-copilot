@@ -142,10 +142,11 @@ class CopilotAgent implements SettingsObserver {
 		const res = await this.client.completion(params);
 		this.plugin.statusBar?.updateElement();
 
-		console.log("Completions response:", res);
-
 		if (res && res.items && res.items.length > 0) {
-			const completions = res.items.map((c) => c.insertText);
+			const completions = res.items.map((c) => ({
+				insertText: c.insertText,
+				range: c.range,
+			}));
 			view.dispatch({
 				effects: [
 					InlineSuggestionEffect.of({
