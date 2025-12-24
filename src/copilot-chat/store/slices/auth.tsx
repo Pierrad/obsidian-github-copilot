@@ -11,6 +11,7 @@ import {
 	PATResponse,
 	TokenResponse,
 } from "../../api";
+import Logger from "../../../helpers/Logger";
 
 export interface AuthSlice {
 	deviceCode: CopilotChatSettings["deviceCode"];
@@ -102,7 +103,7 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 		);
 
 		if (hasPlainTextCredentials && !hasSecureCredentials) {
-			console.log(
+			Logger.getInstance().log(
 				"[AuthSlice] Detected plain text credentials, initiating migration...",
 			);
 			const migrationSuccess =
@@ -153,10 +154,14 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 		const { accessToken, pat } = get();
 
 		if (!accessToken.token || isTokenExpired(accessToken.expiresAt || 0)) {
-			console.log("Token expired or about to expire, refreshing...");
+			Logger.getInstance().log(
+				"Token expired or about to expire, refreshing...",
+			);
 
 			if (!pat) {
-				console.error("Cannot refresh token: No PAT available");
+				Logger.getInstance().error(
+					"Cannot refresh token: No PAT available",
+				);
 				return null;
 			}
 
@@ -164,7 +169,7 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 				const data = await get().fetchToken(plugin, pat);
 				return data?.token || null;
 			} catch (error) {
-				console.error("Failed to refresh token:", error);
+				Logger.getInstance().error(`Failed to refresh token: ${error}`);
 				return null;
 			}
 		}
@@ -173,7 +178,7 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 	},
 
 	setDeviceCode: async (plugin: CopilotPlugin, code: string) => {
-		console.log("setDeviceCode", code);
+		Logger.getInstance().log(`setDeviceCode ${code}`);
 
 		const secureManager = SecureCredentialManager.getInstance();
 		const currentCredentials = (await secureManager.getCredentials(
@@ -194,7 +199,7 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 	},
 
 	setPAT: async (plugin: CopilotPlugin, pat: string) => {
-		console.log("setPAT", pat);
+		Logger.getInstance().log(`setPAT ${pat}`);
 
 		const secureManager = SecureCredentialManager.getInstance();
 		const currentCredentials = (await secureManager.getCredentials(
@@ -218,7 +223,7 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 		plugin: CopilotPlugin,
 		token: CopilotChatSettings["accessToken"],
 	) => {
-		console.log("setAccessToken", token);
+		Logger.getInstance().log(`setAccessToken ${JSON.stringify(token)}`);
 
 		const secureManager = SecureCredentialManager.getInstance();
 		const currentCredentials = (await secureManager.getCredentials(
@@ -247,14 +252,16 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 
 		try {
 			const data = await fetchDeviceCode();
-			console.log("Device code data", data);
+			Logger.getInstance().log(
+				`Device code data ${JSON.stringify(data)}`,
+			);
 
 			await get().setDeviceCode(plugin, data.device_code);
 			set({ deviceCodeData: data });
 
 			return data;
 		} catch (error) {
-			console.error("Error fetching device code:", error);
+			Logger.getInstance().error(`Error fetching device code: ${error}`);
 			new Notice("Failed to fetch device code. Please try again.");
 			throw error;
 		} finally {
@@ -267,7 +274,7 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 
 		try {
 			const data = await fetchPAT(deviceCode);
-			console.log("PAT data", data);
+			Logger.getInstance().log(`PAT data ${JSON.stringify(data)}`);
 
 			await get().setPAT(plugin, data.access_token);
 
@@ -277,7 +284,7 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 
 			return data;
 		} catch (error) {
-			console.error("Error fetching PAT:", error);
+			Logger.getInstance().error(`Error fetching PAT: ${error}`);
 			new Notice("Failed to fetch PAT. Please try again.");
 			throw error;
 		} finally {
@@ -290,7 +297,7 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 
 		try {
 			const data = await fetchToken(pat);
-			console.log("Token data", data);
+			Logger.getInstance().log(`Token data ${JSON.stringify(data)}`);
 
 			await get().setAccessToken(plugin, {
 				token: data.token,
@@ -299,8 +306,9 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 
 			return data;
 		} catch (error) {
-			console.error("Error fetching token:", error);
+			Logger.getInstance().error(`Error fetching token: ${error}`);
 			new Notice("Failed to fetch token. Please try again.");
+			await get().reset(plugin); // Reset on token fetch failure to restart auth flow
 			throw error;
 		} finally {
 			set({ isLoadingToken: false });
@@ -308,7 +316,7 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 	},
 
 	reset: async (plugin: CopilotPlugin) => {
-		console.log("reset");
+		Logger.getInstance().log("reset");
 
 		const secureManager = SecureCredentialManager.getInstance();
 		await secureManager.deleteCredentials(plugin.app);

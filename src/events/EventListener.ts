@@ -27,8 +27,6 @@ class EventListener {
 				.getClient()
 				.openDocument(didOpenParams);
 
-			console.log("didOpenParams", didOpenParams);
-
 			Cacher.getInstance().setCurrentFilePath(basePath, file?.path || "");
 		} catch (error) {
 			Logger.getInstance().error(`Error onFileOpen: ${error}`);

@@ -3,6 +3,7 @@ import { Notice } from "obsidian";
 import CopilotPlugin from "../../../main";
 import Vault from "../../../helpers/Vault";
 import File from "../../../helpers/File";
+import Logger from "../../../helpers/Logger";
 import { MessageData, ModelOption } from "./message";
 import { existsSync } from "fs";
 
@@ -82,7 +83,7 @@ export const createConversationSlice: StateCreator<
 			const filePath = getConversationsFilePath(plugin);
 
 			if (!existsSync(filePath)) {
-				console.log(
+				Logger.getInstance().log(
 					"No conversations file found. Starting with empty conversations.",
 				);
 				return;
@@ -102,9 +103,8 @@ export const createConversationSlice: StateCreator<
 				}
 			}
 		} catch (error) {
-			console.log(
-				"No existing conversations found or error loading them:",
-				error,
+			Logger.getInstance().error(
+				`No existing conversations found or error loading them: ${error}`,
 			);
 		}
 	},
@@ -133,7 +133,9 @@ export const createConversationSlice: StateCreator<
 				JSON.stringify(conversationsData, null, 2),
 			);
 		} catch (error) {
-			console.error("Failed to save conversations:", error);
+			Logger.getInstance().error(
+				`Failed to save conversations: ${error}`,
+			);
 			new Notice("Failed to save conversation history");
 		}
 	},
