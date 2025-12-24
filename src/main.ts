@@ -13,22 +13,8 @@ import File from "./helpers/File";
 import Logger from "./helpers/Logger";
 import Cacher from "./copilot/Cacher";
 import ChatView from "./copilot-chat/views/ChatView";
-
-// @ts-expect-error - import to be bundled
-import agentInitializer from "official-copilot/agent-initializer.txt";
-// @ts-expect-error - import to be bundled
-import agent from "official-copilot/agent.txt";
-// @ts-expect-error - import to be bundled
-import cl100k from "official-copilot/resources/cl100k_base.tiktoken";
-// @ts-expect-error - import to be bundled
-import o200k from "official-copilot/resources/o200k_base.tiktoken";
-// @ts-expect-error - import to be bundled
-import cl100kNoIndex from "official-copilot/resources/cl100k_base.tiktoken.noindex";
-// @ts-expect-error - import to be bundled
-import o200kNoIndex from "official-copilot/resources/o200k_base.tiktoken.noindex";
-// @ts-expect-error - import to be bundled
-import crypt32 from "official-copilot/resources/crypt32.node";
 import { CHAT_VIEW_TYPE } from "./copilot-chat/types/constants";
+import github from "./config/github";
 
 export default class CopilotPlugin extends Plugin {
 	settingsTab: CopilotPluginSettingTab;
@@ -37,7 +23,7 @@ export default class CopilotPlugin extends Plugin {
 	copilotAgent: CopilotAgent;
 	private cmExtensionManager: ExtensionManager;
 	private eventManager: EventManager;
-	version = "1.1.9";
+	version = "1.406.0";
 	tabSize = Vault.DEFAULT_TAB_SIZE;
 
 	async onload() {
@@ -56,36 +42,30 @@ export default class CopilotPlugin extends Plugin {
 			!File.doesFolderExist(Vault.getCopilotPath(this.app, this.version))
 		) {
 			await File.createFolder(
-				Vault.getCopilotResourcesPath(this.app, this.version),
+				Vault.getCopilotPath(this.app, this.version),
 			);
-			await File.createFile(
-				Vault.getAgentInitializerPath(this.app, this.version),
-				agentInitializer,
+
+			await File.downloadFile(
+				github.RELEASE_URL(this.version),
+				Vault.getCopilotPath(this.app, this.version) + ".zip",
+				(err) => {
+					if (err) {
+						console.error("Download failed:", err);
+					} else {
+						console.log("Download finished.");
+						File.unzipFile(
+							Vault.getCopilotPath(this.app, this.version) +
+								".zip",
+							Vault.getCopilotPath(this.app, this.version),
+						);
+						File.removeFile(
+							Vault.getCopilotPath(this.app, this.version) +
+								".zip",
+						);
+					}
+				},
 			);
-			await File.createFile(
-				Vault.getAgentPath(this.app, this.version),
-				agent,
-			);
-			await File.createFile(
-				`${Vault.getCopilotResourcesPath(this.app, this.version)}/cl100k_base.tiktoken`,
-				cl100k,
-			);
-			await File.createFile(
-				`${Vault.getCopilotResourcesPath(this.app, this.version)}/o200k_base.tiktoken`,
-				o200k,
-			);
-			await File.createFile(
-				`${Vault.getCopilotResourcesPath(this.app, this.version)}/cl100k_base.tiktoken.noindex`,
-				cl100kNoIndex,
-			);
-			await File.createFile(
-				`${Vault.getCopilotResourcesPath(this.app, this.version)}/o200k_base.tiktoken.noindex`,
-				o200kNoIndex,
-			);
-			await File.createFile(
-				`${Vault.getCopilotPath(this.app, this.version)}/crypt32.node`,
-				crypt32,
-			);
+
 			await File.removeOldCopilotFolders(
 				this.version,
 				Vault.getPluginPath(this.app),
@@ -103,10 +83,10 @@ export default class CopilotPlugin extends Plugin {
 
 		if (
 			this.settingsTab.isCopilotEnabled() &&
-			!this.settings.nodePathUpdatedToNode20
+			!this.settings.nodePathUpdatedToNode22
 		) {
 			new Notice(
-				"[GitHub Copilot] Copilot has changed the minimum node version to 20. Please update your node version if you are using an older version.",
+				"[GitHub Copilot] Copilot has changed the minimum node version to 22. Please update your node version if you are using an older version.",
 			);
 		}
 

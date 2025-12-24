@@ -47,17 +47,21 @@ class LSP {
 		indentSize?: number;
 	}): GetCompletionsParams {
 		return {
-			doc: {
-				tabSize: 2,
-				indentSize: args.indentSize || 4,
-				insertSpaces: false,
+			textDocument: {
 				uri: "file://" + args.uri,
-				relativePath: args.relativePath,
-				position: {
-					line: args.line,
-					character: args.character,
-				},
 				version: args.version,
+			},
+			position: {
+				line: args.line,
+				character: args.character,
+			},
+			context: {
+				triggerKind: 2,
+			},
+			formattingOptions: {
+				tabSize: args.indentSize || 4,
+				indentSize: args.indentSize || 4,
+				insertSpaces: true,
 			},
 		};
 	}

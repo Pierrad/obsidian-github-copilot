@@ -54,11 +54,13 @@ function inlineSuggestionDecoration(
 		return Decoration.none;
 	}
 
-	const suggestion = display_suggestion.suggestions[display_suggestion.index];
+	const suggestionObject =
+		display_suggestion.suggestions[display_suggestion.index];
+	const suggestionText = suggestionObject.insertText;
 
 	try {
 		const widget = new InlineSuggestionWidget(
-			suggestion,
+			suggestionText,
 			display_suggestion.index,
 			display_suggestion.suggestions.length,
 			view,

@@ -43,6 +43,7 @@ export type CopilotChatSettings = {
 export interface CopilotPluginSettings {
 	nodePath: string;
 	nodePathUpdatedToNode20: boolean;
+	nodePathUpdatedToNode22: boolean;
 	enabled: boolean;
 	hotkeys: Hotkeys;
 	suggestionDelay: number;
@@ -63,6 +64,7 @@ export interface CopilotPluginSettings {
 export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 	nodePath: "default",
 	nodePathUpdatedToNode20: false,
+	nodePathUpdatedToNode22: false,
 	enabled: true,
 	hotkeys: {
 		accept: "Tab",
@@ -130,7 +132,7 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Node binary path")
 			.setDesc(
-				"The path to your node binary (at least Node v20). This is used to run the copilot server.",
+				"The path to your node binary (at least Node v22). This is used to run the copilot server.",
 			)
 			.addText((text) =>
 				text
@@ -547,6 +549,7 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					if (!path) return false;
 					if (path) {
 						this.plugin.settings.nodePathUpdatedToNode20 = true;
+						this.plugin.settings.nodePathUpdatedToNode22 = true;
 						await this.saveSettings(false, false);
 					}
 					return true;

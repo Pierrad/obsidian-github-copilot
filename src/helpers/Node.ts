@@ -115,7 +115,7 @@ class Node {
 			});
 
 			const nodeVersion = result.slice(1);
-			const requiredVersion = 20;
+			const requiredVersion = 22;
 
 			if (parseFloat(nodeVersion) >= requiredVersion) {
 				Obsidian.Notice(
