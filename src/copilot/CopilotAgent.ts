@@ -107,17 +107,20 @@ class CopilotAgent implements SettingsObserver {
 		this.agent.stdout.on("data", (data) => {
 			Logger.getInstance().log(`stdout: ${data}`);
 			if (data.toString().includes("NotSignedIn")) {
-				const json = Json.extractJsonObject(
-					data.toString(),
-				) as CopilotResponse;
-				if (json?.result?.status === "NotSignedIn") {
-					this.client.initiateSignIn().then((res) => {
-						new AuthModal(
-							this.plugin,
-							res.userCode,
-							res.verificationUri,
-						).open();
-					});
+				const jsonObjects = Json.splitJsonObjects(data.toString());
+				for (const jsonObjectString of jsonObjects) {
+					const json = Json.extractJsonObject(
+						jsonObjectString,
+					) as CopilotResponse;
+					if (json?.result?.status === "NotSignedIn") {
+						this.client.initiateSignIn().then((res) => {
+							new AuthModal(
+								this.plugin,
+								res.userCode,
+								res.verificationUri,
+							).open();
+						});
+					}
 				}
 			} else if (data.toString().includes("DocumentVersionMismatch")) {
 				Logger.getInstance().log("DocumentVersionMismatch");

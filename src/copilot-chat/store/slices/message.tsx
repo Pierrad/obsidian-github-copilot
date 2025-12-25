@@ -44,17 +44,15 @@ export interface MessageSlice {
 export const defaultModels: ModelOption[] = [
 	{ label: "GPT-4o", value: "gpt-4o-2024-08-06" },
 	{ label: "GPT-4.1", value: "gpt-4.1-2025-04-14" },
-	{ label: "GPT-o1", value: "o1-2024-12-17" },
-	{ label: "GPT-o3-mini", value: "o3-mini" },
-	{ label: "GPT-o4-mini", value: "o4-mini" },
 	{ label: "GPT-5", value: "gpt-5" },
 	{ label: "GPT-5-mini", value: "gpt-5-mini" },
-	{ label: "Claude 3.7 Sonnet Thinking", value: "claude-3.7-sonnet-thought" },
-	{ label: "Claude 3.7 Sonnet", value: "claude-3.7-sonnet" },
-	{ label: "Claude 3.5 Sonnet", value: "claude-3.5-sonnet" },
+	{ label: "GPT-5.2", value: "gpt-5.2" },
+	{ label: "Claude Haiku 4.5", value: "claude-haiku-4.5" },
 	{ label: "Claude Sonnet 4", value: "claude-sonnet-4" },
-	{ label: "Gemini 2.0 Flash", value: "gemini-2.0-flash-001" },
-	{ label: "Gemini 2.5 Pro", value: "gemini-2.5-pro-preview-05-06" },
+	{ label: "Claude Sonnet 4.5", value: "claude-sonnet-4.5" },
+	{ label: "Gemini 2.5 Pro", value: "gemini-2.5-pro" },
+	{ label: "Gemini 3 Pro", value: "gemini-3-pro-preview" },
+	{ label: "Gemini 3 Flash", value: "gemini-3-flash-preview" },
 ];
 
 export const createMessageSlice: StateCreator<
@@ -117,6 +115,8 @@ export const createMessageSlice: StateCreator<
 
 		try {
 			const validToken = await get().checkAndRefreshToken(plugin);
+
+			console.log("Valid token:", validToken);
 
 			if (!validToken) {
 				throw new Error("Failed to get a valid access token");

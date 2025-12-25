@@ -15,6 +15,7 @@ import https from "https";
 import { writeFile } from "fs/promises";
 import { join } from "path";
 import AdmZip from "adm-zip";
+import Logger from "./Logger";
 
 class File {
 	public static doesFolderExist(path: string): boolean {
@@ -88,7 +89,9 @@ class File {
 		const request = https.get(url, (response) => {
 			// Handle Redirects (GitHub uses 302)
 			if (response.statusCode === 301 || response.statusCode === 302) {
-				console.log("Redirecting to:", response.headers.location);
+				Logger.getInstance().log(
+					`Redirecting to: ${response.headers.location}`,
+				);
 				return File.downloadFile(
 					response.headers.location ?? "",
 					dest,

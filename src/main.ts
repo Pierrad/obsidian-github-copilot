@@ -50,9 +50,9 @@ export default class CopilotPlugin extends Plugin {
 				Vault.getCopilotPath(this.app, this.version) + ".zip",
 				(err) => {
 					if (err) {
-						console.error("Download failed:", err);
+						Logger.getInstance().log(`Download failed: ${err}`);
 					} else {
-						console.log("Download finished.");
+						Logger.getInstance().log("Download finished.");
 						File.unzipFile(
 							Vault.getCopilotPath(this.app, this.version) +
 								".zip",
