@@ -1,7 +1,7 @@
 {
 	"id": "github-copilot",
 	"name": "GitHub Copilot",
-	"version": "1.1.9",
+	"version": "1.2.0",
 	"minAppVersion": "1.5.12",
 	"description": "Implement GitHub Copilot services (suggestion and chat) in Obsidian",
 	"author": "Vasseur Pierre-Adrien",
