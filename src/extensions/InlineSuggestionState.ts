@@ -63,7 +63,10 @@ export const inlineSuggestionField = StateField.define<InlineSuggestion | null>(
 	},
 );
 
-function convertLSPRangeToOffsets(doc: Text, range: Range): [number, number] {
+export function convertLSPRangeToOffsets(
+	doc: Text,
+	range: Range,
+): [number, number] {
 	const docLines = doc.lines;
 
 	const startLineNum =

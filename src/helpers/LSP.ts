@@ -56,7 +56,7 @@ class LSP {
 				character: args.character,
 			},
 			context: {
-				triggerKind: 2,
+				triggerKind: 1,
 			},
 			formattingOptions: {
 				tabSize: args.indentSize || 4,
