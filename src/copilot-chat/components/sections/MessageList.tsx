@@ -34,14 +34,14 @@ const MessageList: React.FC<MessageListProps> = ({
 	};
 
 	useLayoutEffect(() => {
-		// 在消息变更后，等待布局完成再滚动，保证切换历史记录时可靠
+		// After message changes, wait for layout to complete before scrolling, ensuring reliable history record switching
 		const timer = setTimeout(() => {
 			scrollToBottom("smooth");
 		}, 0);
 		return () => clearTimeout(timer);
 	}, [messages]);
 
-	// 初次挂载后，延迟滚动一次，避免 Obsidian 启动阶段渲染时机导致未滚动
+	// After first mount, delay scrolling once to avoid races during Obsidian startup rendering
 	useLayoutEffect(() => {
 		const timer = setTimeout(() => {
 			scrollToBottom("auto");
@@ -55,7 +55,7 @@ const MessageList: React.FC<MessageListProps> = ({
 		}
 	}, [isLoading]);
 
-	// 当历史记录加载完成（isLoading -> false）时，滚动到底部
+	// When history finishes loading (isLoading -> false), scroll to bottom
 	useEffect(() => {
 		if (!isLoading) {
 			scrollToBottom("smooth");

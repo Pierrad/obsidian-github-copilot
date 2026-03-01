@@ -138,7 +138,7 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 	const handleAttachClick = () => {
 		setFileSearchQuery("");
 		setShowFileSuggestion(true);
-		// 将下拉定位到文本框光标（简单保持现状）
+		// Position dropdown at textarea cursor (simple, keep current behavior)
 		updateCursorPosition();
 	};
 
@@ -172,14 +172,14 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 					.openFile(file)
 					.catch((e) => {
 						console.error("Failed to open file", e);
-						new Notice("无法打开文件: " + note.filename);
+						new Notice("Cannot open file: " + note.filename);
 					});
 			} else {
 				plugin.app.workspace.openLinkText(note.filename, "", false);
 			}
 		} catch (e) {
 			console.error("Open note error", e);
-			new Notice("打开笔记失败: " + note.filename);
+			new Notice("Failed to open note: " + note.filename);
 		}
 	};
 
@@ -189,7 +189,7 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 		if (!el) return;
 		const style = window.getComputedStyle(el);
 		const lineHeight = parseFloat(style.lineHeight || "20");
-		const maxHeight = lineHeight * 10; // 10 行上限
+		const maxHeight = lineHeight * 10; // Max 10 lines
 		el.style.height = "auto";
 		const next = Math.min(el.scrollHeight, maxHeight);
 		el.style.height = `${next}px`;
@@ -300,7 +300,7 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 
 	return (
 		<div className={concat(BASE_CLASSNAME, "container")}>
-			{/* 第一部分：附件栏 */}
+			{/* Section 1: Attachments bar */}
 			<div className={concat(BASE_CLASSNAME, "attachments-bar")}>
 				<button
 					className={concat(BASE_CLASSNAME, "attach-button")}
@@ -345,7 +345,7 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 				))}
 			</div>
 
-			{/* 第二部分：可自增高度输入框 */}
+			{/* Section 2: Auto-sizing input box */}
 			<div
 				className={concat(BASE_CLASSNAME, "input-area")}
 				style={{ position: "relative" }}
@@ -376,7 +376,7 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 				)}
 			</div>
 
-			{/* 第三部分：模型选择器与发送按钮 */}
+			{/* Section 3: Model selector and send button */}
 			<div className={concat(BASE_CLASSNAME, "actions-bar")}>
 				<ModelSelector isAuthenticated={isAuthenticated} />
 				<button
