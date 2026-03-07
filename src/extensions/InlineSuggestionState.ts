@@ -121,28 +121,62 @@ export const partialAcceptSuggestion = (view: EditorView) => {
 		const currentSuggestion =
 			suggestionField.suggestions?.[suggestionField.index];
 		if (currentSuggestion) {
-			const parts =
-				currentSuggestion.insertText?.trim().split(/\s+/) || [];
-			const word = parts[0];
-			const newSuggestionField = {
-				...suggestionField,
-				suggestions: suggestionField.suggestions?.map((suggestion) => ({
-					...suggestion,
-					insertText: suggestion.insertText.replace(word, "").trim(),
-				})) as CompletionWithRange[],
-			};
+			const cursorPos = view.state.selection.main.head;
+			let remainingText = currentSuggestion.insertText;
+
+			// Strip already-typed prefix (same logic as display layer)
+			if (currentSuggestion.range) {
+				const [from] = convertLSPRangeToOffsets(
+					view.state.doc,
+					currentSuggestion.range,
+				);
+				const existingText = view.state.doc.sliceString(
+					from,
+					cursorPos,
+				);
+				if (remainingText.startsWith(existingText)) {
+					remainingText = remainingText.slice(existingText.length);
+				}
+			}
+
+			// Extract first word (+ optional trailing space)
+			const match = remainingText.match(/^(\S+\s?)/);
+			if (!match) return;
+			const wordChunk = match[1];
+			const afterAccept = remainingText.slice(wordChunk.length);
 
 			view.dispatch({
 				...createInsertSuggestionTransaction(
 					view.state,
-					word + " ",
-					view.state.selection.main.from,
-					view.state.selection.main.to,
+					wordChunk,
+					cursorPos,
+					cursorPos,
 				),
 			});
 
+			if (!afterAccept.trim()) {
+				cancelSuggestion(view);
+				return;
+			}
+
+			const newSuggestions = suggestionField.suggestions?.map(
+				(suggestion, i) => {
+					if (i === suggestionField.index) {
+						return {
+							...suggestion,
+							insertText: afterAccept,
+							range: undefined,
+						};
+					}
+					return suggestion;
+				},
+			) as CompletionWithRange[];
+
 			view.dispatch({
-				effects: InlineSuggestionEffect.of(newSuggestionField),
+				effects: InlineSuggestionEffect.of({
+					...suggestionField,
+					suggestions: newSuggestions,
+				}),
 			});
 		}
 	}
