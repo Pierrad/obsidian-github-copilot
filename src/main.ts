@@ -110,7 +110,9 @@ export default class CopilotPlugin extends Plugin {
 		}
 
 		this.registerView(CHAT_VIEW_TYPE, (leaf) => new ChatView(leaf, this));
-		this.activateView();
+		if (this.settings.openChatOnStartup) {
+			this.activateView();
+		}
 
 		this.addCommand({
 			id: "open-copilot-chat",

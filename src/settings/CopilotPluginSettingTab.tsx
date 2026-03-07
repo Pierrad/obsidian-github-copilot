@@ -59,6 +59,7 @@ export interface CopilotPluginSettings {
 	invertEnterSendBehavior: boolean;
 	extraCACerts?: string;
 	enableMarkdownRendering: boolean;
+	openChatOnStartup: boolean;
 }
 
 export const DEFAULT_SETTINGS: CopilotPluginSettings = {
@@ -96,6 +97,7 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 	invertEnterSendBehavior: false,
 	extraCACerts: "",
 	enableMarkdownRendering: true,
+	openChatOnStartup: true,
 };
 
 class CopilotPluginSettingTab extends PluginSettingTab {
@@ -429,6 +431,20 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 			text: "When authenticating in Copilot Chat, a personal token will be encrypted and stored as a file in the plugin folder. This file is called `secure-credentials.dat`. It is only decrytable by your machine but you should never share it with anyone.",
 			cls: "copilot-settings-warning",
 		});
+
+		new Setting(containerEl)
+			.setName("Open chat on startup")
+			.setDesc(
+				"Open the Copilot Chat sidebar automatically when Obsidian loads. Default is true.",
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.openChatOnStartup)
+					.onChange(async (value) => {
+						this.plugin.settings.openChatOnStartup = value;
+						await this.saveSettings();
+					}),
+			);
 
 		new Setting(containerEl)
 			.setName("Enable markdown rendering")
