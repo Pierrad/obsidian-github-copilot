@@ -115,7 +115,9 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		containerEl.createEl("h1", { text: "Inline Copilot Settings" });
+		new Setting(containerEl)
+			.setName("Inline Copilot Settings")
+			.setHeading();
 
 		new Setting(containerEl)
 			.setName("Enable Copilot")
@@ -425,7 +427,7 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					}),
 			);
 
-		containerEl.createEl("h1", { text: "Copilot Chat Settings" });
+		new Setting(containerEl).setName("Copilot Chat Settings").setHeading();
 
 		containerEl.createEl("p", {
 			text: "When authenticating in Copilot Chat, a personal token will be encrypted and stored as a file in the plugin folder. This file is called `secure-credentials.dat`. It is only decrytable by your machine but you should never share it with anyone.",
