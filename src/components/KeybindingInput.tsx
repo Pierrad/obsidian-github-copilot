@@ -43,41 +43,61 @@ const KeybindingInput: React.FC<KeybindingInputProps> = ({
 			? KeybindingModifierHotkeysHook
 			: KeybindingModifierCodeMirror;
 
+	const [pendingFirstKey, setPendingFirstKey] = useState(false);
+
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
 			if (!keyListenerActive) return;
 
+			// Only intercept modifier keys and printable/named keys that make
+			// sense as hotkey components. Navigation keys like Tab that move
+			// focus between settings fields must still work normally.
+			const navigationKeys = ["Tab", "Escape"];
+			if (navigationKeys.includes(event.key)) return;
+
 			event.preventDefault();
 			const key = event.key;
 
+			// On the first real keydown after focus, start fresh.
+			const base = pendingFirstKey ? "" : hotkey;
+
 			if (key in modifierMap) {
-				const newHotkey = hotkey + modifierMap[key];
+				const newHotkey = base + modifierMap[key];
 				setHotkey(newHotkey);
 				onChange(newHotkey);
+				setPendingFirstKey(false);
 				return;
 			}
 
 			const finalKey =
 				format === "hotkeys-hook" ? key.toLowerCase() : key;
-			const newHotkey = hotkey + finalKey;
+			const newHotkey = base + finalKey;
 			setHotkey(newHotkey);
 			onChange(newHotkey);
+			setPendingFirstKey(false);
 		};
 
 		window.addEventListener("keydown", handleKeyDown);
 		return () => {
 			window.removeEventListener("keydown", handleKeyDown);
 		};
-	}, [keyListenerActive, hotkey, onChange, format, modifierMap]);
+	}, [
+		keyListenerActive,
+		hotkey,
+		pendingFirstKey,
+		onChange,
+		format,
+		modifierMap,
+	]);
 
 	const handleInputFocus = () => {
-		setHotkey("");
-		onChange("");
+		setPendingFirstKey(true);
 		setKeyListenerActive(true);
 	};
 
 	const handleInputBlur = () => {
 		setKeyListenerActive(false);
+		setPendingFirstKey(false);
 	};
 
 	const handleRemoveHotkey = useCallback(() => {
