@@ -2,6 +2,7 @@ import React from "react";
 import { concat, cx } from "../../../utils/style";
 import { useCopilotStore } from "../../store/store";
 import { usePlugin } from "../../hooks/usePlugin";
+import { useHotkeys } from "react-hotkeys-hook";
 
 const BASE_CLASSNAME = "copilot-chat-conversation-selector";
 
@@ -22,6 +23,11 @@ const ConversationSelector: React.FC<ConversationSelectorProps> = ({
 		deleteConversation,
 		deleteAllConversations,
 	} = useCopilotStore();
+
+	// Ketboard shortcut: Close model with Escape key
+	useHotkeys("escape", onClose, {
+		description: "Close conversation selector",
+	});
 
 	if (!isOpen) return null;
 
@@ -83,6 +89,7 @@ const ConversationSelector: React.FC<ConversationSelectorProps> = ({
 								)}
 								onClick={handleDeleteAllConversations}
 								title="Delete all conversations"
+								type="button"
 							>
 								Delete All
 							</button>
@@ -90,6 +97,8 @@ const ConversationSelector: React.FC<ConversationSelectorProps> = ({
 						<button
 							className={concat(BASE_CLASSNAME, "close-button")}
 							onClick={onClose}
+							type="button"
+							aria-label="Close (escape)"
 						>
 							×
 						</button>
@@ -165,6 +174,7 @@ const ConversationSelector: React.FC<ConversationSelectorProps> = ({
 										)
 									}
 									title="Delete conversation"
+									type="button"
 								>
 									<svg
 										xmlns="http://www.w3.org/2000/svg"
