@@ -48,14 +48,17 @@ const Header: React.FC = () => {
 
 	// Keyboard shortcuts
 	useHotkeys(chatHotkeys.newConversation, handleNewConversation, {
+		enableOnFormTags: true,
 		description: "Start new conversation",
 	});
 
 	useHotkeys(chatHotkeys.conversationHistory, toggleConversationSelector, {
+		enableOnFormTags: true,
 		description: "View conversation history",
 	});
 
 	useHotkeys(chatHotkeys.deleteConversation, handleClearChat, {
+		enableOnFormTags: true,
 		description: "Delete this conversation",
 	});
 

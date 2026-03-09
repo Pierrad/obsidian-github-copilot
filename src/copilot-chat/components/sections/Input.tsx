@@ -217,6 +217,7 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 			}
 		},
 		{
+			enableOnFormTags: true,
 			description: "Focus message input field",
 		},
 	);

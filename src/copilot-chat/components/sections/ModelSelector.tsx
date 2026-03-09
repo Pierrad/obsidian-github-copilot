@@ -46,6 +46,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ isAuthenticated }) => {
 		handleFocusModelSelector,
 		{
 			enabled: isAuthenticated,
+			enableOnFormTags: true,
 			description: "Focus model selector",
 		},
 		[isAuthenticated, chatHotkeys.focusModelSelector],
