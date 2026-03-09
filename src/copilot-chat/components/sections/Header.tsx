@@ -4,6 +4,7 @@ import { concat } from "../../../utils/style";
 import { usePlugin } from "../../hooks/usePlugin";
 import { useCopilotStore } from "../../store/store";
 import ConversationSelector from "./ConversationSelector";
+import { DEFAULT_SETTINGS } from "../../../settings/CopilotPluginSettingTab";
 
 const BASE_CLASSNAME = "copilot-chat-header";
 
@@ -42,16 +43,19 @@ const Header: React.FC = () => {
 		setIsConversationSelectorOpen(!isConversationSelectorOpen);
 	};
 
+	const chatHotkeys =
+		plugin?.settings?.chatHotkeys ?? DEFAULT_SETTINGS.chatHotkeys;
+
 	// Keyboard shortcuts
-	useHotkeys("alt+n", handleNewConversation, {
+	useHotkeys(chatHotkeys.newConversation, handleNewConversation, {
 		description: "Start new conversation",
 	});
 
-	useHotkeys("alt+h", toggleConversationSelector, {
+	useHotkeys(chatHotkeys.conversationHistory, toggleConversationSelector, {
 		description: "View conversation history",
 	});
 
-	useHotkeys("alt+d", handleClearChat, {
+	useHotkeys(chatHotkeys.deleteConversation, handleClearChat, {
 		description: "Delete this conversation",
 	});
 
@@ -63,7 +67,7 @@ const Header: React.FC = () => {
 					type="button"
 					className={concat(BASE_CLASSNAME, "action-button")}
 					onClick={handleNewConversation}
-					aria-label="Start new conversation (alt+n)"
+					aria-label={`Start new conversation (${chatHotkeys.newConversation})`}
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -85,7 +89,7 @@ const Header: React.FC = () => {
 					type="button"
 					className={concat(BASE_CLASSNAME, "action-button")}
 					onClick={toggleConversationSelector}
-					aria-label="View conversation history (alt+h)"
+					aria-label={`View conversation history (${chatHotkeys.conversationHistory})`}
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -107,7 +111,7 @@ const Header: React.FC = () => {
 					type="button"
 					className={concat(BASE_CLASSNAME, "action-button")}
 					onClick={handleClearChat}
-					aria-label="Delete this conversation (alt+d)"
+					aria-label={`Delete this conversation (${chatHotkeys.deleteConversation})`}
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"

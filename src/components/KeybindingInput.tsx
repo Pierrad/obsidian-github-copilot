@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 
-const KeybindingModifier = {
+const KeybindingModifierCodeMirror: Record<string, string> = {
 	Shift: "Shift-",
 	Alt: "Alt-",
 	Control: "Ctrl-",
@@ -8,48 +8,71 @@ const KeybindingModifier = {
 	Cmd: "Cmd-",
 };
 
+const KeybindingModifierHotkeysHook: Record<string, string> = {
+	Shift: "shift+",
+	Alt: "alt+",
+	Control: "ctrl+",
+	Meta: "meta+",
+	Cmd: "meta+",
+};
+
+export type KeybindingFormat = "codemirror" | "hotkeys-hook";
+
 interface KeybindingInputProps {
 	title: string;
 	description: string;
 	value: string;
 	onChange: (value: string) => void;
 	defaultValue?: string;
+	format?: KeybindingFormat;
 }
 
-const KeybindingInput: React.FC<KeybindingInputProps> = (props) => {
-	const { title, description, value, onChange, defaultValue } = props;
+const KeybindingInput: React.FC<KeybindingInputProps> = ({
+	title,
+	description,
+	value,
+	onChange,
+	defaultValue,
+	format = "codemirror",
+}) => {
 	const [hotkey, setHotkey] = useState(value);
 	const [keyListenerActive, setKeyListenerActive] = useState(false);
 
+	const modifierMap =
+		format === "hotkeys-hook"
+			? KeybindingModifierHotkeysHook
+			: KeybindingModifierCodeMirror;
+
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
-			if (keyListenerActive) {
-				event.preventDefault();
-				const key = event.key;
-				if (Object.keys(KeybindingModifier).includes(key)) {
-					const newHotkey =
-						hotkey +
-						KeybindingModifier[
-							key as keyof typeof KeybindingModifier
-						];
-					setHotkey(newHotkey);
-					onChange(newHotkey);
-					return;
-				}
-				const newHotkey = hotkey + key;
+			if (!keyListenerActive) return;
+
+			event.preventDefault();
+			const key = event.key;
+
+			if (key in modifierMap) {
+				const newHotkey = hotkey + modifierMap[key];
 				setHotkey(newHotkey);
 				onChange(newHotkey);
+				return;
 			}
+
+			const finalKey =
+				format === "hotkeys-hook" ? key.toLowerCase() : key;
+			const newHotkey = hotkey + finalKey;
+			setHotkey(newHotkey);
+			onChange(newHotkey);
 		};
 
 		window.addEventListener("keydown", handleKeyDown);
-
 		return () => {
 			window.removeEventListener("keydown", handleKeyDown);
 		};
-	}, [keyListenerActive, hotkey]);
+	}, [keyListenerActive, hotkey, onChange, format, modifierMap]);
 
 	const handleInputFocus = () => {
+		setHotkey("");
+		onChange("");
 		setKeyListenerActive(true);
 	};
 
@@ -63,8 +86,8 @@ const KeybindingInput: React.FC<KeybindingInputProps> = (props) => {
 	}, [onChange]);
 
 	const handleResetHotkey = useCallback(() => {
-		setHotkey(defaultValue || "");
-		onChange(defaultValue || "");
+		setHotkey(defaultValue ?? "");
+		onChange(defaultValue ?? "");
 	}, [defaultValue, onChange]);
 
 	return (
@@ -81,8 +104,12 @@ const KeybindingInput: React.FC<KeybindingInputProps> = (props) => {
 					onBlur={handleInputBlur}
 					readOnly
 				/>
-				<button onClick={handleRemoveHotkey}>Clear</button>
-				<button onClick={handleResetHotkey}>Reset</button>
+				<button type="button" onClick={handleRemoveHotkey}>
+					Clear
+				</button>
+				<button type="button" onClick={handleResetHotkey}>
+					Reset
+				</button>
 			</div>
 		</div>
 	);

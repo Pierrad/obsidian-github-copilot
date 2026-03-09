@@ -6,6 +6,7 @@ import { usePlugin } from "../../hooks/usePlugin";
 import ModelSelector from "./ModelSelector";
 import FileSuggestion from "../atoms/FileSuggestion";
 import { Notice } from "obsidian";
+import { DEFAULT_SETTINGS } from "../../../settings/CopilotPluginSettingTab";
 
 const BASE_CLASSNAME = "copilot-chat-input";
 
@@ -204,9 +205,12 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 		updateCursorPosition();
 	};
 
+	const chatHotkeys =
+		plugin?.settings?.chatHotkeys ?? DEFAULT_SETTINGS.chatHotkeys;
+
 	// Keyboard shortcut: Focus message input
 	useHotkeys(
-		"alt+m",
+		chatHotkeys.focusInput,
 		() => {
 			if (textareaRef.current && !isLoading && isAuthenticated) {
 				textareaRef.current.focus();
@@ -253,7 +257,7 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 					value={message}
 					onChange={handleMessageChange}
 					onKeyDown={handleKeyDown}
-					placeholder="Ask GitHub Copilot something... Use [[]] to link notes (alt+m to focus)"
+					placeholder={`Ask GitHub Copilot something... Use [[]] to link notes (${chatHotkeys.focusInput} to focus)`}
 					disabled={isLoading || !isAuthenticated}
 				/>
 				{showFileSuggestion && (
