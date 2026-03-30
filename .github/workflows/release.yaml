@@ -31,4 +31,4 @@ jobs:
           gh release create "$tag" \
             --title="$tag" \
             --draft \
-            dist/main.js dist/manifest.json dist/styles.css
+            dist/main.js dist/manifest.json dist/styles.css dist/obsidian-github-copilot.zip

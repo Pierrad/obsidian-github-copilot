@@ -4,6 +4,7 @@ import builtins from "builtin-modules";
 import { copyFileSync, mkdirSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
+import AdmZip from "adm-zip";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -63,7 +64,14 @@ if (prod) {
 		resolve(__dirname, "styles.css"),
 		resolve(__dirname, "dist/styles.css"),
 	);
-	console.log("Packaged: dist/main.js, dist/manifest.json, dist/styles.css");
+	const zip = new AdmZip();
+	zip.addLocalFile(resolve(__dirname, "dist/main.js"));
+	zip.addLocalFile(resolve(__dirname, "dist/manifest.json"));
+	zip.addLocalFile(resolve(__dirname, "dist/styles.css"));
+	zip.writeZip(resolve(__dirname, "dist/obsidian-github-copilot.zip"));
+	console.log(
+		"Packaged: dist/main.js, dist/manifest.json, dist/styles.css, dist/obsidian-github-copilot.zip",
+	);
 	process.exit(0);
 } else {
 	await context.watch();
