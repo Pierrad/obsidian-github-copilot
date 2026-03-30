@@ -13,6 +13,20 @@ Use **GitHub Copilot** in the Obsidian editor. This plugin is a bridge between t
 - A GitHub Copilot subscription (https://copilot.github.com/)
 - Network connection to send and receive data from the GitHub Copilot service
 
+## 📦 Download
+
+You can download the latest release as a single zip file containing all plugin files (`main.js`, `manifest.json`, `styles.css`):
+
+[![Download Latest Release](https://img.shields.io/github/v/release/TaiLaiCai/obsidian-github-copilot?label=Download%20Latest%20Release&style=for-the-badge)](https://github.com/TaiLaiCai/obsidian-github-copilot/releases/latest/download/obsidian-github-copilot.zip)
+
+Or download individual files from the [latest release page](https://github.com/TaiLaiCai/obsidian-github-copilot/releases/latest):
+
+| File | Download Link |
+|------|---------------|
+| `main.js` | [Download](https://github.com/TaiLaiCai/obsidian-github-copilot/releases/latest/download/main.js) |
+| `manifest.json` | [Download](https://github.com/TaiLaiCai/obsidian-github-copilot/releases/latest/download/manifest.json) |
+| `styles.css` | [Download](https://github.com/TaiLaiCai/obsidian-github-copilot/releases/latest/download/styles.css) |
+
 ## ⚙️ Installation
 
 1. Install the plugin via the Obsidian community plugins browser.
