@@ -11,7 +11,12 @@ import Logger from "../helpers/Logger";
 import File from "../helpers/File";
 import Json from "../helpers/Json";
 import Vault from "../helpers/Vault";
-import { defaultModels } from "../copilot-chat/store/slices/message";
+import {
+	DEFAULT_REASONING_EFFORT,
+	defaultModels,
+	getPreferredDefaultModel,
+	ReasoningEffort,
+} from "../copilot-chat/models";
 
 export interface SettingsObserver {
 	onSettingsUpdate(): Promise<void>;
@@ -38,6 +43,7 @@ export type CopilotChatSettings = {
 		label: string;
 		value: string;
 	};
+	reasoningEffort?: ReasoningEffort;
 };
 
 export interface CopilotPluginSettings {
@@ -90,7 +96,8 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 			token: null,
 			expiresAt: null,
 		},
-		selectedModel: defaultModels[4],
+		selectedModel: getPreferredDefaultModel(defaultModels),
+		reasoningEffort: DEFAULT_REASONING_EFFORT,
 	},
 	systemPrompt:
 		"You are GitHub Copilot, an AI assistant. You are helping the user with their tasks in Obsidian.",
