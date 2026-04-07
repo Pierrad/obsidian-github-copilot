@@ -24,7 +24,7 @@ export interface AuthSlice {
 	deviceCodeData: DeviceCodeResponse | null;
 	storageInfo: { method: string; secure: boolean } | null;
 
-	initAuthService: (plugin: CopilotPlugin) => void;
+	initAuthService: (plugin: CopilotPlugin) => Promise<void>;
 	checkAndRefreshToken: (plugin: CopilotPlugin) => Promise<string | null>;
 
 	setDeviceCode: (plugin: CopilotPlugin, code: string) => void;

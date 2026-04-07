@@ -1,7 +1,18 @@
 import { StateCreator } from "zustand";
 import { Notice } from "obsidian";
 import CopilotPlugin from "../../../main";
+import { fetchModels } from "../../api";
 import { SendMessageRequest, sendMessage } from "../../api/sendMessage";
+import {
+	DEFAULT_REASONING_EFFORT,
+	defaultModels,
+	getPreferredDefaultModel,
+	mergeModelOptions,
+	ModelOption,
+	normalizeSelectedModel,
+	ReasoningEffort,
+	supportsReasoningEffort,
+} from "../../models";
 
 export interface MessageData {
 	id: string;
@@ -15,19 +26,17 @@ export interface MessageData {
 	}[];
 }
 
-export interface ModelOption {
-	label: string;
-	value: string;
-}
-
 export interface MessageSlice {
 	messages: MessageData[];
 	isLoading: boolean;
 	error: string | null;
 	selectedModel: ModelOption;
 	availableModels: ModelOption[];
+	reasoningEffort: ReasoningEffort;
 
-	initMessageService: (plugin: CopilotPlugin | undefined) => void;
+	initMessageService: (
+		plugin: CopilotPlugin | undefined,
+	) => Promise<void>;
 	sendMessage: (
 		plugin: CopilotPlugin | undefined,
 		apiMessage: string,
@@ -39,21 +48,11 @@ export interface MessageSlice {
 		plugin: CopilotPlugin | undefined,
 		model: ModelOption,
 	) => void;
+	setReasoningEffort: (
+		plugin: CopilotPlugin | undefined,
+		effort: ReasoningEffort,
+	) => void;
 }
-
-export const defaultModels: ModelOption[] = [
-	{ label: "GPT-4o", value: "gpt-4o-2024-08-06" },
-	{ label: "GPT-4.1", value: "gpt-4.1-2025-04-14" },
-	{ label: "GPT-5", value: "gpt-5" },
-	{ label: "GPT-5-mini", value: "gpt-5-mini" },
-	{ label: "GPT-5.2", value: "gpt-5.2" },
-	{ label: "Claude Haiku 4.5", value: "claude-haiku-4.5" },
-	{ label: "Claude Sonnet 4", value: "claude-sonnet-4" },
-	{ label: "Claude Sonnet 4.5", value: "claude-sonnet-4.5" },
-	{ label: "Gemini 2.5 Pro", value: "gemini-2.5-pro" },
-	{ label: "Gemini 3 Pro", value: "gemini-3-pro-preview" },
-	{ label: "Gemini 3 Flash", value: "gemini-3-flash-preview" },
-];
 
 export const createMessageSlice: StateCreator<
 	any, // We use any here as we'll properly type it in the store.ts
@@ -64,15 +63,62 @@ export const createMessageSlice: StateCreator<
 	messages: [],
 	isLoading: false,
 	error: null,
-	selectedModel: defaultModels[0],
+	selectedModel: getPreferredDefaultModel(),
 	availableModels: defaultModels,
+	reasoningEffort: DEFAULT_REASONING_EFFORT,
 
-	initMessageService: (plugin: CopilotPlugin | undefined) => {
-		if (plugin && plugin.settings.chatSettings) {
-			const { selectedModel } = plugin.settings.chatSettings;
-			if (selectedModel) {
-				set({ selectedModel });
+	initMessageService: async (plugin: CopilotPlugin | undefined) => {
+		if (!plugin) {
+			return;
+		}
+
+		const storedModel = plugin.settings.chatSettings?.selectedModel;
+		const storedReasoningEffort =
+			plugin.settings.chatSettings?.reasoningEffort ||
+			DEFAULT_REASONING_EFFORT;
+		const fallbackSelectedModel =
+			normalizeSelectedModel(defaultModels, storedModel) ||
+			getPreferredDefaultModel(defaultModels);
+
+		set({
+			availableModels: defaultModels,
+			selectedModel: fallbackSelectedModel,
+			reasoningEffort: storedReasoningEffort,
+		});
+
+		const accessToken = await get().checkAndRefreshToken(plugin);
+		if (!accessToken) {
+			return;
+		}
+
+		try {
+			const discoveredModels = await fetchModels(accessToken);
+			const availableModels = mergeModelOptions(
+				defaultModels,
+				discoveredModels,
+			);
+			if (availableModels.length === 0) {
+				return;
 			}
+
+			const selectedModel =
+				normalizeSelectedModel(availableModels, storedModel) ||
+				getPreferredDefaultModel(availableModels);
+
+			set({
+				availableModels,
+				selectedModel,
+			});
+
+			if (
+				!storedModel ||
+				storedModel.value !== selectedModel.value ||
+				storedModel.label !== selectedModel.label
+			) {
+				get().setSelectedModel(plugin, selectedModel);
+			}
+		} catch (error) {
+			console.error("Failed to fetch Copilot models:", error);
 		}
 	},
 	sendMessage: async (
@@ -161,6 +207,9 @@ export const createMessageSlice: StateCreator<
 			const requestData: SendMessageRequest = {
 				intent: false,
 				model: get().selectedModel.value,
+				...(supportsReasoningEffort(get().selectedModel)
+					? { reasoning_effort: get().reasoningEffort }
+					: {}),
 				temperature: 0,
 				top_p: 1,
 				n: 1,
@@ -226,6 +275,10 @@ export const createMessageSlice: StateCreator<
 		});
 
 		if (plugin) {
+			const reasoningEffort =
+				plugin.settings.chatSettings?.reasoningEffort ||
+				DEFAULT_REASONING_EFFORT;
+
 			if (!plugin.settings.chatSettings) {
 				plugin.settings.chatSettings = {
 					deviceCode: null,
@@ -235,6 +288,7 @@ export const createMessageSlice: StateCreator<
 						expiresAt: null,
 					},
 					selectedModel: model,
+					reasoningEffort,
 				};
 			} else {
 				plugin.settings.chatSettings.selectedModel = model;
@@ -244,5 +298,37 @@ export const createMessageSlice: StateCreator<
 				console.error("Failed to save selected model:", error);
 			});
 		}
+	},
+
+	setReasoningEffort: (
+		plugin: CopilotPlugin | undefined,
+		effort: ReasoningEffort,
+	) => {
+		set({
+			reasoningEffort: effort,
+		});
+
+		if (!plugin) {
+			return;
+		}
+
+		if (!plugin.settings.chatSettings) {
+			plugin.settings.chatSettings = {
+				deviceCode: null,
+				pat: null,
+				accessToken: {
+					token: null,
+					expiresAt: null,
+				},
+				selectedModel: get().selectedModel,
+				reasoningEffort: effort,
+			};
+		} else {
+			plugin.settings.chatSettings.reasoningEffort = effort;
+		}
+
+		plugin.saveData(plugin.settings).catch((error) => {
+			console.error("Failed to save reasoning effort:", error);
+		});
 	},
 });
