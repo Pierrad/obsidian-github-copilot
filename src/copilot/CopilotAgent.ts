@@ -11,6 +11,7 @@ import Logger from "../helpers/Logger";
 import Json from "../helpers/Json";
 import Client, { CopilotResponse } from "./Client";
 import File from "../helpers/File";
+import Node from "../helpers/Node";
 import { GetCompletionsParams } from "@pierrad/ts-lsp-client";
 import { InlineSuggestionEffect } from "../extensions/InlineSuggestionState";
 
@@ -51,10 +52,10 @@ class CopilotAgent implements SettingsObserver {
 	public startAgent(): void {
 		try {
 			this.agent = spawn(
-				File.wrapFilePath(this.plugin.settings.nodePath),
-				[File.wrapFilePath(this.agentPath), "--stdio"],
+				// Spawn the executable directly to avoid shell parsing issues with spaces
+				Node.normalizePath(this.plugin.settings.nodePath),
+				[Node.normalizePath(this.agentPath), "--stdio"],
 				{
-					shell: true,
 					stdio: "pipe",
 					...(this.plugin.settings.proxy && {
 						env: {

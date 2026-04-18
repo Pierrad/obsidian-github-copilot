@@ -10,6 +10,14 @@ class Node {
 			return nodePath;
 		}
 
+		// Trim surrounding whitespace and remove surrounding quotes if the user
+		// pasted a quoted path (common on Windows when copying paths).
+		nodePath = nodePath.trim();
+
+		if ((nodePath.startsWith('"') && nodePath.endsWith('"')) || (nodePath.startsWith("'") && nodePath.endsWith("'"))) {
+			nodePath = nodePath.slice(1, -1);
+		}
+
 		if (nodePath.startsWith("~")) {
 			nodePath = nodePath.replace(/^~(?=$|\/|\\)/, os.homedir());
 		}
@@ -74,11 +82,11 @@ class Node {
 			}
 
 			const result = await new Promise<string>((resolve, reject) => {
-				let spawnOptions = {};
-
-				if (os.platform() === "win32") {
-					spawnOptions = { shell: true };
-				}
+				// Do not run under a shell. Using a shell on Windows will split paths
+				// that contain spaces (eg. "C:\Program Files\nodejs\node.exe") and
+				// cause the command to fail. Spawn the executable directly so paths
+				// with spaces are handled correctly.
+				const spawnOptions = {};
 
 				const nodeProcess = child_process.spawn(
 					normalizedPath,
