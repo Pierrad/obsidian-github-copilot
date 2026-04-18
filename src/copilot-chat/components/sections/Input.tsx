@@ -1,10 +1,12 @@
 import React, { useState, KeyboardEvent, useRef, useEffect } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { concat, cx } from "../../../utils/style";
 import { useCopilotStore } from "../../store/store";
 import { usePlugin } from "../../hooks/usePlugin";
 import ModelSelector from "./ModelSelector";
 import FileSuggestion from "../atoms/FileSuggestion";
 import { Notice } from "obsidian";
+import { DEFAULT_SETTINGS } from "../../../settings/CopilotPluginSettingTab";
 
 const BASE_CLASSNAME = "copilot-chat-input";
 
@@ -203,6 +205,23 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 		updateCursorPosition();
 	};
 
+	const chatHotkeys =
+		plugin?.settings?.chatHotkeys ?? DEFAULT_SETTINGS.chatHotkeys;
+
+	// Keyboard shortcut: Focus message input
+	useHotkeys(
+		chatHotkeys.focusInput,
+		() => {
+			if (textareaRef.current && !isLoading && isAuthenticated) {
+				textareaRef.current.focus();
+			}
+		},
+		{
+			enableOnFormTags: true,
+			description: "Focus message input field",
+		},
+	);
+
 	useEffect(() => {
 		if (textareaRef.current) {
 			textareaRef.current.addEventListener("click", updateCursorPosition);
@@ -239,7 +258,7 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 					value={message}
 					onChange={handleMessageChange}
 					onKeyDown={handleKeyDown}
-					placeholder="Ask GitHub Copilot something... Use [[]] to link notes"
+					placeholder={`Ask GitHub Copilot something... Use [[]] to link notes (${chatHotkeys.focusInput} to focus)`}
 					disabled={isLoading || !isAuthenticated}
 				/>
 				{showFileSuggestion && (
@@ -252,6 +271,7 @@ const Input: React.FC<InputProps> = ({ isLoading = false }) => {
 					/>
 				)}
 				<button
+					type="button"
 					className={cx("mod-cta", concat(BASE_CLASSNAME, "button"))}
 					onClick={handleSubmit}
 					disabled={

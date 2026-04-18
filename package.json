@@ -6,7 +6,8 @@
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-		"version": "node version-bump.mjs && git add manifest.json versions.json"
+		"version": "node version-bump.mjs && git add manifest.json versions.json",
+		"format": "npx prettier --write src && npx eslint src --fix && npx eslint src"
 	},
 	"keywords": [],
 	"author": "",
@@ -37,6 +38,7 @@
 		"mermaid": "^11.10.1",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
+		"react-hotkeys-hook": "^5.2.4",
 		"react-markdown": "^10.1.0",
 		"react-syntax-highlighter": "^15.6.1",
 		"remark-gfm": "^4.0.1",
