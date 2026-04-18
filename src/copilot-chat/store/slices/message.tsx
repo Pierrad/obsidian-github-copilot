@@ -50,6 +50,8 @@ export const defaultModels: ModelOption[] = [
 	{ label: "Claude Haiku 4.5", value: "claude-haiku-4.5" },
 	{ label: "Claude Sonnet 4", value: "claude-sonnet-4" },
 	{ label: "Claude Sonnet 4.5", value: "claude-sonnet-4.5" },
+	{ label: "Claude Sonnet 4.6", value: "claude-sonnet-4.6" },
+	{ label: "Claude Opus 4.6", value: "claude-opus-4.6" },
 	{ label: "Gemini 2.5 Pro", value: "gemini-2.5-pro" },
 	{ label: "Gemini 3 Pro", value: "gemini-3-pro-preview" },
 	{ label: "Gemini 3 Flash", value: "gemini-3-flash-preview" },
