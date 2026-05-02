@@ -1,9 +1,11 @@
 import { requestUrl, RequestUrlResponse } from "obsidian";
 import Logger from "../../helpers/Logger";
+import { ReasoningEffort } from "../models";
 
 export interface SendMessageRequest {
 	intent: boolean;
 	model: string;
+	reasoning_effort?: ReasoningEffort;
 	temperature: number;
 	top_p: number;
 	n: number;

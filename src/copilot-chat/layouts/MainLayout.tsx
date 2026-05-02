@@ -20,12 +20,35 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 	// const reset = useAuthStore((state) => state.reset);
 
 	useEffect(() => {
-		if (plugin) {
-			initAuthService(plugin);
-			initMessageService(plugin);
-			initConversationService(plugin);
+		if (!plugin) {
+			return;
 		}
-	}, [plugin, initAuthService, initMessageService, initConversationService]);
+
+		let cancelled = false;
+
+		const initialize = async () => {
+			await initAuthService(plugin);
+			if (cancelled) {
+				return;
+			}
+
+			await initConversationService(plugin);
+		};
+
+		initialize();
+
+		return () => {
+			cancelled = true;
+		};
+	}, [plugin, initAuthService, initConversationService]);
+
+	useEffect(() => {
+		if (!plugin || !isAuth) {
+			return;
+		}
+
+		initMessageService(plugin);
+	}, [plugin, isAuth, initMessageService]);
 
 	return (
 		<div className="copilot-chat-container">

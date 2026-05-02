@@ -4,7 +4,8 @@ import CopilotPlugin from "../../../main";
 import Vault from "../../../helpers/Vault";
 import File from "../../../helpers/File";
 import Logger from "../../../helpers/Logger";
-import { MessageData, ModelOption } from "./message";
+import { ModelOption } from "../../models";
+import { MessageData } from "./message";
 import { existsSync } from "fs";
 
 export interface Conversation {
@@ -21,7 +22,9 @@ export interface ConversationSlice {
 	activeConversationId: string | null;
 	isLoadingConversations: boolean;
 
-	initConversationService: (plugin: CopilotPlugin | undefined) => void;
+	initConversationService: (
+		plugin: CopilotPlugin | undefined,
+	) => Promise<void>;
 	loadConversations: (plugin: CopilotPlugin) => Promise<void>;
 	saveConversations: (plugin: CopilotPlugin) => Promise<void>;
 

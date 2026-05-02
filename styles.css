@@ -313,7 +313,9 @@
  ***********************/
 .copilot-chat-model-selector-container {
 	display: flex;
-	align-items: center;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 6px;
 	margin-bottom: 8px;
 	position: relative;
 	width: 100%;
@@ -350,6 +352,189 @@
 .copilot-chat-model-selector-select option {
 	background-color: var(--background-primary);
 	color: var(--text-normal);
+}
+
+.copilot-chat-model-selector-menu-group {
+	position: relative;
+	width: 100%;
+}
+
+.copilot-chat-model-selector-button {
+	width: 100%;
+	background-color: var(--background-secondary);
+	border-radius: 4px;
+	border: 1px solid var(--background-modifier-border);
+	color: var(--text-normal);
+	transition: border-color 0.2s ease;
+	padding: 8px 10px;
+	cursor: pointer;
+	text-align: left;
+}
+
+.copilot-chat-model-selector-button:hover {
+	background-color: var(--background-modifier-hover);
+}
+
+.copilot-chat-model-selector-button-main {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+}
+
+.copilot-chat-model-selector-button-label {
+	font-size: 0.95rem;
+	color: var(--text-normal);
+}
+
+.copilot-chat-model-selector-button-meta {
+	font-size: 0.8rem;
+	color: var(--text-muted);
+	white-space: nowrap;
+}
+
+.copilot-chat-model-selector-menu {
+	position: absolute;
+	top: calc(100% + 6px);
+	left: 0;
+	right: 0;
+	max-height: 420px;
+	overflow-y: auto;
+	background: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+	padding: 8px;
+	z-index: 25;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.copilot-chat-model-selector-section {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.copilot-chat-model-selector-section-title {
+	font-size: 0.75rem;
+	font-weight: 600;
+	color: var(--text-faint);
+	padding: 2px 6px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.copilot-chat-model-selector-option {
+	width: 100%;
+	background: transparent;
+	border: none;
+	border-radius: 6px;
+	color: var(--text-normal);
+	padding: 10px 12px;
+	text-align: left;
+	cursor: pointer;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+}
+
+.copilot-chat-model-selector-option:hover {
+	background: var(--background-modifier-hover);
+}
+
+.copilot-chat-model-selector-option-active {
+	background: var(--background-modifier-hover);
+	outline: 1px solid var(--interactive-accent);
+}
+
+.copilot-chat-model-selector-option-label {
+	color: var(--text-normal);
+	min-width: 0;
+}
+
+.copilot-chat-model-selector-option-meta {
+	font-size: 0.8rem;
+	color: var(--text-muted);
+	white-space: nowrap;
+}
+
+.copilot-chat-model-selector-meta {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+	width: 100%;
+	font-size: 0.8rem;
+	color: var(--text-muted);
+}
+
+.copilot-chat-model-selector-meta-text {
+	flex: 1;
+	min-width: 0;
+}
+
+.copilot-chat-model-selector-effort-group {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-shrink: 0;
+	position: relative;
+}
+
+
+.copilot-chat-model-selector-effort-button {
+	background-color: var(--background-secondary);
+	border-radius: 4px;
+	border: 1px solid var(--background-modifier-border);
+	color: var(--text-normal);
+	padding: 4px 10px;
+	font-size: 0.8rem;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.copilot-chat-model-selector-effort-note {
+	font-size: 0.75rem;
+	color: var(--text-faint);
+}
+
+.copilot-chat-model-selector-effort-menu {
+	position: absolute;
+	top: calc(100% + 6px);
+	right: 0;
+	min-width: 160px;
+	background: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+	padding: 6px;
+	z-index: 20;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.copilot-chat-model-selector-effort-option {
+	background: transparent;
+	border: none;
+	border-radius: 6px;
+	color: var(--text-normal);
+	padding: 8px 10px;
+	text-align: left;
+	cursor: pointer;
+}
+
+.copilot-chat-model-selector-effort-option:hover {
+	background: var(--background-modifier-hover);
+}
+
+.copilot-chat-model-selector-effort-option-active {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
 }
 
 /***********************
