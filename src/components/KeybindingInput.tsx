@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 
-const KeybindingModifier = {
+const KeybindingModifierCodeMirror: Record<string, string> = {
 	Shift: "Shift-",
 	Alt: "Alt-",
 	Control: "Ctrl-",
@@ -8,53 +8,96 @@ const KeybindingModifier = {
 	Cmd: "Cmd-",
 };
 
+const KeybindingModifierHotkeysHook: Record<string, string> = {
+	Shift: "shift+",
+	Alt: "alt+",
+	Control: "ctrl+",
+	Meta: "meta+",
+	Cmd: "meta+",
+};
+
+export type KeybindingFormat = "codemirror" | "hotkeys-hook";
+
 interface KeybindingInputProps {
 	title: string;
 	description: string;
 	value: string;
 	onChange: (value: string) => void;
 	defaultValue?: string;
+	format?: KeybindingFormat;
 }
 
-const KeybindingInput: React.FC<KeybindingInputProps> = (props) => {
-	const { title, description, value, onChange, defaultValue } = props;
+const KeybindingInput: React.FC<KeybindingInputProps> = ({
+	title,
+	description,
+	value,
+	onChange,
+	defaultValue,
+	format = "codemirror",
+}) => {
 	const [hotkey, setHotkey] = useState(value);
 	const [keyListenerActive, setKeyListenerActive] = useState(false);
 
+	const modifierMap =
+		format === "hotkeys-hook"
+			? KeybindingModifierHotkeysHook
+			: KeybindingModifierCodeMirror;
+
+	const [pendingFirstKey, setPendingFirstKey] = useState(false);
+
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
-			if (keyListenerActive) {
-				event.preventDefault();
-				const key = event.key;
-				if (Object.keys(KeybindingModifier).includes(key)) {
-					const newHotkey =
-						hotkey +
-						KeybindingModifier[
-							key as keyof typeof KeybindingModifier
-						];
-					setHotkey(newHotkey);
-					onChange(newHotkey);
-					return;
-				}
-				const newHotkey = hotkey + key;
+			if (!keyListenerActive) return;
+
+			// Only intercept modifier keys and printable/named keys that make
+			// sense as hotkey components. Navigation keys like Tab that move
+			// focus between settings fields must still work normally.
+			const navigationKeys = ["Tab", "Escape"];
+			if (navigationKeys.includes(event.key)) return;
+
+			event.preventDefault();
+			const key = event.key;
+
+			// On the first real keydown after focus, start fresh.
+			const base = pendingFirstKey ? "" : hotkey;
+
+			if (key in modifierMap) {
+				const newHotkey = base + modifierMap[key];
 				setHotkey(newHotkey);
 				onChange(newHotkey);
+				setPendingFirstKey(false);
+				return;
 			}
+
+			const finalKey =
+				format === "hotkeys-hook" ? key.toLowerCase() : key;
+			const newHotkey = base + finalKey;
+			setHotkey(newHotkey);
+			onChange(newHotkey);
+			setPendingFirstKey(false);
 		};
 
 		window.addEventListener("keydown", handleKeyDown);
-
 		return () => {
 			window.removeEventListener("keydown", handleKeyDown);
 		};
-	}, [keyListenerActive, hotkey]);
+	}, [
+		keyListenerActive,
+		hotkey,
+		pendingFirstKey,
+		onChange,
+		format,
+		modifierMap,
+	]);
 
 	const handleInputFocus = () => {
+		setPendingFirstKey(true);
 		setKeyListenerActive(true);
 	};
 
 	const handleInputBlur = () => {
 		setKeyListenerActive(false);
+		setPendingFirstKey(false);
 	};
 
 	const handleRemoveHotkey = useCallback(() => {
@@ -63,8 +106,8 @@ const KeybindingInput: React.FC<KeybindingInputProps> = (props) => {
 	}, [onChange]);
 
 	const handleResetHotkey = useCallback(() => {
-		setHotkey(defaultValue || "");
-		onChange(defaultValue || "");
+		setHotkey(defaultValue ?? "");
+		onChange(defaultValue ?? "");
 	}, [defaultValue, onChange]);
 
 	return (
@@ -81,8 +124,12 @@ const KeybindingInput: React.FC<KeybindingInputProps> = (props) => {
 					onBlur={handleInputBlur}
 					readOnly
 				/>
-				<button onClick={handleRemoveHotkey}>Clear</button>
-				<button onClick={handleResetHotkey}>Reset</button>
+				<button type="button" onClick={handleRemoveHotkey}>
+					Clear
+				</button>
+				<button type="button" onClick={handleResetHotkey}>
+					Reset
+				</button>
 			</div>
 		</div>
 	);

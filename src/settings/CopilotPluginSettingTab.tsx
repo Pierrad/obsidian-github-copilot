@@ -31,6 +31,14 @@ export type Hotkeys = {
 	disable: string;
 };
 
+export type ChatHotkeys = {
+	newConversation: string;
+	conversationHistory: string;
+	deleteConversation: string;
+	focusInput: string;
+	focusModelSelector: string;
+};
+
 export type CopilotChatSettings = {
 	deviceCode: string | null;
 	pat: string | null; // Personal Access Token to create the access token
@@ -52,6 +60,7 @@ export interface CopilotPluginSettings {
 	nodePathUpdatedToNode22: boolean;
 	enabled: boolean;
 	hotkeys: Hotkeys;
+	chatHotkeys: ChatHotkeys;
 	suggestionDelay: number;
 	debug: boolean;
 	onlyOnHotkey: boolean;
@@ -80,6 +89,13 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 		partial: "Cmd-Shift-.",
 		next: "Cmd-Shift-ArrowDown",
 		disable: "Cmd-Shift-ArrowRight",
+	},
+	chatHotkeys: {
+		newConversation: "alt+n",
+		conversationHistory: "alt+h",
+		deleteConversation: "alt+d",
+		focusInput: "alt+m",
+		focusModelSelector: "alt+shift+m",
 	},
 	suggestionDelay: 500,
 	debug: false,
@@ -111,6 +127,7 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 	plugin: CopilotPlugin;
 	private observers: SettingsObserver[] = [];
 	root: Root | null = null;
+	root2: Root | null = null;
 
 	constructor(app: App, plugin: CopilotPlugin) {
 		super(app, plugin);
@@ -272,9 +289,9 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					Be aware that not all keybindings will work as some are
 					already defined and used by other plugins.
 				</p>
-				{bindings.map((binding, index) => (
+				{bindings.map((binding) => (
 					<KeybindingInput
-						key={index}
+						key={binding.title}
 						title={binding.title}
 						description={binding.description}
 						value={binding.value}
@@ -283,6 +300,7 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 					/>
 				))}
 				<button
+					type="button"
 					className="mod-cta copilot-settings-save-button"
 					onClick={() => {
 						this.saveSettings().then(() => {
@@ -505,6 +523,96 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 						),
 					);
 			});
+
+		this.root2 = createRoot(
+			containerEl.createEl("div", {
+				cls: "copilot-settings-chat-hotkeys-container",
+			}),
+		);
+
+		const chatBindings = [
+			{
+				title: "New conversation",
+				description: "Hotkey to start a new chat conversation.",
+				value: this.plugin.settings.chatHotkeys.newConversation,
+				onChange: (value: string) => {
+					this.plugin.settings.chatHotkeys.newConversation = value;
+				},
+				defaultValue: DEFAULT_SETTINGS.chatHotkeys.newConversation,
+			},
+			{
+				title: "Conversation history",
+				description:
+					"Hotkey to open or close the conversation history panel.",
+				value: this.plugin.settings.chatHotkeys.conversationHistory,
+				onChange: (value: string) => {
+					this.plugin.settings.chatHotkeys.conversationHistory =
+						value;
+				},
+				defaultValue: DEFAULT_SETTINGS.chatHotkeys.conversationHistory,
+			},
+			{
+				title: "Delete conversation",
+				description: "Hotkey to delete the current conversation.",
+				value: this.plugin.settings.chatHotkeys.deleteConversation,
+				onChange: (value: string) => {
+					this.plugin.settings.chatHotkeys.deleteConversation = value;
+				},
+				defaultValue: DEFAULT_SETTINGS.chatHotkeys.deleteConversation,
+			},
+			{
+				title: "Focus message input",
+				description: "Hotkey to focus the chat message input field.",
+				value: this.plugin.settings.chatHotkeys.focusInput,
+				onChange: (value: string) => {
+					this.plugin.settings.chatHotkeys.focusInput = value;
+				},
+				defaultValue: DEFAULT_SETTINGS.chatHotkeys.focusInput,
+			},
+			{
+				title: "Focus model selector",
+				description: "Hotkey to focus the AI model selector dropdown.",
+				value: this.plugin.settings.chatHotkeys.focusModelSelector,
+				onChange: (value: string) => {
+					this.plugin.settings.chatHotkeys.focusModelSelector = value;
+				},
+				defaultValue: DEFAULT_SETTINGS.chatHotkeys.focusModelSelector,
+			},
+		];
+
+		this.root2.render(
+			<StrictMode>
+				<h3>Chat Keybindings</h3>
+				<p className="copilot-settings-note">
+					Hotkeys for the Copilot Chat panel. Use modifier keys (alt,
+					shift, ctrl, meta/cmd) combined with a letter or key,
+					separated by <code>+</code> (e.g. <code>alt+n</code>,{" "}
+					<code>alt+shift+m</code>).
+				</p>
+				{chatBindings.map((binding) => (
+					<KeybindingInput
+						key={binding.title}
+						title={binding.title}
+						description={binding.description}
+						value={binding.value}
+						onChange={binding.onChange}
+						defaultValue={binding.defaultValue}
+						format="hotkeys-hook"
+					/>
+				))}
+				<button
+					type="button"
+					className="mod-cta copilot-settings-save-button"
+					onClick={() => {
+						this.saveSettings().then(() => {
+							this.plugin.app.workspace.updateOptions();
+						});
+					}}
+				>
+					Save chat keybindings
+				</button>
+			</StrictMode>,
+		);
 	}
 
 	public hide(): void {

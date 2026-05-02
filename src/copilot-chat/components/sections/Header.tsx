@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { concat } from "../../../utils/style";
 import { usePlugin } from "../../hooks/usePlugin";
 import { useCopilotStore } from "../../store/store";
 import ConversationSelector from "./ConversationSelector";
+import { DEFAULT_SETTINGS } from "../../../settings/CopilotPluginSettingTab";
 
 const BASE_CLASSNAME = "copilot-chat-header";
 
@@ -17,17 +19,29 @@ const Header: React.FC = () => {
 	} = useCopilotStore();
 	const [isConversationSelectorOpen, setIsConversationSelectorOpen] =
 		useState(false);
+	const isDeletingRef = useRef(false);
 
-	const handleClearChat = () => {
-		if (confirm("Are you sure you want to delete this conversation?")) {
-			if (activeConversationId && plugin) {
-				deleteConversation(plugin, activeConversationId);
-				clearMessages();
-				createConversation(plugin, selectedModel);
-			} else {
-				clearMessages();
+	const handleClearChat = (event?: KeyboardEvent) => {
+		event?.preventDefault();
+		event?.stopPropagation();
+
+		if (isDeletingRef.current) return;
+		isDeletingRef.current = true;
+
+		setTimeout(() => {
+			if (confirm("Are you sure you want to delete this conversation?")) {
+				if (activeConversationId && plugin) {
+					deleteConversation(plugin, activeConversationId);
+					clearMessages();
+					createConversation(plugin, selectedModel);
+				} else {
+					clearMessages();
+				}
 			}
-		}
+			setTimeout(() => {
+				isDeletingRef.current = false;
+			}, 100);
+		}, 0);
 	};
 
 	const handleNewConversation = () => {
@@ -41,14 +55,34 @@ const Header: React.FC = () => {
 		setIsConversationSelectorOpen(!isConversationSelectorOpen);
 	};
 
+	const chatHotkeys =
+		plugin?.settings?.chatHotkeys ?? DEFAULT_SETTINGS.chatHotkeys;
+
+	useHotkeys(chatHotkeys.newConversation, handleNewConversation, {
+		enableOnFormTags: true,
+		description: "Start new conversation",
+	});
+
+	useHotkeys(chatHotkeys.conversationHistory, toggleConversationSelector, {
+		enableOnFormTags: true,
+		description: "View conversation history",
+	});
+
+	useHotkeys(chatHotkeys.deleteConversation, handleClearChat, {
+		enableOnFormTags: true,
+		description: "Delete this conversation",
+		preventDefault: true,
+	});
+
 	return (
 		<div className={concat(BASE_CLASSNAME, "container")}>
 			<div className={concat(BASE_CLASSNAME, "title")}>Chat</div>
 			<div className={concat(BASE_CLASSNAME, "actions")}>
 				<button
+					type="button"
 					className={concat(BASE_CLASSNAME, "action-button")}
 					onClick={handleNewConversation}
-					title="Start new conversation"
+					aria-label={`Start new conversation (${chatHotkeys.newConversation})`}
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -60,15 +94,17 @@ const Header: React.FC = () => {
 						strokeWidth="2"
 						strokeLinecap="round"
 						strokeLinejoin="round"
+						aria-hidden="true"
 					>
 						<path d="M12 5v14"></path>
 						<path d="M5 12h14"></path>
 					</svg>
 				</button>
 				<button
+					type="button"
 					className={concat(BASE_CLASSNAME, "action-button")}
 					onClick={toggleConversationSelector}
-					title="View conversation history"
+					aria-label={`View conversation history (${chatHotkeys.conversationHistory})`}
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -80,15 +116,17 @@ const Header: React.FC = () => {
 						strokeWidth="2"
 						strokeLinecap="round"
 						strokeLinejoin="round"
+						aria-hidden="true"
 					>
 						<circle cx="12" cy="12" r="10"></circle>
 						<polyline points="12 6 12 12 16 14"></polyline>
 					</svg>
 				</button>
 				<button
+					type="button"
 					className={concat(BASE_CLASSNAME, "action-button")}
-					onClick={handleClearChat}
-					title="Delete this conversation"
+					onClick={() => handleClearChat()}
+					aria-label={`Delete this conversation (${chatHotkeys.deleteConversation})`}
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -100,6 +138,7 @@ const Header: React.FC = () => {
 						strokeWidth="2"
 						strokeLinecap="round"
 						strokeLinejoin="round"
+						aria-hidden="true"
 					>
 						<path d="M3 6h18"></path>
 						<path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
