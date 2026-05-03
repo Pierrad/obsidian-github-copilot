@@ -94,10 +94,11 @@ export interface SendMessageResponse {
 export const sendMessage = async (
 	data: SendMessageRequest,
 	accessToken: string,
+	apiBaseUrl: string,
 ): Promise<SendMessageResponse> => {
 	try {
 		const response: RequestUrlResponse = await requestUrl({
-			url: "https://api.githubcopilot.com/chat/completions",
+			url: `${apiBaseUrl}/chat/completions`,
 			method: "POST",
 			headers: {
 				Accept: "*/*",

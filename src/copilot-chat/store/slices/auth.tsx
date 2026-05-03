@@ -11,12 +11,15 @@ import {
 	PATResponse,
 	TokenResponse,
 } from "../../api";
+import { getFallbackChatApiBaseUrl } from "../../api/urls";
 import Logger from "../../../helpers/Logger";
 
 export interface AuthSlice {
 	deviceCode: CopilotChatSettings["deviceCode"];
 	pat: CopilotChatSettings["pat"];
 	accessToken: CopilotChatSettings["accessToken"];
+	endpoints: TokenResponse["endpoints"] | null;
+	hostname: string | null;
 	isAuthenticated: boolean;
 	isLoadingDeviceCode: boolean;
 	isLoadingPAT: boolean;
@@ -26,6 +29,7 @@ export interface AuthSlice {
 
 	initAuthService: (plugin: CopilotPlugin) => Promise<void>;
 	checkAndRefreshToken: (plugin: CopilotPlugin) => Promise<string | null>;
+	getApiBaseUrl: (plugin: CopilotPlugin) => string;
 
 	setDeviceCode: (plugin: CopilotPlugin, code: string) => void;
 	setPAT: (plugin: CopilotPlugin, pat: string) => void;
@@ -73,6 +77,8 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 		token: null,
 		expiresAt: 0,
 	},
+	endpoints: null,
+	hostname: null,
 	isAuthenticated: false,
 	isLoadingDeviceCode: false,
 	isLoadingPAT: false,
@@ -126,6 +132,17 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 		// Load credentials from secure storage
 		await get().loadCredentialsFromSecureStorage(plugin);
 
+		// If hostname setting changed since credentials were stored, reset auth
+		const currentHostname = plugin.settings.githubEnterpriseHostname || "";
+		const storedHostname = get().hostname || "";
+		if (currentHostname !== storedHostname && get().pat) {
+			Logger.getInstance().log(
+				`[AuthSlice] Hostname changed from "${storedHostname}" to "${currentHostname}", resetting credentials.`,
+			);
+			await get().reset(plugin);
+			return;
+		}
+
 		// Check if token needs refreshing
 		const { pat, accessToken } = get();
 		if (
@@ -177,6 +194,16 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 		return accessToken.token;
 	},
 
+	getApiBaseUrl: (plugin: CopilotPlugin) => {
+		const { endpoints } = get();
+		if (endpoints?.api) {
+			return endpoints.api;
+		}
+		return getFallbackChatApiBaseUrl(
+			plugin.settings.githubEnterpriseHostname,
+		);
+	},
+
 	setDeviceCode: async (plugin: CopilotPlugin, code: string) => {
 		Logger.getInstance().log(`setDeviceCode ${code}`);
 
@@ -187,6 +214,8 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 			deviceCode: null,
 			pat: null,
 			accessToken: { token: null, expiresAt: null },
+			endpoints: null,
+			hostname: null,
 		};
 
 		const updatedCredentials = {
@@ -208,6 +237,8 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 			deviceCode: null,
 			pat: null,
 			accessToken: { token: null, expiresAt: null },
+			endpoints: null,
+			hostname: null,
 		};
 
 		const updatedCredentials = {
@@ -232,6 +263,8 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 			deviceCode: null,
 			pat: null,
 			accessToken: { token: null, expiresAt: null },
+			endpoints: null,
+			hostname: null,
 		};
 
 		const updatedCredentials = {
@@ -251,7 +284,8 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 		set({ isLoadingDeviceCode: true });
 
 		try {
-			const data = await fetchDeviceCode();
+			const hostname = plugin.settings.githubEnterpriseHostname || undefined;
+			const data = await fetchDeviceCode(hostname);
 			Logger.getInstance().log(
 				`Device code data ${JSON.stringify(data)}`,
 			);
@@ -273,7 +307,8 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 		set({ isLoadingPAT: true });
 
 		try {
-			const data = await fetchPAT(deviceCode);
+			const hostname = plugin.settings.githubEnterpriseHostname || undefined;
+			const data = await fetchPAT(deviceCode, hostname);
 			Logger.getInstance().log(`PAT data ${JSON.stringify(data)}`);
 
 			await get().setPAT(plugin, data.access_token);
@@ -296,12 +331,42 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 		set({ isLoadingToken: true });
 
 		try {
-			const data = await fetchToken(pat);
+			const hostname = plugin.settings.githubEnterpriseHostname || undefined;
+			const data = await fetchToken(pat, hostname);
 			Logger.getInstance().log(`Token data ${JSON.stringify(data)}`);
 
-			await get().setAccessToken(plugin, {
-				token: data.token,
-				expiresAt: data.expires_at,
+			// Store endpoints and hostname alongside token
+			const secureManager = SecureCredentialManager.getInstance();
+			const currentCredentials = (await secureManager.getCredentials(
+				plugin.app,
+			)) || {
+				deviceCode: null,
+				pat: null,
+				accessToken: { token: null, expiresAt: null },
+				endpoints: null,
+				hostname: null,
+			};
+
+			const updatedCredentials = {
+				...currentCredentials,
+				accessToken: {
+					token: data.token,
+					expiresAt: data.expires_at,
+				},
+				endpoints: data.endpoints,
+				hostname: plugin.settings.githubEnterpriseHostname || null,
+			};
+
+			await secureManager.storeCredentials(updatedCredentials, plugin.app);
+			set({
+				accessToken: {
+					token: data.token,
+					expiresAt: data.expires_at,
+				},
+				endpoints: data.endpoints,
+				hostname: plugin.settings.githubEnterpriseHostname || null,
+				isAuthenticated:
+					!!data.token && !isTokenExpired(data.expires_at),
 			});
 
 			return data;
@@ -328,6 +393,8 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 				token: null,
 				expiresAt: 0,
 			},
+			endpoints: null,
+			hostname: null,
 			isAuthenticated: false,
 			deviceCodeData: null,
 		});
@@ -358,6 +425,8 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 				token: null,
 				expiresAt: null,
 			},
+			endpoints: null,
+			hostname: null,
 		};
 
 		return await secureManager.migrateFromPlainText(credentialsToMigrate);
@@ -375,6 +444,8 @@ export const createAuthSlice: StateCreator<AuthSlice> = (set, get) => ({
 					token: null,
 					expiresAt: 0,
 				},
+				endpoints: credentials.endpoints || null,
+				hostname: credentials.hostname || null,
 				isAuthenticated: !!(
 					credentials.deviceCode &&
 					credentials.pat &&

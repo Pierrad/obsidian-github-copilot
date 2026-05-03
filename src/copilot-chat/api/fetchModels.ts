@@ -79,10 +79,11 @@ const toModelOptions = (response: unknown): ModelOption[] => {
 
 export const fetchModels = async (
 	accessToken: string,
+	apiBaseUrl: string,
 ): Promise<ModelOption[]> => {
 	try {
 		const response: RequestUrlResponse = await requestUrl({
-			url: "https://api.githubcopilot.com/models",
+			url: `${apiBaseUrl}/models`,
 			method: "GET",
 			headers: {
 				Accept: "application/json",

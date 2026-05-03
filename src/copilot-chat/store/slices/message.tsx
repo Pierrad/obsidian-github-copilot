@@ -34,9 +34,7 @@ export interface MessageSlice {
 	availableModels: ModelOption[];
 	reasoningEffort: ReasoningEffort;
 
-	initMessageService: (
-		plugin: CopilotPlugin | undefined,
-	) => Promise<void>;
+	initMessageService: (plugin: CopilotPlugin | undefined) => Promise<void>;
 	sendMessage: (
 		plugin: CopilotPlugin | undefined,
 		apiMessage: string,
@@ -92,7 +90,8 @@ export const createMessageSlice: StateCreator<
 		}
 
 		try {
-			const discoveredModels = await fetchModels(accessToken);
+			const apiBaseUrl = get().getApiBaseUrl(plugin);
+			const discoveredModels = await fetchModels(accessToken, apiBaseUrl);
 			const availableModels = mergeModelOptions(
 				defaultModels,
 				discoveredModels,
@@ -217,7 +216,12 @@ export const createMessageSlice: StateCreator<
 				messages: messages,
 			};
 
-			const response = await sendMessage(requestData, validToken);
+			const apiBaseUrl = get().getApiBaseUrl(plugin);
+			const response = await sendMessage(
+				requestData,
+				validToken,
+				apiBaseUrl,
+			);
 
 			if (response && response.choices && response.choices.length > 0) {
 				const assistantMessage: MessageData = {

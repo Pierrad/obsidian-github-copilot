@@ -1,4 +1,5 @@
 import { requestUrl, RequestUrlResponse } from "obsidian";
+import { getCopilotTokenUrl } from "./urls";
 
 export interface TokenResponse {
 	annotations_enabled: boolean;
@@ -35,11 +36,15 @@ export interface TokenResponse {
 /**
  * Fetch a Copilot access token using the Personal Access Token
  * @param pat The Personal Access Token obtained from GitHub
+ * @param hostname Optional GitHub Enterprise hostname
  * @returns Promise with the token data
  */
-export const fetchToken = async (pat: string): Promise<TokenResponse> => {
+export const fetchToken = async (
+	pat: string,
+	hostname?: string,
+): Promise<TokenResponse> => {
 	const response: RequestUrlResponse = await requestUrl({
-		url: "https://api.github.com/copilot_internal/v2/token",
+		url: getCopilotTokenUrl(hostname),
 		method: "GET",
 		headers: {
 			authorization: `token ${pat}`,

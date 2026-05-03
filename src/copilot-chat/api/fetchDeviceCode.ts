@@ -1,4 +1,5 @@
 import { requestUrl, RequestUrlResponse } from "obsidian";
+import { getDeviceCodeUrl } from "./urls";
 
 export interface DeviceCodeResponse {
 	device_code: string;
@@ -10,11 +11,14 @@ export interface DeviceCodeResponse {
 
 /**
  * Fetch a device code from GitHub's OAuth API
+ * @param hostname Optional GitHub Enterprise hostname
  * @returns Promise with the device code data
  */
-export const fetchDeviceCode = async (): Promise<DeviceCodeResponse> => {
+export const fetchDeviceCode = async (
+	hostname?: string,
+): Promise<DeviceCodeResponse> => {
 	const response: RequestUrlResponse = await requestUrl({
-		url: "https://github.com/login/device/code",
+		url: getDeviceCodeUrl(hostname),
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",

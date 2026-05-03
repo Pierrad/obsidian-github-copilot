@@ -50,6 +50,8 @@ class Client {
 				workspace: {
 					workspaceFolders: true,
 				},
+				// @ts-ignore
+				dynamicRegistration: true,
 			},
 			clientInfo: {
 				name: "ObsidianCopilot",
@@ -75,7 +77,7 @@ class Client {
 		});
 		await this.initialized();
 		await this.checkStatus();
-		// await this.setConfiguration();
+		await this.setConfiguration();
 		await this.setEditorInfo();
 	}
 
@@ -89,21 +91,22 @@ class Client {
 		await this.client.initialized();
 	}
 
-	private async setConfiguration(): Promise<void> {
-		await this.client.customRequest("workspace/didChangeConfiguration", {
-			settings: {
-				// http: {
-				// 	proxy: "http://localhost:8888",
-				// 	proxyStrictSSL: true,
-				// 	proxyKerberosServicePrincipal: "spn",
-				// },
-				telemetry: {
-					telemetryLevel: "off",
-				},
-				// "github-enterprise": {
-				// 	uri: "https://example.ghe.com",
-				// },
+	private setConfiguration(): void {
+		const settings: Record<string, unknown> = {
+			telemetry: {
+				telemetryLevel: "off",
 			},
+		};
+
+		const hostname = this.plugin.settings.githubEnterpriseHostname;
+		if (hostname) {
+			settings["github-enterprise"] = {
+				uri: `https://${hostname}`,
+			};
+		}
+
+		this.endpoint.notify("workspace/didChangeConfiguration", {
+			settings,
 		});
 	}
 

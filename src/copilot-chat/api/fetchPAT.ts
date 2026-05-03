@@ -1,4 +1,5 @@
 import { requestUrl, RequestUrlResponse } from "obsidian";
+import { getOAuthAccessTokenUrl } from "./urls";
 
 export interface PATResponse {
 	access_token: string;
@@ -9,11 +10,15 @@ export interface PATResponse {
 /**
  * Fetch a Personal Access Token using the device code
  * @param deviceCode The device code obtained from fetchDeviceCode
+ * @param hostname Optional GitHub Enterprise hostname
  * @returns Promise with the PAT data
  */
-export const fetchPAT = async (deviceCode: string): Promise<PATResponse> => {
+export const fetchPAT = async (
+	deviceCode: string,
+	hostname?: string,
+): Promise<PATResponse> => {
 	const response: RequestUrlResponse = await requestUrl({
-		url: "https://github.com/login/oauth/access_token",
+		url: getOAuthAccessTokenUrl(hostname),
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",

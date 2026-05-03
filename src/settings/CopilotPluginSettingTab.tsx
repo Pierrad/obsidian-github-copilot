@@ -17,6 +17,7 @@ import {
 	getPreferredDefaultModel,
 	ReasoningEffort,
 } from "../copilot-chat/models";
+import { normalizeHostname } from "../copilot-chat/api/urls";
 
 export interface SettingsObserver {
 	onSettingsUpdate(): Promise<void>;
@@ -73,6 +74,7 @@ export interface CopilotPluginSettings {
 	systemPrompt: string;
 	invertEnterSendBehavior: boolean;
 	extraCACerts?: string;
+	githubEnterpriseHostname?: string;
 	enableMarkdownRendering: boolean;
 	openChatOnStartup: boolean;
 }
@@ -119,6 +121,7 @@ export const DEFAULT_SETTINGS: CopilotPluginSettings = {
 		"You are GitHub Copilot, an AI assistant. You are helping the user with their tasks in Obsidian.",
 	invertEnterSendBehavior: false,
 	extraCACerts: "",
+	githubEnterpriseHostname: "",
 	enableMarkdownRendering: true,
 	openChatOnStartup: true,
 };
@@ -613,6 +616,32 @@ class CopilotPluginSettingTab extends PluginSettingTab {
 				</button>
 			</StrictMode>,
 		);
+
+		new Setting(containerEl).setName("Global Settings").setHeading();
+
+		new Setting(containerEl)
+			.setName("GitHub Enterprise hostname")
+			.setDesc(
+				"Custom GitHub Enterprise hostname (e.g. company.ghe.com). Leave blank to use github.com. Changing this requires re-authentication.",
+			)
+			.addText((text) =>
+				text
+					.setPlaceholder("company.ghe.com")
+					.setValue(
+						this.plugin.settings.githubEnterpriseHostname || "",
+					)
+					.onChange(
+						debounce(
+							async (value) => {
+								this.plugin.settings.githubEnterpriseHostname =
+									normalizeHostname(value.trim());
+								await this.saveSettings();
+							},
+							1000,
+							true,
+						),
+					),
+			);
 	}
 
 	public hide(): void {

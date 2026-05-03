@@ -19,6 +19,13 @@ export interface SecureCredentials {
 		token: string | null;
 		expiresAt: number | null;
 	};
+	endpoints?: {
+		api: string;
+		"origin-tracker": string;
+		proxy: string;
+		telemetry: string;
+	} | null;
+	hostname?: string | null;
 }
 
 class SecureCredentialManager {
